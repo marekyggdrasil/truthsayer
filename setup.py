@@ -21,6 +21,6 @@ setuptools.setup(
     include_package_data=True,
     package_data = {
         # If any package contains *.txt or *.rst files, include them:
-        '': ['assets/__init__.py', 'assets/*.png'],
+        '': ['assets/__init__.py', 'assets/*.png', 'assets/*.ttf'],
     }
 )
