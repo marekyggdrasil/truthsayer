@@ -10,7 +10,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     author = 'Marek Narozniak',
     author_email = '',
-    install_requires=['pillow', 'qrcode'],
+    install_requires=['pillow', 'qrcode', 'beautifulsoup4==4.8.1'],
     url = 'https://github.com/marekyggdrasil/arrakis',
     classifiers=[
         "Programming Language :: Python :: 3",
