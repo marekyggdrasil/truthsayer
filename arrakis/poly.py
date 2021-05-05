@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+from shapely.geometry import Polygon
 
 try:
     import importlib.resources as pkg_resources
@@ -35,3 +36,26 @@ def extract():
             center = tuple([x, y])
             areas['circles'][name] = center
     return areas
+
+
+def findIntersections(areas):
+    regions = []
+    locations = []
+    for r in areas['polygons'].keys():
+        if r[0] == 'R':
+            regions.append(r)
+        else:
+            locations.append(r)
+    locs = {}
+    for region in regions:
+        region_coords = areas['polygons'][region]
+        region_polygon = Polygon(region_coords)
+        for location in locations:
+            location_coords = areas['polygons'][location]
+            location_polygon = Polygon(location_coords)
+            if region_polygon.intersects(location_polygon):
+                if location not in locs.keys():
+                    locs[location] = []
+                locs[location].append(region)
+                locs[location] = list(set(locs[location]))
+    return locs
