@@ -1,5 +1,14 @@
+import random
+
 from bs4 import BeautifulSoup
+
 from shapely.geometry import Polygon, LineString
+from shapely.affinity import translate
+from shapely.geometry.point import Point
+
+from simpleai.search import SearchProblem
+from simpleai.search.traditional import greedy
+from simpleai.search.local import beam
 
 try:
     import importlib.resources as pkg_resources
@@ -92,3 +101,118 @@ def findCenters(areas, locations, skip=[]):
             centroid = location_polygon.centroid
             centers[location] = tuple([centroid.x, centroid.y])
     return centers
+
+
+def generate_random(number, polygon, centroid=False):
+    points = []
+    minx, miny, maxx, maxy = polygon.bounds
+    while len(points) < number:
+        pnt = Point(random.uniform(minx, maxx), random.uniform(miny, maxy))
+        if polygon.contains(pnt):
+            points.append(pnt)
+    if len(points) == 0:
+        return [polygon.centroid]
+    return points
+
+
+class TokenPlacementProblem(SearchProblem):
+    def __init__(self, polygons_maximize_overlap, polygons_avoid_overlap_areas, target_radius, tolerance=0.1, initial_state=None):
+        self.polygons_maximize_overlap = polygons_maximize_overlap
+        self.polygons_avoid_overlap_areas = polygons_avoid_overlap_areas
+        self.target_radius = target_radius
+        self.tolerance = tolerance
+        super().__init__(initial_state=initial_state)
+
+    def actions(self, state):
+        possible_actions = []
+        state_polygon = self.polygonize(state)
+        if state_polygon.intersects(self.polygons_maximize_overlap):
+            return list([(-5, -5), (-5, 0), (0, -5), (5, 5), (5, 0), (0, 5)])
+        else:
+            return []
+
+    def result(self, state, action):
+        xoff, yoff = action
+        x, y = state
+        # state_center = Point(x, y)
+        # state_polygon = state_center.buffer(self.target_radius)
+        # translated = translate(state, xoff=xoff, yoff=yoff, zoff=0.0)
+        return x+xoff, y+yoff
+
+    def polygonize(self, state):
+        x, y = state
+        state_center = Point(x, y)
+        return state_center.buffer(self.target_radius)
+
+    def is_goal(self, state):
+        state_polygon = self.polygonize(state)
+        for avoid in self.polygons_avoid_overlap_areas:
+            if state_polygon.intersection(avoid).area > self.tolerance:
+                return False
+        return True
+
+    def cost(self, state, action, state2):
+        return 1
+
+    def heuristic(self, state):
+        # how far are we from the goal?
+        bad = 0
+        state_polygon = self.polygonize(state)
+        for avoid in self.polygons_avoid_overlap_areas:
+            area = state_polygon.intersection(avoid).area
+            if area > self.tolerance:
+                bad += area
+        bad += state_polygon.area - state_polygon.intersection(self.polygons_maximize_overlap).area
+        # print(type(bad))
+        return bad
+
+    def generate_random_state(self):
+        state_center = generate_random(1, self.polygons_maximize_overlap, centroid=True)[0]
+        state = state_center.x, state_center.y
+        return state
+
+    def value(self, state):
+        # how good is this state?
+        return -self.heuristic(state)
+
+def placeToken(
+        areas,
+        locations,
+        location_regions,
+        target_location,
+        target_radius,
+        target_region=None,
+        avoid_leaders=[],
+        avoid_tokens=[],
+        avoid_spice=[],
+        radius_leader=90,
+        radius_token=45,
+        radius_spice=45):
+    polygons_maximize_overlap = Polygon(areas['polygons'][target_location])
+    if target_region is not None:
+        polygons_region = Polygon(areas['polygons'][target_region])
+        polygons_maximize_overlap = polygons_maximize_overlap.intersection(polygons_region)
+    avoid_overlap_areas = []
+    for x, y in avoid_leaders:
+        center = Point(x, y)
+        polygon_avoid_leader = center.buffer(radius_leader)
+        avoid_overlap_areas.append(polygon_avoid_leader)
+    for x, y in avoid_tokens:
+        center = Point(x, y)
+        polygon_avoid_token = center.buffer(radius_token)
+        avoid_overlap_areas.append(polygon_avoid_token)
+    for x, y in avoid_spice:
+        center = Point(x, y)
+        polygon_avoid_spice = center.buffer(radius_spice)
+        avoid_overlap_areas.append(polygon_avoid_spice)
+    state_center = generate_random(1, polygons_maximize_overlap, centroid=True)[0]
+    state = state_center.x, state_center.y
+    # state = state_center.buffer(target_radius)
+    # solve it
+    problem = TokenPlacementProblem(polygons_maximize_overlap, avoid_overlap_areas, target_radius, tolerance=0.1, initial_state=state)
+    # result = greedy(problem, graph_search=False, viewer=None)
+    result = beam(problem, beam_size=20, iterations_limit=20)
+    # solution = result.state
+    # centroid = solution.centroid
+    # return tuple([centroid.x, centroid.y])
+    return result.state

@@ -25,7 +25,7 @@ def makeQR(data, box_size=4, border=4):
     return qr_code
 
 
-def generate(factions, tanks, territories, texts, outfile, quality=95):
+def generate(factions, tanks, territories, dead_leaders, texts, outfile, quality=95):
     leader_size = 90
     filename = pkg_resources.open_binary(assets, 'map.png')
     canvas = Image.open(filename)
@@ -107,6 +107,17 @@ def generate(factions, tanks, territories, texts, outfile, quality=95):
             x_info = 5
             y_info = int(height_canvas/2)+dy+int(width_token/2)
         d.text((x_info, y_info), texts['usernames'][i], font=fnt, fill='white')
+    # dead leaders in the tleilaxu_tanks
+    for x, y, disc_filename in dead_leaders:
+        filename = pkg_resources.open_binary(assets, disc_filename)
+        token = Image.open(filename)
+        token = token.convert('RGBA')
+        token = token.resize((leader_size, leader_size), Image.ANTIALIAS)
+        width_token, height_token = token.size
+        dx = int(width_token/2)
+        dy = int(height_token/2)
+        box_target = (x-dx, y-dy, x+dx, y+dy)
+        canvas.paste(token, box_target, mask=token)
     # game info
     reg = 2*math.pi/18
     angle = (-3*2+4)*reg+reg/2
