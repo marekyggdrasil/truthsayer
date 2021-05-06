@@ -22,7 +22,7 @@ generateNeighborhood(centers, locations, neighbors, location_regions, outfile, q
 
 renders
 
-![arrakis_cartography](https://github.com/marekyggdrasil/arrakis/blob/master/images/cartography.jpg?raw=true)
+![arrakis_cartography](https://github.com/marekyggdrasil/arrakis/blob/main/images/cartography.jpg?raw=true)
 
 ## Credits
 
