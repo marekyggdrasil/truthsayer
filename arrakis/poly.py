@@ -38,18 +38,19 @@ def extract():
     return areas
 
 
-def getRegionsLocations(areas):
+def getRegionsLocations(areas, skip=[]):
     regions = []
     locations = []
     for r in areas['polygons'].keys():
-        if r[0] == 'R':
-            regions.append(r)
-        else:
-            locations.append(r)
+        if locations not in skip:
+            if r[0] == 'R':
+                regions.append(r)
+            else:
+                locations.append(r)
     return regions, locations
 
 
-def findIntersections(areas, regions, locations):
+def findIntersections(areas, regions, locations, threshold=400):
     locs = {}
     for region in regions:
         region_coords = areas['polygons'][region]
@@ -57,7 +58,7 @@ def findIntersections(areas, regions, locations):
         for location in locations:
             location_coords = areas['polygons'][location]
             location_polygon = Polygon(location_coords)
-            if region_polygon.intersects(location_polygon):
+            if region_polygon.intersection(location_polygon).area > threshold:
                 if location not in locs.keys():
                     locs[location] = []
                 locs[location].append(region)
@@ -80,3 +81,14 @@ def findNeighboring(areas, regions, locations, skip=[]):
                     if loc1_polygon.intersects(loc2_polygon):
                         neighbors.append(tuple([loc1, loc2]))
     return neighbors
+
+
+def findCenters(areas, locations, skip=[]):
+    centers = {}
+    for location in locations:
+        if location not in skip:
+            location_coords = areas['polygons'][location]
+            location_polygon = Polygon(location_coords)
+            centroid = location_polygon.centroid
+            centers[location] = tuple([centroid.x, centroid.y])
+    return centers

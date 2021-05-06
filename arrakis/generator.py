@@ -100,3 +100,59 @@ def generate(factions, tanks, territories, texts, outfile, quality=95):
     canvas = canvas.convert('RGB')
     canvas.save(outfile, quality=quality)
     del canvas
+
+
+def generateNeighborhood(centers, locations, neighbors, regions, outfile, quality=95, skip=[]):
+    dl = 10
+    filename = pkg_resources.open_binary(assets, 'map.png')
+    canvas = Image.open(filename)
+    canvas = canvas.convert('RGBA')
+    width_canvas, height_canvas = canvas.size
+    del filename
+    filename = pkg_resources.open_binary(assets, 'FreeSans.ttf')
+    fnt = ImageFont.truetype(filename, 25)
+    del filename
+    # drawing layer
+    layer = Image.new('RGBA', canvas.size, (255, 255, 255, 0))
+    draw = ImageDraw.Draw(layer)
+    # region markings
+    for i in range(18):
+        r = int((width_canvas/2)-25)
+        reg = 2*math.pi/18
+        angle = (-i+5)*reg+reg/2
+        dx = int(r*math.cos(angle))
+        dy = int(r*math.sin(angle))
+        x = int(width_canvas/2)+dx
+        y = int(height_canvas/2)+dy
+        draw.text((x, y), 'R'+str(i+1), font=fnt, fill='white', anchor='ms')
+    # mark centers
+    for location in locations:
+        if location in skip:
+            continue
+        x, y = centers[location]
+        x = int(x)
+        y = int(y)
+        draw.ellipse((x-dl, y-dl, x+dl, y+dl), fill='blue', outline='blue')
+        if location in regions.keys():
+            regs = regions[location]
+            txt = ', '.join(regs)
+            if location == 'polar_sink':
+                txt = 'neutral'
+            draw.text((x, y+3*dl), txt, font=fnt, fill='green', anchor='ms')
+    # mark neighbors
+    for (loc1, loc2) in neighbors:
+        if loc1 in skip or loc2 in skip:
+            continue
+        x1, y1 = centers[loc1]
+        x1 = int(x1)
+        y1 = int(y1)
+        x2, y2 = centers[loc2]
+        x2 = int(x2)
+        y2 = int(y2)
+        draw.line((x1, y1, x2, y2), fill='blue', width=2)
+    # compose the text layer
+    canvas = Image.alpha_composite(canvas, layer)
+    # remove alpha
+    canvas = canvas.convert('RGB')
+    canvas.save(outfile, quality=quality)
+    del canvas
