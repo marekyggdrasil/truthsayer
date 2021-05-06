@@ -47,6 +47,26 @@ def generate(factions, tanks, territories, texts, outfile, quality=95):
         canvas.paste(qr_code, (pos_qr_x, pos_qr_y))
         d.text((pos_qr_x, height_canvas - 40), texts['promo'] + '\n' + texts['qr'], font=fnt, fill='white')
         d.text((pos_qr_x, height_canvas - height_qr - 40 - 20), texts['promo_top'], font=fnt, fill='white')
+    # region markings
+    for i in range(18):
+        color = 'black'
+        r = int((width_canvas/2)-70)
+        if i not in [12, 13]:
+            r += 40
+            color = 'white'
+        if 6 < i < 16:
+            r -= 10
+        reg = 2*math.pi/18
+        angle = (-i+5)*reg
+        if i in [2, 4, 10, 13]:
+            angle += reg/7
+        else:
+            angle += 6*reg/7
+        dx = int(r*math.cos(angle))
+        dy = int(r*math.sin(angle))
+        x = int(width_canvas/2)+dx-4
+        y = int(height_canvas/2)+dy
+        d.text((x, y), 'R'+str(i+1), font=fnt, fill=color, anchor='ms')
     # faction info around the map of Arrakis
     for i, faction in enumerate(factions):
         # faction token
