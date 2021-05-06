@@ -20,6 +20,10 @@ outfile = 'images/cartography.jpg'
 generateNeighborhood(centers, locations, neighbors, location_regions, outfile, quality=95, skip=['arrakis'])
 ```
 
+renders
+
+![arrakis_cartography](https://github.com/marekyggdrasil/arrakis/master/images/cartography.jpg)
+
 ## Credits
 
 Game assets from [Sorvan's website](http://www.sorvan.com/games/dune/).
