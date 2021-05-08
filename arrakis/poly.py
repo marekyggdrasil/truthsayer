@@ -197,6 +197,7 @@ def placeToken(
         target_location,
         target_radius,
         target_region=None,
+        background=None,
         avoid_leaders=[],
         avoid_tokens=[],
         avoid_spice=[],
@@ -211,6 +212,10 @@ def placeToken(
         polygons_region = Polygon(areas['polygons'][target_region])
         polygons_maximize_overlap = polygons_maximize_overlap.intersection(polygons_region)
     avoid_overlap_areas = []
+    if background is not None:
+        back = Polygon(background)
+        difference = back.difference(polygons_maximize_overlap)
+        avoid_overlap_areas.append(difference)
     for x, y in avoid_leaders:
         center = Point(x, y)
         polygon_avoid_leader = center.buffer(radius_leader)
