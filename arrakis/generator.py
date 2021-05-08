@@ -25,121 +25,147 @@ def makeQR(data, box_size=4, border=4):
     return qr_code
 
 
-def calculateFactionLeadersPositions(width_canvas, height_canvas, width_token, height_token):
-    positions = []
-    for i in range(18):
-        r = int((width_canvas/2)-50)
-        if i in [1, 2, 4, 5]:
-            r += 20
-        reg = 2*math.pi/18
-        angle = (-3*i+4)*reg+reg/2
-        dx = int(r*math.cos(angle))
-        dy = int(r*math.sin(angle))
-        x = int(width_canvas/2)+dx-int(width_token/2)
-        y = int(height_canvas/2)+dy-int(height_token/2)
-        positions.append(tuple([x, y]))
-    return positions
+class Renderer:
+    def __init__(self, factions, texts, outfile, dead_leaders=[], leader_size=90, quality=95):
+        self.leader_size = leader_size
+        self.factions = factions
+        self.texts = texts
+        self.dead_leaders = dead_leaders
+        self.outfile = outfile
+        self.quality = quality
+        # prepare canvas
+        self.prepareCanvas()
+        # prepare data
+        self.factions_positions = self.calculateFactionLeadersPositions()
 
-
-def generate(factions, tanks, territories, dead_leaders, texts, outfile, quality=95):
-    leader_size = 90
-    filename = pkg_resources.open_binary(assets, 'map.png')
-    canvas = Image.open(filename)
-    canvas = canvas.convert('RGBA')
-    width_canvas, height_canvas = canvas.size
-    del filename
-    # text layer
-    txt = Image.new('RGBA', canvas.size, (255,255,255,0))
-    d = ImageDraw.Draw(txt)
-    filename = pkg_resources.open_binary(assets, 'FreeSans.ttf')
-    fnt = ImageFont.truetype(filename, 15)
-    del filename
-    # images
-    if texts.get('qr', None) is not None:
-        qr_code = makeQR(texts['qr'])
-        width_qr, height_qr = qr_code.size
-        pos_qr_x = 20
-        pos_qr_y = int(height_canvas - height_qr - 40)
-        canvas.paste(qr_code, (pos_qr_x, pos_qr_y))
-        d.text((pos_qr_x, height_canvas - 40), texts['promo'] + '\n' + texts['qr'], font=fnt, fill='white')
-        d.text((pos_qr_x, height_canvas - height_qr - 40 - 20), texts['promo_top'], font=fnt, fill='white')
-    # region markings
-    for i in range(18):
-        color = 'black'
-        r = int((width_canvas/2)-70)
-        if i not in [12, 13]:
-            r += 40
-            color = 'white'
-        if 6 < i < 16:
-            r -= 10
-        reg = 2*math.pi/18
-        angle = (-i+5)*reg
-        if i in [2, 4, 10, 13]:
-            angle += reg/7
-        else:
-            angle += 6*reg/7
-        dx = int(r*math.cos(angle))
-        dy = int(r*math.sin(angle))
-        x = int(width_canvas/2)+dx-4
-        y = int(height_canvas/2)+dy
-        d.text((x, y), 'R'+str(i+1), font=fnt, fill=color, anchor='ms')
-    # faction info around the map of Arrakis
-    factions_positions = calculateFactionLeadersPositions(width_canvas, height_canvas, leader_size, leader_size)
-    for i, (faction, (x, y)) in enumerate(zip(factions, factions_positions)):
-        # faction token
-        filename = pkg_resources.open_binary(assets, faction)
-        token = Image.open(filename)
-        token = token.convert('RGBA')
-        width_token, height_token = token.size
-        token = token.resize((leader_size, leader_size), Image.ANTIALIAS)
-        width_token, height_token = token.size
+    def prepareCanvas(self):
+        filename = pkg_resources.open_binary(assets, 'map.png')
+        self.canvas = Image.open(filename)
+        self.canvas = self.canvas.convert('RGBA')
+        self.width_canvas, self.height_canvas = self.canvas.size
         del filename
-        box_target = (x, y, x+width_token, y+height_token)
-        canvas.paste(token, box_target, mask=token)
-        # faction text info
-        x_info = 0
-        y_info = 0
-        if i == 0:
-            x_info = int(width_canvas/2)+dx+int(width_token/2) + 5
-            y_info = y + 40
-        if i == 3:
-            x_info = int(width_canvas/2)+dx+int(width_token/2) + 5
-            y_info = y + 5
-        if i in [1, 5]:
-            x_info = x
-            y_info = int(height_canvas/2)+dy+int(width_token/2)
-        if i == 2:
-            x_info = x
-            y_info = int(height_canvas/2)+dy-int(width_token/2)-20-20
-        if i == 4:
-            x_info = 5
-            y_info = int(height_canvas/2)+dy+int(width_token/2)
-        d.text((x_info, y_info), texts['usernames'][i], font=fnt, fill='white')
-    # dead leaders in the tleilaxu_tanks
-    for x, y, disc_filename in dead_leaders:
-        filename = pkg_resources.open_binary(assets, disc_filename)
-        token = Image.open(filename)
-        token = token.convert('RGBA')
-        token = token.resize((leader_size, leader_size), Image.ANTIALIAS)
-        width_token, height_token = token.size
-        dx = int(width_token/2)
-        dy = int(height_token/2)
-        box_target = (x-dx, y-dy, x+dx, y+dy)
-        canvas.paste(token, box_target, mask=token)
-    # game info
-    reg = 2*math.pi/18
-    angle = (-3*2+4)*reg+reg/2
-    dx = int(r*math.cos(angle))
-    x_info = int(width_canvas/2)+dx-int(width_token/2)
-    y_info = 110
-    d.text((x_info, y_info), texts['game_info'], font=fnt, fill='white')
-    # compose the text layer
-    canvas = Image.alpha_composite(canvas, txt)
-    # remove alpha
-    canvas = canvas.convert('RGB')
-    canvas.save(outfile, quality=quality)
-    del canvas
+        # text layer
+        self.txt = Image.new('RGBA', self.canvas.size, (255,255,255,0))
+        self.d = ImageDraw.Draw(self.txt)
+        filename = pkg_resources.open_binary(assets, 'FreeSans.ttf')
+        self.fnt = ImageFont.truetype(filename, 15)
+        del filename
 
+    def calculateFactionLeadersPositions(self):
+        positions = []
+        for i in range(18):
+            self.leader_r = int((self.width_canvas/2)-50)
+            if i in [1, 2, 4, 5]:
+                self.leader_r += 20
+            reg = 2*math.pi/18
+            angle = (-3*i+4)*reg+reg/2
+            dx = int(self.leader_r*math.cos(angle))
+            dy = int(self.leader_r*math.sin(angle))
+            x = int(self.width_canvas/2)+dx-int(self.leader_size/2)
+            y = int(self.height_canvas/2)+dy-int(self.leader_size/2)
+            positions.append(tuple([x, y]))
+        return positions
+
+    def renderQR(self):
+        if self.texts.get('qr', None) is None:
+            return None
+        qr_code = makeQR(self.texts['qr'])
+        self.width_qr, self.height_qr = qr_code.size
+        self.pos_qr_x = 20
+        self.pos_qr_y = int(self.height_canvas - self.height_qr - 40)
+        self.canvas.paste(qr_code, (self.pos_qr_x, self.pos_qr_y))
+        self.d.text((self.pos_qr_x, self.height_canvas - 40), self.texts['promo'] + '\n' + self.texts['qr'], font=self.fnt, fill='white')
+        self.d.text((self.pos_qr_x, self.height_canvas - self.height_qr - 40 - 20), self.texts['promo_top'], font=self.fnt, fill='white')
+
+    def renderRegionMarks(self):
+        # region markings
+        for i in range(18):
+            color = 'black'
+            r = int((self.width_canvas/2)-70)
+            if i not in [12, 13]:
+                r += 40
+                color = 'white'
+            if 6 < i < 16:
+                r -= 10
+            reg = 2*math.pi/18
+            angle = (-i+5)*reg
+            if i in [2, 4, 10, 13]:
+                angle += reg/7
+            else:
+                angle += 6*reg/7
+            dx = int(r*math.cos(angle))
+            dy = int(r*math.sin(angle))
+            x = int(self.width_canvas/2)+dx-4
+            y = int(self.height_canvas/2)+dy
+            self.d.text((x, y), 'R'+str(i+1), font=self.fnt, fill=color, anchor='ms')
+
+    def renderFactionPositions(self):
+        # faction info around the map of Arrakis
+        for i, (faction, (x, y)) in enumerate(zip(self.factions, self.factions_positions)):
+            # faction token
+            filename = pkg_resources.open_binary(assets, faction)
+            token = Image.open(filename)
+            token = token.convert('RGBA')
+            width_token, height_token = token.size
+            token = token.resize((self.leader_size, self.leader_size), Image.ANTIALIAS)
+            width_token, height_token = token.size
+            del filename
+            box_target = (x, y, x+width_token, y+height_token)
+            self.canvas.paste(token, box_target, mask=token)
+            # faction text info
+            x_info = 0
+            y_info = 0
+            if i == 0:
+                x_info = x + width_token + 5
+                y_info = y + 40
+            if i == 3:
+                x_info = x + width_token + 5
+                y_info = y + 5
+            if i in [1, 5]:
+                x_info = x
+                y_info = y + width_token
+            if i == 2:
+                x_info = x
+                y_info = y + width_token - 20 - 20
+            if i == 4:
+                x_info = 5
+                y_info = y + width_token
+            self.d.text((x_info, y_info), self.texts['usernames'][i], font=self.fnt, fill='white')
+
+    def renderTleilaxuTanks(self):
+        # dead leaders in the tleilaxu_tanks
+        for x, y, disc_filename in self.dead_leaders:
+            filename = pkg_resources.open_binary(assets, disc_filename)
+            token = Image.open(filename)
+            token = token.convert('RGBA')
+            token = token.resize((self.leader_size, self.leader_size), Image.ANTIALIAS)
+            width_token, height_token = token.size
+            dx = int(self.leader_size/2)
+            dy = int(self.leader_size/2)
+            box_target = (x-dx, y-dy, x+dx, y+dy)
+            self.canvas.paste(token, box_target, mask=token)
+
+    def renderGameInfo(self):
+        # game info
+        reg = 2*math.pi/18
+        angle = (-3*2+4)*reg+reg/2
+        dx = int(self.leader_r*math.cos(angle))
+        x_info = int(self.width_canvas/2)+dx-int(self.leader_size/2)
+        y_info = 110
+        self.d.text((x_info, y_info), self.texts['game_info'], font=self.fnt, fill='white')
+
+    def render(self):
+        self.renderQR()
+        self.renderRegionMarks()
+        self.renderFactionPositions()
+        self.renderTleilaxuTanks()
+        self.renderGameInfo()
+        # compose the text layer
+        self.canvas = Image.alpha_composite(self.canvas, self.txt)
+        # remove alpha
+        self.canvas = self.canvas.convert('RGB')
+        self.canvas.save(self.outfile, quality=self.quality)
+        del self.canvas
 
 def generateNeighborhood(centers, locations, neighbors, regions, outfile, quality=95, skip=[]):
     dl = 10
