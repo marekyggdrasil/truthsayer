@@ -211,6 +211,7 @@ def placeToken(
         avoid_leaders=[],
         avoid_tokens=[],
         avoid_spice=[],
+        avoid_zones=[],
         radius_leader=90,
         radius_token=45,
         radius_spice=45):
@@ -231,6 +232,9 @@ def placeToken(
         center = Point(x, y)
         polygon_avoid_spice = center.buffer(radius_spice)
         avoid_overlap_areas.append(polygon_avoid_spice)
+    for coords in avoid_zones:
+        zone = Polygon(coords)
+        avoid_overlap_areas.append(zone)
     state_center = generate_random(1, polygons_maximize_overlap, centroid=True)[0]
     state = state_center.x, state_center.y
     # state = state_center.buffer(target_radius)
