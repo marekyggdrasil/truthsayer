@@ -1,4 +1,5 @@
 import random
+import math
 
 from bs4 import BeautifulSoup
 
@@ -8,7 +9,7 @@ from shapely.geometry.point import Point
 
 from simpleai.search import SearchProblem
 from simpleai.search.traditional import greedy
-from simpleai.search.local import beam, genetic
+from simpleai.search.local import beam, genetic, simulated_annealing
 
 try:
     import importlib.resources as pkg_resources
@@ -161,8 +162,8 @@ class TokenPlacementProblem(SearchProblem):
         for avoid in self.polygons_avoid_overlap_areas:
             area = state_polygon.intersection(avoid).area
             if area > self.tolerance:
-                bad += area / state_polygon.area
-        bad += (state_polygon.area - state_polygon.intersection(self.polygons_maximize_overlap).area) / state_polygon.area
+                bad += area**2
+        bad -= state_polygon.intersection(self.polygons_maximize_overlap).area
         return bad
 
     def crossover(self, state1, state2):
@@ -240,10 +241,11 @@ def placeToken(
     state = state_center.x, state_center.y
     # state = state_center.buffer(target_radius)
     # solve it
-    problem = TokenPlacementProblem(polygons_maximize_overlap, avoid_overlap_areas, target_radius, tolerance=0.1, initial_state=state)
+    problem = TokenPlacementProblem(polygons_maximize_overlap, avoid_overlap_areas, target_radius, tolerance=0.0, initial_state=state)
     # result = greedy(problem, graph_search=False, viewer=None)
     # result = beam(problem, beam_size=20, iterations_limit=20)
-    result = genetic(problem, population_size=200, mutation_chance=0.25, iterations_limit=0)
+    # result = genetic(problem, population_size=200, mutation_chance=0.25, iterations_limit=5)
+    result = simulated_annealing(problem, iterations_limit=400)
     # solution = result.state
     # centroid = solution.centroid
     # return tuple([centroid.x, centroid.y])
