@@ -126,7 +126,7 @@ class Renderer:
                 y_info = y + width_token
             if i == 2:
                 x_info = x
-                y_info = y + width_token - 20 - 20
+                y_info = y - 20 - 20
             if i == 4:
                 x_info = 5
                 y_info = y + width_token
