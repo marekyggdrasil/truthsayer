@@ -25,6 +25,22 @@ def makeQR(data, box_size=4, border=4):
     return qr_code
 
 
+def calculateFactionLeadersPositions(width_canvas, height_canvas, width_token, height_token):
+    positions = []
+    for i in range(18):
+        r = int((width_canvas/2)-50)
+        if i in [1, 2, 4, 5]:
+            r += 20
+        reg = 2*math.pi/18
+        angle = (-3*i+4)*reg+reg/2
+        dx = int(r*math.cos(angle))
+        dy = int(r*math.sin(angle))
+        x = int(width_canvas/2)+dx-int(width_token/2)
+        y = int(height_canvas/2)+dy-int(height_token/2)
+        positions.append(tuple([x, y]))
+    return positions
+
+
 def generate(factions, tanks, territories, dead_leaders, texts, outfile, quality=95):
     leader_size = 90
     filename = pkg_resources.open_binary(assets, 'map.png')
@@ -68,7 +84,8 @@ def generate(factions, tanks, territories, dead_leaders, texts, outfile, quality
         y = int(height_canvas/2)+dy
         d.text((x, y), 'R'+str(i+1), font=fnt, fill=color, anchor='ms')
     # faction info around the map of Arrakis
-    for i, faction in enumerate(factions):
+    factions_positions = calculateFactionLeadersPositions(width_canvas, height_canvas, leader_size, leader_size)
+    for i, (faction, (x, y)) in enumerate(zip(factions, factions_positions)):
         # faction token
         filename = pkg_resources.open_binary(assets, faction)
         token = Image.open(filename)
@@ -77,15 +94,6 @@ def generate(factions, tanks, territories, dead_leaders, texts, outfile, quality
         token = token.resize((leader_size, leader_size), Image.ANTIALIAS)
         width_token, height_token = token.size
         del filename
-        r = int((width_canvas/2)-50)
-        if i in [1, 2, 4, 5]:
-            r += 20
-        reg = 2*math.pi/18
-        angle = (-3*i+4)*reg+reg/2
-        dx = int(r*math.cos(angle))
-        dy = int(r*math.sin(angle))
-        x = int(width_canvas/2)+dx-int(width_token/2)
-        y = int(height_canvas/2)+dy-int(height_token/2)
         box_target = (x, y, x+width_token, y+height_token)
         canvas.paste(token, box_target, mask=token)
         # faction text info
