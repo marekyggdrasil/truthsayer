@@ -8,7 +8,7 @@ from shapely.geometry.point import Point
 
 from simpleai.search import SearchProblem
 from simpleai.search.traditional import greedy
-from simpleai.search.local import beam
+from simpleai.search.local import beam, genetic
 
 try:
     import importlib.resources as pkg_resources
@@ -161,10 +161,25 @@ class TokenPlacementProblem(SearchProblem):
         for avoid in self.polygons_avoid_overlap_areas:
             area = state_polygon.intersection(avoid).area
             if area > self.tolerance:
-                bad += area
-        bad += state_polygon.area - state_polygon.intersection(self.polygons_maximize_overlap).area
+                bad += area / state_polygon.area
+        bad += (state_polygon.area - state_polygon.intersection(self.polygons_maximize_overlap).area) / state_polygon.area
         # print(type(bad))
         return bad
+
+    def crossover(self, state1, state2):
+        x1, y1 = state1
+        x2, y2 = state2
+        xc, yc = (x1+x2)/2, (y1+y2)/2
+        child = xc, yc
+        return child
+
+    def mutate(self, state):
+        # cross both strings, at a random point
+        x, y = state
+        xm = x + random.randint(0, 10)
+        ym = y + random.randint(0, 10)
+        mutated = xm, ym
+        return mutated
 
     def generate_random_state(self):
         state_center = generate_random(1, self.polygons_maximize_overlap, centroid=True)[0]
@@ -211,7 +226,8 @@ def placeToken(
     # solve it
     problem = TokenPlacementProblem(polygons_maximize_overlap, avoid_overlap_areas, target_radius, tolerance=0.1, initial_state=state)
     # result = greedy(problem, graph_search=False, viewer=None)
-    result = beam(problem, beam_size=20, iterations_limit=20)
+    # result = beam(problem, beam_size=20, iterations_limit=20)
+    result = genetic(problem, population_size=200, mutation_chance=0.25, iterations_limit=0)
     # solution = result.state
     # centroid = solution.centroid
     # return tuple([centroid.x, centroid.y])
