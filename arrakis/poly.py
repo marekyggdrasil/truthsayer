@@ -121,7 +121,6 @@ class TokenPlacementProblem(SearchProblem):
         self.polygons_avoid_overlap_areas = polygons_avoid_overlap_areas
         self.target_radius = target_radius
         self.tolerance = tolerance
-        self.calculateNegativeRegions()
         super().__init__(initial_state=initial_state)
 
     def actions(self, state):
@@ -164,18 +163,7 @@ class TokenPlacementProblem(SearchProblem):
             if area > self.tolerance:
                 bad += area / state_polygon.area
         bad += (state_polygon.area - state_polygon.intersection(self.polygons_maximize_overlap).area) / state_polygon.area
-        bad += self.overlapOutside(state_polygon) / state_polygon.area
         return bad
-
-    def calculateNegativeRegions(self, edge=1000):
-        self.left = Polygon([(-edge, -edge), (0, -edge), (0, edge), (-edge, edge)])
-        self.up = Polygon([(-edge, -edge), (2*edge, -edge), (2*edge, 0), (-edge, 0)])
-        # TODO define remaining regions
-
-    def overlapOutside(self, state_polygon):
-        overlap_left = state_polygon.intersection(self.left).area
-        overlap_up = state_polygon.intersection(self.up).area
-        return overlap_left + overlap_up
 
     def crossover(self, state1, state2):
         x1, y1 = state1
@@ -214,7 +202,9 @@ def placeToken(
         avoid_zones=[],
         radius_leader=90,
         radius_token=45,
-        radius_spice=45):
+        radius_spice=45,
+        w=1000,
+        h=1000):
     polygons_maximize_overlap = Polygon(areas['polygons'][target_location])
     if target_region is not None:
         polygons_region = Polygon(areas['polygons'][target_region])
@@ -235,6 +225,17 @@ def placeToken(
     for coords in avoid_zones:
         zone = Polygon(coords)
         avoid_overlap_areas.append(zone)
+    # outside regions
+    tw = 2*target_radius
+    th = 2*target_radius
+    avoid_overlap_areas.append(Polygon(
+        [(-tw, 0), (0, 0), (0, h+th), (-tw, h+th)]))
+    avoid_overlap_areas.append(Polygon(
+        [(0, h), (w+tw, h), (w+tw, h+th), (0, h+th)]))
+    avoid_overlap_areas.append(Polygon(
+        [(w, -th), (w+tw, -th), (w+tw, h), (w, h)]))
+    avoid_overlap_areas.append(Polygon(
+        [(-tw, -th), (w, -th), (w, 0), (-tw, 0)]))
     state_center = generate_random(1, polygons_maximize_overlap, centroid=True)[0]
     state = state_center.x, state_center.y
     # state = state_center.buffer(target_radius)
