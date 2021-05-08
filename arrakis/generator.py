@@ -26,11 +26,14 @@ def makeQR(data, box_size=4, border=4):
 
 
 class Renderer:
-    def __init__(self, factions, texts, outfile, dead_leaders=[], leader_size=90, quality=95):
+    def __init__(self, factions, texts, outfile, troop_tokens=[], dead_leaders=[], troop_edge=7, troop_size=46, leader_size=90, quality=95):
+        self.troop_edge = troop_edge
+        self.troop_size = troop_size
         self.leader_size = leader_size
         self.factions = factions
         self.texts = texts
         self.dead_leaders = dead_leaders
+        self.troop_tokens = troop_tokens
         self.outfile = outfile
         self.quality = quality
         # prepare canvas
@@ -50,6 +53,45 @@ class Renderer:
         filename = pkg_resources.open_binary(assets, 'FreeSans.ttf')
         self.fnt = ImageFont.truetype(filename, 15)
         del filename
+        filename = pkg_resources.open_binary(assets, 'RobotoCondensed-Bold.ttf')
+        self.fnt_troop = ImageFont.truetype(filename, 22)
+        del filename
+
+    def renderTroop(self, x, y, faction, number):
+        colors = {
+            'spiritual_advisor': '#274587',
+            'bene_gesserit_troops': '#274587',
+            'atreides_troops': '#306C3D',
+            'harkonnen_troops': '#000000',
+            'emperor_troops': '#ED3337',
+            'sardaukar': '#ED3337',
+            'spacing_guild_troops': '#E8552C',
+            'fremen_troops': '#FEC64B',
+            'fedaykin': '#FEC64B'
+        }
+        fill = colors.get(faction, 'blue')
+        box = (
+            x-self.troop_size/2,
+            y-self.troop_size/2,
+            x+self.troop_size/2,
+            y+self.troop_size/2)
+        self.d.ellipse(box, fill=fill, outline ='black', width=2)
+        text_fill = 'white'
+        if faction in ['spiritual_advisor', 'sardaukar', 'fedaykin']:
+            text_fill = 'black'
+            box = (
+                x-self.troop_size/2+self.troop_edge,
+                y-self.troop_size/2+self.troop_edge,
+                x+self.troop_size/2-self.troop_edge,
+                y+self.troop_size/2-self.troop_edge)
+            self.d.ellipse(box, fill='white', outline ='black', width=2)
+        text = str(number)
+        w, h = self.fnt_troop.getsize(text)
+        self.d.text((x, y+h/2-2), text, font=self.fnt_troop, fill=text_fill, anchor='ms')
+
+    def renderTroops(self):
+        for x, y, faction, number in self.troop_tokens:
+            self.renderTroop(x, y, faction, number)
 
     def calculateFactionLeadersPositions(self):
         positions = []
@@ -159,6 +201,7 @@ class Renderer:
         self.renderRegionMarks()
         self.renderFactionPositions()
         self.renderTleilaxuTanks()
+        self.renderTroops()
         self.renderGameInfo()
         # compose the text layer
         self.canvas = Image.alpha_composite(self.canvas, self.txt)

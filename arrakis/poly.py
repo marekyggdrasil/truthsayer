@@ -202,8 +202,8 @@ def placeToken(
         avoid_spice=[],
         avoid_zones=[],
         radius_leader=90,
-        radius_token=45,
-        radius_spice=45,
+        radius_token=46,
+        radius_spice=46,
         w=1000,
         h=1000):
     polygons_maximize_overlap = Polygon(areas['polygons'][target_location])
