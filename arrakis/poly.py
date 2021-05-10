@@ -11,6 +11,11 @@ from simpleai.search import SearchProblem
 from simpleai.search.traditional import greedy
 from simpleai.search.local import beam, genetic, simulated_annealing
 
+from KnapsackPacking.problem_solution import Item, Container, Problem, Solution
+from KnapsackPacking.shape_functions import get_bounding_rectangle_center
+
+import KnapsackPacking.evolutionary as evolutionary
+
 try:
     import importlib.resources as pkg_resources
 except ImportError:
@@ -255,3 +260,38 @@ def placeToken(
     # centroid = solution.centroid
     # return tuple([centroid.x, centroid.y])
     return result.state
+
+
+def placeTokenKnapsack(
+        areas,
+        locations,
+        location_regions,
+        target_locations,
+        target_radii,
+        target_region=None,
+        background=None,
+        avoid_leaders=[],
+        avoid_tokens=[],
+        avoid_spice=[],
+        avoid_zones=[],
+        radius_leader=90,
+        radius_token=46,
+        radius_spice=46,
+        w=1000,
+        h=1000):
+    polygons_maximize_overlap = Polygon(areas['polygons'][target_locations[0]])
+    centroid = polygons_maximize_overlap.centroid
+    if target_region is not None:
+        polygons_region = Polygon(areas['polygons'][target_region])
+        polygons_maximize_overlap = polygons_maximize_overlap.intersection(polygons_region)
+    max_weight = 120.
+    container = Container(max_weight, polygons_maximize_overlap)
+    items = [Item(Point(centroid.x, centroid.y).buffer(target_radius), 40., 50.) for target_radius in target_radii]
+    problem = Problem(container, items)
+    solution = evolutionary.solve_problem(problem)
+    positions = []
+    for key, value in solution.placed_items.items():
+        shape_center = value.position
+        positions.append(shape_center)
+    print(positions)
+    return positions
