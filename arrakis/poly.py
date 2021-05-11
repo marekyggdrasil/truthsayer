@@ -1,5 +1,8 @@
 import random
 import math
+import pareto
+
+from itertools import compress
 
 from bs4 import BeautifulSoup
 
@@ -9,12 +12,7 @@ from shapely.geometry.point import Point
 
 from simpleai.search import SearchProblem
 from simpleai.search.traditional import greedy
-from simpleai.search.local import beam, genetic, simulated_annealing
-
-from KnapsackPacking.problem_solution import Item, Container, Problem, Solution
-from KnapsackPacking.shape_functions import get_bounding_rectangle_center
-
-import KnapsackPacking.evolutionary as evolutionary
+from simpleai.search.local import beam, genetic, hill_climbing_stochastic, simulated_annealing
 
 try:
     import importlib.resources as pkg_resources
@@ -109,16 +107,76 @@ def findCenters(areas, locations, skip=[]):
     return centers
 
 
-def generate_random(number, polygon, centroid=False):
+def generate_random(number, polygon, tolerance=0.1, target_radius=None, centroid=False):
     points = []
+    # print(polygon.bounds)
     minx, miny, maxx, maxy = polygon.bounds
     while len(points) < number:
         pnt = Point(random.uniform(minx, maxx), random.uniform(miny, maxy))
+        if target_radius is not None:
+            pnt.buffer(target_radius)
         if polygon.contains(pnt):
-            points.append(pnt)
+            if target_radius is not None:
+                pnt_area = math.pi*(target_radius**2)
+                ratio = polygon.intersection(pnt).area/pnt_area
+                if ratio < pnt.area*(1-tolerance):
+                    diffx = (pnt.x-centroid.x)
+                    diffy = (pnt.y-centroid.y)
+                    m = diffy/diffx
+                    x = pnt.x+ratio*diffx
+                    pnt2 = Point(x, m*x+centroid.y)
+                    pnt2.buffer(target_radius)
+                    points.append(pnt2)
+                else:
+                    points.append(pnt)
+            else:
+                points.append(pnt)
+    # print(len(points))
     if len(points) == 0:
-        return [polygon.centroid]
+        pnt = polygon.centrod
+        if target_radius is not None:
+            pnt.buffer(target_radius)
+        return [pnt]
+    # print(points[0])
     return points
+
+
+def grid_solver(grad, target_radius, polygon, polygons_avoid, tolerance_covering=0.8, tolerance_collision=0.1, max_sols=5):
+    minx, miny, maxx, maxy = polygon.bounds
+    x_res = list(range(int((maxx-minx-target_radius/2)/grad)))
+    y_res = list(range(int((maxy-miny-target_radius/2)/grad)))
+    random.shuffle(x_res)
+    random.shuffle(y_res)
+    best_covering = 0
+    best_collisions = float('inf')
+    solutions = []
+    solutions_candidates = []
+    for x_idx in x_res:
+        for y_idx in y_res:
+            x_cor = minx + grad*x_idx + target_radius/2
+            y_cor = miny + grad*y_idx + target_radius/2
+            candidate = Point(x_cor, y_cor).buffer(target_radius)
+            area_covering = polygon.intersection(candidate).area
+            if area_covering < tolerance_covering*candidate.area:
+                continue
+            area_collision = 0
+            for avoid in polygons_avoid:
+                area_collision += avoid.intersection(candidate).area
+            if area_collision > tolerance_collision*candidate.area:
+                continue
+            solutions.append(tuple([area_covering, area_collision]))
+            solutions_candidates.append(tuple([x_cor, y_cor]))
+            if len(solutions_candidates) == max_sols:
+                break
+        else:
+            continue  # only executed if the inner loop did NOT break
+        break  # only executed if the inner loop DID break
+    if len(solutions) == 0:
+        return []
+    nondominated = pareto.flag_nondominated(solutions, objectives=[0, 1], maximize=[0])
+    nondominated_indices = list(compress(range(len(nondominated)), nondominated))
+    nondominated_candidates = [solutions_candidates[j] for j in nondominated_indices]
+    return nondominated_candidates
 
 
 class TokenPlacementProblem(SearchProblem):
@@ -127,22 +185,30 @@ class TokenPlacementProblem(SearchProblem):
         self.polygons_avoid_overlap_areas = polygons_avoid_overlap_areas
         self.target_radius = target_radius
         self.tolerance = tolerance
+        if initial_state is None:
+            initial_state = self.generate_random_state()
         super().__init__(initial_state=initial_state)
 
     def actions(self, state):
         possible_actions = []
         state_polygon = self.polygonize(state)
-        if state_polygon.intersects(self.polygons_maximize_overlap):
-            return list([(-5, -5), (-5, 0), (0, -5), (5, 5), (5, 0), (0, 5)])
-        else:
-            return []
+        centroid = self.polygons_maximize_overlap.centroid
+        ox, oy = centroid.x, centroid.y
+        px, py = state
+        angles = [math.pi*i/12 for i in range(1, 25)]
+        rotations = [
+            tuple([math.cos(angle)*(px-ox)-math.sin(angle)*(py-oy), math.sin(angle)*(px-ox)+math.cos(angle)*(py-oy)]) for angle in angles]
+        if px-ox > 1:
+            m = (py-oy)/(px-ox)
+            trs = [-60, -40, -20, -10, -5, 5, 10, 20, 40, 60]
+            translations = [(x, m*x+oy) for x in trs]
+            return rotations + translations
+        return rotations
 
     def result(self, state, action):
         xoff, yoff = action
-        x, y = state
-        # state_center = Point(x, y)
-        # state_polygon = state_center.buffer(self.target_radius)
-        # translated = translate(state, xoff=xoff, yoff=yoff, zoff=0.0)
+        centroid = self.polygons_maximize_overlap.centroid
+        x, y = centroid.x, centroid.y
         return x+xoff, y+yoff
 
     def polygonize(self, state):
@@ -150,40 +216,37 @@ class TokenPlacementProblem(SearchProblem):
         state_center = Point(x, y)
         return state_center.buffer(self.target_radius)
 
-    def is_goal(self, state):
-        state_polygon = self.polygonize(state)
-        for avoid in self.polygons_avoid_overlap_areas:
-            if state_polygon.intersection(avoid).area > self.tolerance:
-                return False
-        return True
-
-    def cost(self, state, action, state2):
-        return 1
-
     def heuristic(self, state):
         # how far are we from the goal?
         bad = 0
         state_polygon = self.polygonize(state)
         for avoid in self.polygons_avoid_overlap_areas:
             area = state_polygon.intersection(avoid).area
-            if area > self.tolerance:
-                bad += area**2
-        bad -= state_polygon.intersection(self.polygons_maximize_overlap).area
+            bad += area**3
+        overlap = (state_polygon.intersection(self.polygons_maximize_overlap).area)
+        if overlap < state_polygon.area - self.tolerance:
+            centroid = self.polygons_maximize_overlap.centroid
+            px, py = state
+            ox, oy = centroid.x, centroid.y
+            bad += ((px - ox)**2 + (py - oy)**2)**5
+        else:
+            bad -= overlap
         return bad
 
     def crossover(self, state1, state2):
         x1, y1 = state1
         x2, y2 = state2
-        xc, yc = (x1+x2)/2, (y1+y2)/2
-        child = xc, yc
-        return child
+        rnd = random.random()
+        if rnd < 0.5:
+            return x1, y2
+        else:
+            return x2, y1
 
     def mutate(self, state):
         # cross both strings, at a random point
-        x, y = state
-        xm = x + random.randint(0, 10)
-        ym = y + random.randint(0, 10)
-        mutated = xm, ym
+        actions = self.actions(state)
+        action = random.sample(actions, 1)[0]
+        mutated = self.result(state, action)
         return mutated
 
     def generate_random_state(self):
@@ -194,6 +257,15 @@ class TokenPlacementProblem(SearchProblem):
     def value(self, state):
         # how good is this state?
         return -self.heuristic(state)
+
+
+def howbad(state_polygon, polygons_maximize_overlap, polygons_avoid_overlap_areas, tolerance=0.1):
+    # how far are we from the goal?
+    bad = 0
+    for avoid in polygons_avoid_overlap_areas:
+        area = state_polygon.intersection(avoid).area
+        bad += area
+    return bad
 
 def placeToken(
         areas,
@@ -225,73 +297,49 @@ def placeToken(
         center = Point(x, y)
         polygon_avoid_leader = center.buffer(radius_leader)
         avoid_overlap_areas.append(polygon_avoid_leader)
+        # polygons_maximize_overlap.difference(polygon_avoid_leader)
     for x, y in avoid_tokens:
         center = Point(x, y)
         polygon_avoid_token = center.buffer(radius_token)
         avoid_overlap_areas.append(polygon_avoid_token)
+        # polygons_maximize_overlap.difference(polygon_avoid_token)
     for x, y in avoid_spice:
         center = Point(x, y)
         polygon_avoid_spice = center.buffer(radius_spice)
         avoid_overlap_areas.append(polygon_avoid_spice)
+        # polygons_maximize_overlap.difference(polygon_avoid_spice)
     for coords in avoid_zones:
         zone = Polygon(coords)
         avoid_overlap_areas.append(zone)
-    # outside regions
-    tw = 2*target_radius
-    th = 2*target_radius
-    avoid_overlap_areas.append(Polygon(
-        [(-tw, 0), (0, 0), (0, h+th), (-tw, h+th)]))
-    avoid_overlap_areas.append(Polygon(
-        [(0, h), (w+tw, h), (w+tw, h+th), (0, h+th)]))
-    avoid_overlap_areas.append(Polygon(
-        [(w, -th), (w+tw, -th), (w+tw, h), (w, h)]))
-    avoid_overlap_areas.append(Polygon(
-        [(-tw, -th), (w, -th), (w, 0), (-tw, 0)]))
-    state_center = generate_random(1, polygons_maximize_overlap, centroid=True)[0]
-    state = state_center.x, state_center.y
+        # polygons_maximize_overlap = polygons_maximize_overlap.difference(zone)
+    '''
+    for tolerance_covering in [0.9, 0.8, 0.7, 0.6, 0.5]:
+        for tolerance_collision in [0.1, 0.2, 0.3, 0.4, 0.5]:
+            candidates = grid_solver(5, target_radius, polygons_maximize_overlap, avoid_overlap_areas)
+            if len(candidates) > 0:
+                candidate = random.sample(candidates, 1)[0]
+                return candidate
+    '''
+    '''
+    best = float('inf')
+    best_candidate = None
+    for i in range(2000):
+        candidate_polygon = generate_random(1, polygons_maximize_overlap, target_radius=target_radius, tolerance=0.9, centroid=True)[0]
+        bad = howbad(candidate_polygon, polygons_maximize_overlap, avoid_overlap_areas, tolerance=0.0)
+        if bad < best:
+            best_candidate = candidate_polygon
+    return best_candidate.centroid.x, best_candidate.centroid.y
+    '''
     # state = state_center.buffer(target_radius)
     # solve it
-    problem = TokenPlacementProblem(polygons_maximize_overlap, avoid_overlap_areas, target_radius, tolerance=0.0, initial_state=state)
+    problem = TokenPlacementProblem(polygons_maximize_overlap, avoid_overlap_areas, target_radius, tolerance=0.01)
+    # return problem.generate_random_state()
     # result = greedy(problem, graph_search=False, viewer=None)
     # result = beam(problem, beam_size=20, iterations_limit=20)
-    # result = genetic(problem, population_size=200, mutation_chance=0.25, iterations_limit=5)
-    result = simulated_annealing(problem, iterations_limit=400)
+    result = genetic(problem, population_size=75, mutation_chance=0.15, iterations_limit=120)
+    # result = simulated_annealing(problem, iterations_limit=120)
+    # result = hill_climbing_stochastic(problem, iterations_limit=120)
     # solution = result.state
     # centroid = solution.centroid
     # return tuple([centroid.x, centroid.y])
     return result.state
-
-
-def placeTokenKnapsack(
-        areas,
-        locations,
-        location_regions,
-        target_locations,
-        target_radii,
-        target_region=None,
-        background=None,
-        avoid_leaders=[],
-        avoid_tokens=[],
-        avoid_spice=[],
-        avoid_zones=[],
-        radius_leader=90,
-        radius_token=46,
-        radius_spice=46,
-        w=1000,
-        h=1000):
-    polygons_maximize_overlap = Polygon(areas['polygons'][target_locations[0]])
-    centroid = polygons_maximize_overlap.centroid
-    if target_region is not None:
-        polygons_region = Polygon(areas['polygons'][target_region])
-        polygons_maximize_overlap = polygons_maximize_overlap.intersection(polygons_region)
-    max_weight = 120.
-    container = Container(max_weight, polygons_maximize_overlap)
-    items = [Item(Point(centroid.x, centroid.y).buffer(target_radius), 40., 50.) for target_radius in target_radii]
-    problem = Problem(container, items)
-    solution = evolutionary.solve_problem(problem)
-    positions = []
-    for key, value in solution.placed_items.items():
-        shape_center = value.position
-        positions.append(shape_center)
-    print(positions)
-    return positions
