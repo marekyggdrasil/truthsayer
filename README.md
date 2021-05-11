@@ -64,3 +64,5 @@ renders
 Game assets from [Sorvan's website](http://www.sorvan.com/games/dune/).
 
 For vectorizing regions on the map we used the [summerstyle editor](https://summerstyle.github.io/summer/#).
+
+For creating transparency on the battle wheels used [online png tools](https://onlinepngtools.com/create-transparent-png).
