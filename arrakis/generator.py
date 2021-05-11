@@ -210,6 +210,29 @@ class Renderer:
         self.canvas.save(self.outfile, quality=self.quality)
         del self.canvas
 
+
+def placeSpice(canvas, d, amount, x, y, outfile, spice_size=46, quality=95):
+    filename = pkg_resources.open_binary(assets, 'light_lens_flare.png')
+    token = Image.open(filename)
+    token = token.convert('RGBA')
+    width_token, height_token = token.size
+    token = token.resize((spice_size, spice_size), Image.ANTIALIAS)
+    width_token, height_token = token.size
+    del filename
+    filename = pkg_resources.open_binary(assets, 'RobotoCondensed-Bold.ttf')
+    fnt_troop = ImageFont.truetype(filename, 22)
+    del filename
+    box_target = (
+        int(x-width_token/2),
+        int(y-width_token/2),
+        int(x+width_token/2),
+        int(y+height_token/2))
+    canvas.paste(token, box_target, mask=token)
+    text = str(amount)
+    w, h = fnt_troop.getsize(text)
+    d.text((x+w/4, y+h/2), text, font=fnt_troop, fill='black', anchor='ms')
+
+
 def generateNeighborhood(centers, locations, neighbors, regions, outfile, quality=95, skip=[]):
     dl = 10
     filename = pkg_resources.open_binary(assets, 'map.png')
