@@ -26,14 +26,16 @@ def makeQR(data, box_size=4, border=4):
 
 
 class Renderer:
-    def __init__(self, factions, texts, outfile, troop_tokens=[], dead_leaders=[], troop_edge=7, troop_size=46, leader_size=90, quality=95):
-        self.troop_edge = troop_edge
-        self.troop_size = troop_size
-        self.leader_size = leader_size
-        self.factions = factions
-        self.texts = texts
-        self.dead_leaders = dead_leaders
-        self.troop_tokens = troop_tokens
+    def __init__(self, game_state, game_config, outfile, troop_tokens=[], dead_leaders=[], quality=95):
+        self.game_state = game_state
+        self.game_config = game_config
+        self.troop_edge = game_config['static']['dimensions']['troop_edge']
+        self.troop_size = game_config['static']['dimensions']['troop']
+        self.leader_size = game_config['static']['dimensions']['leader']
+        self.factions = game_state['meta']['factions']
+        self.texts = game_state['meta']['texts']
+        self.dead_leaders = dead_leaders # TODO
+        self.troop_tokens = troop_tokens # TODO
         self.outfile = outfile
         self.quality = quality
         # prepare canvas
