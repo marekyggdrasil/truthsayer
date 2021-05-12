@@ -5,6 +5,38 @@ from simpleai.search import SearchProblem
 from poly import generate_random
 
 
+def rotateAboutPoint(ox, oy, px, py, angle):
+    nx = ox + math.cos(angle)*(px-ox)-math.sin(angle)*(py-oy)
+    ny = oy + math.sin(angle)*(px-ox)+math.cos(angle)*(py-oy)
+    return nx, ny
+
+
+def shiftFromPoint(ox, oy, px, py, delta):
+    if -1 < px-ox < 1:
+        # slope is practically vertical in px dimensions
+        return px, px + delta
+    m = (py-oy)/(px-ox)
+    nx = px + delta
+    ny = py + m*delta + oy
+    return nx, ny
+
+
+def distance(ox, oy, px, py):
+    return math.sqrt((ox-px)**2+(oy-py)**2)
+
+
+def mutant(state, polygon):
+    ox, oy = polygon.centroid.x, polygon.centroid.y
+    px, py = state
+    rnd = random.random()
+    if rnd < 0.5:
+        angle = 2*math.pi*random.random()
+        return rotateAboutPoint(ox, oy, px, py, angle)
+    else:
+        delta = (1 if random.random() < 0.5 else -1)*random.random()*distance(ox, oy, px, py)
+        return shiftFromPoint(ox, oy, px, py, delta)
+
+
 class TokenPlacementProblem(SearchProblem):
     def __init__(self, polygons_maximize_overlap, polygons_avoid_overlap_areas, target_radius, tolerance=0.1, initial_state=None):
         self.polygons_maximize_overlap = polygons_maximize_overlap
@@ -14,28 +46,6 @@ class TokenPlacementProblem(SearchProblem):
         if initial_state is None:
             initial_state = self.generate_random_state()
         super().__init__(initial_state=initial_state)
-
-    def actions(self, state):
-        possible_actions = []
-        state_polygon = self.polygonize(state)
-        centroid = self.polygons_maximize_overlap.centroid
-        ox, oy = centroid.x, centroid.y
-        px, py = state
-        angles = [math.pi*i/12 for i in range(1, 25)]
-        rotations = [
-            tuple([math.cos(angle)*(px-ox)-math.sin(angle)*(py-oy), math.sin(angle)*(px-ox)+math.cos(angle)*(py-oy)]) for angle in angles]
-        if px-ox > 1:
-            m = (py-oy)/(px-ox)
-            trs = [-60, -40, -20, -10, -5, 5, 10, 20, 40, 60]
-            translations = [(x, m*x+oy) for x in trs]
-            return rotations + translations
-        return rotations
-
-    def result(self, state, action):
-        xoff, yoff = action
-        centroid = self.polygons_maximize_overlap.centroid
-        x, y = centroid.x, centroid.y
-        return x+xoff, y+yoff
 
     def polygonize(self, state):
         x, y = state
@@ -69,15 +79,84 @@ class TokenPlacementProblem(SearchProblem):
             return x2, y1
 
     def mutate(self, state):
-        # cross both strings, at a random point
-        actions = self.actions(state)
-        action = random.sample(actions, 1)[0]
-        mutated = self.result(state, action)
-        return mutated
+        return mutant(state, self.polygons_maximize_overlap)
 
     def generate_random_state(self):
         state_center = generate_random(1, self.polygons_maximize_overlap, centroid=True)[0]
         state = state_center.x, state_center.y
+        return state
+
+    def value(self, state):
+        # how good is this state?
+        return -self.heuristic(state)
+
+
+class MultiTokenPlacementProblem(SearchProblem):
+    def __init__(self, polygons_maximize_overlap, polygons_avoid_overlap_areas, target_radii, tolerance=0.1, initial_state=None):
+        self.N = len(target_radii)
+        self.polygons_maximize_overlap = polygons_maximize_overlap
+        self.polygons_avoid_overlap_areas = polygons_avoid_overlap_areas
+        self.target_radii = target_radii
+        self.tolerance = tolerance
+        if initial_state is None:
+            initial_state = self.generate_random_state()
+        super().__init__(initial_state=initial_state)
+
+    def polygonize(self, state):
+        x, y = state
+        state_center = Point(x, y)
+        return state_center.buffer(self.target_radius)
+
+    # slow, but not meant to be used for more than
+    # N=2 or N=3 polygons simultaneously
+    def heuristic(self, state):
+        # how far are we from the goal?
+        bad = 0
+        for j in range(self.N):
+            px, py = state[2*j], state[2*j+1]
+            state_polygon = self.polygonize((px, py))
+            for avoid in self.polygons_avoid_overlap_areas:
+                area = state_polygon.intersection(avoid).area
+                bad += area**3
+            overlap = (state_polygon.intersection(self.polygons_maximize_overlap).area)
+            if overlap < state_polygon.area - self.tolerance:
+                centroid = self.polygons_maximize_overlap.centroid
+                ox, oy = centroid.x, centroid.y
+                bad += ((px - ox)**2 + (py - oy)**2)**5
+            else:
+                bad -= overlap
+        return bad
+
+    def crossover(self, mother, father):
+        x1, y1 = state1
+        x2, y2 = state2
+        rnd = random.random()
+        child = list(mother)
+        # how much inherited from father?
+        N = random.randint(1, self.N)
+        charm = random.sample(list(range(self.N)), N)
+        for j in charm:
+            child[2*j] = father[2*j]
+            child[2*j+1] = father[2*j+1]
+        return child
+
+    def mutate(self, state):
+        N = random.randint(1, self.N)
+        xmen = random.sample(list(range(self.N)), N)
+        mutated = list(state)
+        for j in xmen:
+            px, py = state[2*j], state[2*j+1]
+            nx, ny = mutant((px, py), self.polygons_maximize_overlap)
+            mutated[2*j] = nx
+            mutated[2*j+1] = ny
+        return mutated
+
+    def generate_random_state(self):
+        state_centers = generate_random(self.N, self.polygons_maximize_overlap, centroid=True)[0]
+        state = []
+        for state_center in state_centers:
+            state.append(state_center.x)
+            state.append(state_center.y)
         return state
 
     def value(self, state):
