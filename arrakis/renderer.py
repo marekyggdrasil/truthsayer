@@ -29,9 +29,9 @@ class Renderer:
     def __init__(self, game_state, game_config, outfile, troop_tokens=[], dead_leaders=[], quality=95):
         self.game_state = game_state
         self.game_config = game_config
-        self.troop_edge = game_config['static']['dimensions']['troop_edge']
-        self.troop_size = game_config['static']['dimensions']['troop']
-        self.leader_size = game_config['static']['dimensions']['leader']
+        self.troop_edge = game_config['dimensions']['troop_edge']
+        self.troop_size = game_config['dimensions']['troop']
+        self.leader_size = game_config['dimensions']['leader']
         self.factions = game_state['meta']['factions']
         self.texts = game_state['meta']['texts']
         self.dead_leaders = dead_leaders # TODO
@@ -145,36 +145,44 @@ class Renderer:
 
     def renderFactionPositions(self):
         # faction info around the map of Arrakis
-        for i, (faction, (x, y)) in enumerate(zip(self.factions, self.factions_positions)):
-            # faction token
-            filename = pkg_resources.open_binary(assets, faction)
+        for i in range(1, 7):
+            area_name = 'player_{0}'.format(str(i))
+            token_name = self.game_state['visual'].get(area_name, None)
+            if token_name is None:
+                continue
+            filename = pkg_resources.open_binary(assets, token_name)
             token = Image.open(filename)
             token = token.convert('RGBA')
             width_token, height_token = token.size
             token = token.resize((self.leader_size, self.leader_size), Image.ANTIALIAS)
             width_token, height_token = token.size
             del filename
-            box_target = (x, y, x+width_token, y+height_token)
+            x, y = self.game_config['generated']['areas']['circles'][area_name]
+            if i == 1:
+                y -= 15
+            half_width = int(width_token/2)
+            half_height = int(height_token/2)
+            box_target = (x-half_width, y-half_height, x+half_width, y+half_height)
             self.canvas.paste(token, box_target, mask=token)
             # faction text info
             x_info = 0
             y_info = 0
-            if i == 0:
-                x_info = x + width_token + 5
-                y_info = y + 40
-            if i == 3:
-                x_info = x + width_token + 5
+            if i == 1:
+                x_info = x + half_width + 5
+                y_info = y
+            if i == 4:
+                x_info = x + half_width + 5
                 y_info = y + 5
-            if i in [1, 5]:
+            if i in [2, 6]:
                 x_info = x
-                y_info = y + width_token
-            if i == 2:
+                y_info = y + half_width
+            if i == 3:
                 x_info = x
                 y_info = y - 20 - 20
             if i == 4:
                 x_info = 5
-                y_info = y + width_token
-            self.d.text((x_info, y_info), self.texts['usernames'][i], font=self.fnt, fill='white')
+                y_info = y + half_width
+            self.d.text((x_info, y_info), self.texts['usernames'][area_name], font=self.fnt, fill='white')
 
     def renderTleilaxuTanks(self):
         # dead leaders in the tleilaxu_tanks
@@ -199,12 +207,12 @@ class Renderer:
         self.d.text((x_info, y_info), self.texts['game_info'], font=self.fnt, fill='white')
 
     def render(self):
-        self.renderQR()
-        self.renderRegionMarks()
+        # self.renderQR()
+        # self.renderRegionMarks()
         self.renderFactionPositions()
-        self.renderTleilaxuTanks()
-        self.renderTroops()
-        self.renderGameInfo()
+        # self.renderTleilaxuTanks()
+        # self.renderTroops()
+        # self.renderGameInfo()
         # compose the text layer
         self.canvas = Image.alpha_composite(self.canvas, self.txt)
         # remove alpha
