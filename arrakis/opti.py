@@ -2,7 +2,7 @@ import math
 
 from simpleai.search import SearchProblem
 
-from poly import generate_random
+from arrakis.poly import generate_random
 
 
 def rotateAboutPoint(ox, oy, px, py, angle):

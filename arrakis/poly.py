@@ -19,7 +19,6 @@ except ImportError:
     import importlib_resources as pkg_resources
 
 from arrakis import assets
-from opti import TokenPlacementProblem
 
 def extract():
     coordinates_file = pkg_resources.read_text(assets, 'arrakis.html')
@@ -105,6 +104,23 @@ def findCenters(areas, locations, skip=[]):
     return centers
 
 
+def findStorm(areas):
+    centers, xs, ys = [], 0, 0
+    for i in range(1, 7):
+        key = 'player_{0}'.format(str(i))
+        player = areas['circles'][key]
+        x, y = player
+        centers.append(player)
+        xs += x
+        ys += y
+    cx, cy = xs/6, ys/6
+    r = 0
+    for x, y in centers:
+        r += math.sqrt((cx-x)**2+(cy-y)**2)
+    r /= 6
+    return cx, cy, r
+
+
 def generate_random(number, polygon, centroid=False):
     points = []
     minx, miny, maxx, maxy = polygon.bounds
@@ -118,6 +134,7 @@ def generate_random(number, polygon, centroid=False):
     return points
 
 
+'''
 def placeToken(
         areas,
         locations,
@@ -162,3 +179,4 @@ def placeToken(
     problem = TokenPlacementProblem(polygons_maximize_overlap, avoid_overlap_areas, target_radius, tolerance=0.01)
     result = genetic(problem, population_size=75, mutation_chance=0.15, iterations_limit=120)
     return result.state
+'''
