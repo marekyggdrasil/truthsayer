@@ -32,6 +32,7 @@ class Renderer:
         self.troop_edge = game_config['dimensions']['troop_edge']
         self.troop_size = game_config['dimensions']['troop']
         self.leader_size = game_config['dimensions']['leader']
+        self.spice_size = game_config['dimensions']['spice']
         self.factions = game_state['meta']['factions']
         self.texts = game_state['meta']['texts']
         self.dead_leaders = dead_leaders # TODO
@@ -218,6 +219,7 @@ class Renderer:
         # self.renderTleilaxuTanks()
         # self.renderTroops()
         # self.renderGameInfo()
+        self.placeSpice()
         # compose the text layer
         self.canvas = Image.alpha_composite(self.canvas, self.txt)
         # remove alpha
@@ -226,26 +228,31 @@ class Renderer:
         del self.canvas
 
 
-def placeSpice(canvas, d, amount, x, y, outfile, spice_size=46, quality=95):
-    filename = pkg_resources.open_binary(assets, 'light_lens_flare.png')
-    token = Image.open(filename)
-    token = token.convert('RGBA')
-    width_token, height_token = token.size
-    token = token.resize((spice_size, spice_size), Image.ANTIALIAS)
-    width_token, height_token = token.size
-    del filename
-    filename = pkg_resources.open_binary(assets, 'RobotoCondensed-Bold.ttf')
-    fnt_troop = ImageFont.truetype(filename, 22)
-    del filename
-    box_target = (
-        int(x-width_token/2),
-        int(y-width_token/2),
-        int(x+width_token/2),
-        int(y+height_token/2))
-    canvas.paste(token, box_target, mask=token)
-    text = str(amount)
-    w, h = fnt_troop.getsize(text)
-    d.text((x+w/4, y+h/2), text, font=fnt_troop, fill='black', anchor='ms')
+    def placeSpice(self):
+        filename = pkg_resources.open_binary(assets, 'light_lens_flare.png')
+        token = Image.open(filename)
+        token = token.convert('RGBA')
+        width_token, height_token = token.size
+        token = token.resize((self.spice_size, self.spice_size), Image.ANTIALIAS)
+        width_token, height_token = token.size
+        del filename
+        filename = pkg_resources.open_binary(assets, 'RobotoCondensed-Bold.ttf')
+        fnt_troop = ImageFont.truetype(filename, 22)
+        del filename
+        half_width = int(width_token/2)
+        half_height = int(height_token/2)
+        for area_name, amount in self.game_state['visual'].items():
+            if area_name.endswith('_spice'):
+                x, y = self.game_config['generated']['areas']['circles'][area_name]
+                box_target = (
+                    int(x-width_token/2),
+                    int(y-width_token/2),
+                    int(x+width_token/2),
+                    int(y+height_token/2))
+                self.canvas.paste(token, box_target, mask=token)
+                text = str(amount)
+                w, h = fnt_troop.getsize(text)
+                self.d.text((x+w/4, y+h/2), text, font=self.fnt_troop, fill='black', anchor='ms')
 
 
 def generateNeighborhood(centers, locations, neighbors, regions, outfile, quality=95, skip=[]):
