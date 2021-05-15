@@ -158,10 +158,12 @@ class Renderer:
             width_token, height_token = token.size
             del filename
             x, y = self.game_config['generated']['areas']['circles'][area_name]
-            if i == 1:
-                y -= 15
             half_width = int(width_token/2)
             half_height = int(height_token/2)
+            if y - half_height < 0:
+                y += half_height - y
+            elif y + half_height > self.height_canvas:
+                y -= (y + half_height) - self.height_canvas
             box_target = (x-half_width, y-half_height, x+half_width, y+half_height)
             self.canvas.paste(token, box_target, mask=token)
             # faction text info
@@ -172,14 +174,17 @@ class Renderer:
                 y_info = y
             if i == 4:
                 x_info = x + half_width + 5
-                y_info = y + 5
-            if i in [2, 6]:
-                x_info = x
+                y_info = 5
+            if i == 2:
+                x_info = x - half_width
+                y_info = y + half_width
+            if i == 6:
+                x_info = x - width_token
                 y_info = y + half_width
             if i == 3:
-                x_info = x
-                y_info = y - 20 - 20
-            if i == 4:
+                x_info = x - half_width
+                y_info = y - half_height - 20 - 20
+            if i == 5:
                 x_info = 5
                 y_info = y + half_width
             self.d.text((x_info, y_info), self.texts['usernames'][area_name], font=self.fnt, fill='white')
