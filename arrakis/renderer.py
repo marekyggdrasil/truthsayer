@@ -219,6 +219,7 @@ class Renderer:
         # self.renderTleilaxuTanks()
         # self.renderTroops()
         # self.renderGameInfo()
+        self.placeStorm()
         self.placeSpice()
         # compose the text layer
         self.canvas = Image.alpha_composite(self.canvas, self.txt)
@@ -226,7 +227,6 @@ class Renderer:
         self.canvas = self.canvas.convert('RGB')
         self.canvas.save(self.outfile, quality=self.quality)
         del self.canvas
-
 
     def placeSpice(self):
         filename = pkg_resources.open_binary(assets, 'light_lens_flare.png')
@@ -254,6 +254,31 @@ class Renderer:
                 w, h = fnt_troop.getsize(text)
                 self.d.text((x+w/4, y+h/2), text, font=self.fnt_troop, fill='black', anchor='ms')
 
+    def placeStorm(self):
+        storm_object = self.game_state['visual'].get('storm', None)
+        if storm_object is None:
+            return
+        filename = pkg_resources.open_binary(assets, storm_object['token'])
+        token = Image.open(filename)
+        token = token.convert('RGBA')
+        width_token, height_token = token.size
+        scale = storm_object['scale']
+        angle = storm_object['angle']
+        x = storm_object['x']
+        y = storm_object['y']
+        token = token.resize((int(scale*width_token), int(scale*height_token)), Image.ANTIALIAS)
+        token = token.rotate(angle, Image.NEAREST, expand=1)
+        width_token, height_token = token.size
+        del filename
+        x -= int(width_token/2)
+        y -= int(height_token/2)
+        box_target = (
+            int(x),
+            int(y),
+            int(x+width_token),
+            int(y+height_token))
+        print(box_target)
+        self.canvas.paste(token, box_target, mask=token)
 
 def generateNeighborhood(centers, locations, neighbors, regions, outfile, quality=95, skip=[]):
     dl = 10
