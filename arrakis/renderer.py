@@ -149,6 +149,7 @@ class Renderer:
         for i in range(1, 7):
             area_name = 'player_{0}'.format(str(i))
             token_name = self.game_state['visual'].get(area_name, None)
+            print(token_name)
             if token_name is None:
                 continue
             filename = pkg_resources.open_binary(assets, token_name)
@@ -213,13 +214,13 @@ class Renderer:
         self.d.text((x_info, y_info), self.texts['game_info'], font=self.fnt, fill='white')
 
     def render(self):
+        self.placeStorm()
         # self.renderQR()
         # self.renderRegionMarks()
         self.renderFactionPositions()
         # self.renderTleilaxuTanks()
         # self.renderTroops()
         # self.renderGameInfo()
-        self.placeStorm()
         self.placeSpice()
         # compose the text layer
         self.canvas = Image.alpha_composite(self.canvas, self.txt)
@@ -229,7 +230,7 @@ class Renderer:
         del self.canvas
 
     def placeSpice(self):
-        filename = pkg_resources.open_binary(assets, 'light_lens_flare.png')
+        filename = pkg_resources.open_binary(assets, 'czempak_spice_1.png')
         token = Image.open(filename)
         token = token.convert('RGBA')
         width_token, height_token = token.size
@@ -262,22 +263,46 @@ class Renderer:
         token = Image.open(filename)
         token = token.convert('RGBA')
         width_token, height_token = token.size
-        scale = storm_object['scale']
-        angle = storm_object['angle']
+        scale = storm_object['s']
+        angle = storm_object['a']
         x = storm_object['x']
         y = storm_object['y']
         token = token.resize((int(scale*width_token), int(scale*height_token)), Image.ANTIALIAS)
         token = token.rotate(angle, Image.NEAREST, expand=1)
         width_token, height_token = token.size
         del filename
-        x -= int(width_token/2)
-        y -= int(height_token/2)
+        x_diff = int(math.ceil(x - int(math.floor(width_token/2))))
+        if x_diff < 0:
+            box = (
+                -x_diff,
+                0,
+                width_token,
+                height_token
+            )
+            token = token.crop(box)
+            width_token, height_token = token.size
+            x = 0
+        else:
+            x -= int(math.floor(width_token/2))
+        y_diff = int(math.ceil(y - int(math.floor(height_token/2))))
+        if y_diff < 0:
+            box = (
+                0,
+                -y_diff,
+                width_token,
+                height_token
+            )
+            token = token.crop(box)
+            width_token, height_token = token.size
+            y = 0
+        else:
+            y -= int(math.floor(height_token/2))
+        y_diff = int(math.ceil(y - int(math.floor(height_token/2))))
         box_target = (
             int(x),
             int(y),
             int(x+width_token),
             int(y+height_token))
-        print(box_target)
         self.canvas.paste(token, box_target, mask=token)
 
 def generateNeighborhood(centers, locations, neighbors, regions, outfile, quality=95, skip=[]):
