@@ -80,6 +80,9 @@ def calculateStormPosition(game_config, position):
     }
     return storm_object
 
+def calculateWheel(value):
+    return 360*(value+1.25)/21
+
 def process(game_state, game_config):
     # find objects which should be rendered but have no coordinates
     all_areas = list(game_config['generated']['areas']['circles'].keys())
@@ -112,6 +115,17 @@ def process(game_state, game_config):
         file = game_config['files'][faction_symbol]
         print(faction, faction_symbol, file)
         game_state['visual'][area] = file
+    wheel_values = ['wheel_attacker_value', 'wheel_defender_value']
+    for wheel in wheel_values:
+        if wheel in game_state['areas'].keys():
+            value = game_state['areas'][wheel]
+            game_state['visual'][wheel] = calculateWheel(value)
+    wheel_leaders = ['wheel_attacker_leader', 'wheel_defender_leader']
+    for wheel in wheel_leaders:
+        if wheel in game_state['areas'].keys():
+            leader = game_state['areas'][wheel]
+            file = game_config['files'][leader]
+            game_state['visual'][wheel] = file
     # optimize positions of tokens that need placement
     for area_name in to_place.keys():
         for region_name in to_place[area_name]:
@@ -133,6 +147,10 @@ def process(game_state, game_config):
             continue
         if area == 'storm':
             if 'storm' not in game_state['areas'].keys():
+                to_remove_points.append(area)
+            continue
+        if area in wheel_values + wheel_leaders:
+            if area not in game_state['areas'].keys():
                 to_remove_points.append(area)
             continue
         for token_object in game_state['visual'][area]:

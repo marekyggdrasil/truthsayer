@@ -26,9 +26,10 @@ def makeQR(data, box_size=4, border=4):
 
 
 class Renderer:
-    def __init__(self, game_state, game_config, outfile, troop_tokens=[], dead_leaders=[], quality=95):
+    def __init__(self, game_state, game_config, outfile, troop_tokens=[], dead_leaders=[], quality=95, battle=False):
         self.game_state = game_state
         self.game_config = game_config
+        self.battle = battle
         self.troop_edge = game_config['dimensions']['troop_edge']
         self.troop_size = game_config['dimensions']['troop']
         self.leader_size = game_config['dimensions']['leader']
@@ -224,6 +225,7 @@ class Renderer:
         self.placeSpice()
         # compose the text layer
         self.canvas = Image.alpha_composite(self.canvas, self.txt)
+        self.renderBattle()
         # remove alpha
         self.canvas = self.canvas.convert('RGB')
         self.canvas.save(self.outfile, quality=self.quality)
@@ -304,6 +306,85 @@ class Renderer:
             int(x+width_token),
             int(y+height_token))
         self.canvas.paste(token, box_target, mask=token)
+
+    def placeWheel(self, x, y, width, angle, leader=None):
+        print(angle)
+        filename = pkg_resources.open_binary(assets,
+        'battle_wheel_numbers.png')
+        token = Image.open(filename)
+        token = token.convert('RGBA')
+        width_token, height_token = token.size
+        token = token.resize((width, width), Image.ANTIALIAS)
+        token = token.rotate(angle, Image.NEAREST, expand=1)
+        width_token, height_token = token.size
+        del filename
+        box_target = (
+            int(x-width_token/2),
+            int(y-height_token/2),
+            int(x+width_token/2),
+            int(y+height_token/2))
+        self.canvas.paste(token, box_target, mask=token)
+        # top of the wheel
+        filename = pkg_resources.open_binary(assets,
+        'battle_wheel_top.png')
+        token = Image.open(filename)
+        token = token.convert('RGBA')
+        width_token, height_token = token.size
+        token = token.resize((width, width), Image.ANTIALIAS)
+        width_token, height_token = token.size
+        del filename
+        box_target = (
+            int(x-width_token/2),
+            int(y-height_token/2),
+            int(x+width_token/2),
+            int(y+height_token/2))
+        self.canvas.paste(token, box_target, mask=token)
+        if leader is None:
+            return None
+        print(leader)
+        filename = pkg_resources.open_binary(assets, leader)
+        token = Image.open(filename)
+        token = token.convert('RGBA')
+        token = token.resize((self.leader_size, self.leader_size), Image.ANTIALIAS)
+        width_token, height_token = token.size
+        dx = int(self.leader_size/2)
+        dy = int(self.leader_size/2)
+        half_width = int(width/4)
+        box_target = (x+half_width-dx, y+half_width-dy, x+half_width+dx, y+half_width+dy)
+        self.canvas.paste(token, box_target, mask=token)
+
+    def renderBattle(self):
+        if not self.battle:
+            return None
+        TINT_COLOR = (0, 0, 0)  # Black
+        TRANSPARENCY = 0.65  # Degree of transparency, 0-100%
+        OPACITY = int(255 * TRANSPARENCY)
+        overlay = Image.new('RGBA', self.canvas.size, TINT_COLOR+(0,))
+        draw = ImageDraw.Draw(overlay)  # Create a context for drawing things on it.
+        draw.rectangle(
+            (
+                (0, 0),
+                (self.width_canvas, self.height_canvas)
+            ),
+            fill=TINT_COLOR+(OPACITY,))
+        self.canvas = Image.alpha_composite(self.canvas, overlay)
+        # place left wheel
+        xthird = int(self.width_canvas/3)
+        ythird = int(self.height_canvas/3)
+        x = int(xthird-xthird/3)
+        y = int(ythird-ythird/3)
+        width = xthird
+        angle = self.game_state['visual']['wheel_attacker_value']
+        leader = self.game_state['visual'].get('wheel_attacker_leader', None)
+        print(leader)
+        self.placeWheel(x, y, width, angle, leader=leader)
+        # place right wheel
+        x = self.width_canvas-int(xthird-xthird/3)
+        y = self.height_canvas-int(ythird-ythird/3)
+        angle = self.game_state['visual']['wheel_defender_value']
+        leader = self.game_state['visual'].get('wheel_defender_leader', None)
+        self.placeWheel(x, y, width, angle, leader=leader)
+
 
 def generateNeighborhood(centers, locations, neighbors, regions, outfile, quality=95, skip=[]):
     dl = 10
