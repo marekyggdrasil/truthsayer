@@ -151,6 +151,8 @@ def process(game_state, game_config):
     to_remove = []
     to_remove_points = []
     for area in game_state['visual'].keys():
+        if area in ['wheel_attacker_cards', 'wheel_defender_cards']:
+            continue
         if area in game_config['types']['areas']['point']:
             if area in game_config['types']['areas']['players']:
                 continue

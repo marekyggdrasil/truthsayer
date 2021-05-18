@@ -28,6 +28,9 @@ def makeQR(data, box_size=4, border=4):
 class Renderer:
     def __init__(self, game_state, game_config, outfile, troop_tokens=[], dead_leaders=[], quality=95, battle=False):
         self.txt_spacing_wheel = 5
+        self.card_unit = 8
+        self.card_radius = 10
+        self.card_spacing = 10
         self.game_state = game_state
         self.game_config = game_config
         self.battle = battle
@@ -311,6 +314,34 @@ class Renderer:
             int(y+height_token))
         self.canvas.paste(token, box_target, mask=token)
 
+    # ref: https://code-maven.com/slides/python/rectangle-with-rounded-corners
+    def round_corner(self, radius, fill):
+        corner = Image.new('RGBA', (radius, radius), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(corner)
+        draw.pieslice((0, 0, radius * 2, radius * 2), 180, 270, fill=fill)
+        return corner
+
+    # ref: https://code-maven.com/slides/python/rectangle-with-rounded-corners
+    def round_rectangle(self, size, radius, fill):
+        width, height = size
+        rectangle = Image.new('RGBA', size, fill)
+        corner = self.round_corner(radius, fill)
+        rectangle.paste(corner, (0, 0))
+        rectangle.paste(corner.rotate(90), (0, height - radius))  # Rotate the corner and paste it
+        rectangle.paste(corner.rotate(180), (width - radius, height - radius))
+        rectangle.paste(corner.rotate(270), (width - radius, 0))
+        return rectangle
+
+    def render_card(self, card_object):
+        unit = self.card_unit
+        radius = self.card_radius
+        fill = 'white'
+        width = 25*unit
+        height = 35*unit
+        size = width, height
+        card = self.round_rectangle(size, radius, fill)
+        return card, width, height
+
     def placeWheel(self, x, y, width, angle, username_area=None, faction_area=None, leader=None):
         filename = pkg_resources.open_binary(assets,
         'battle_wheel_numbers.png')
@@ -391,17 +422,38 @@ class Renderer:
         # place left wheel
         xthird = int(self.width_canvas/3)
         ythird = int(self.height_canvas/3)
-        x = int(xthird-xthird/3)
+        x = int(xthird-xthird/5)
         y = int(ythird-ythird/3)
+        # attacker cards
+        cards = self.game_state['areas'].get('wheel_attacker_cards', None)
         width = xthird
+        if cards is not None:
+            for j, card_object in enumerate(cards):
+                card, w, h = self.render_card(card_object)
+                half_width = int(w/2)
+                half_height = int(h/2)
+                xoff = j*(w+self.card_spacing)-int(len(cards)*(w+self.card_spacing)/2)
+                box_target = (x+xoff, y-half_height, x+xoff+w, y+half_height)
+                self.canvas.paste(card, box_target, mask=card)
+            y += width + self.card_spacing
         angle = self.game_state['visual']['wheel_attacker_value']
         leader = self.game_state['visual'].get('wheel_attacker_leader', None)
         username_area = 'wheel_attacker_player_name'
         faction_area = 'wheel_attacker_player_faction'
         self.placeWheel(x, y, width, angle, username_area=username_area, faction_area=faction_area, leader=leader)
         # place right wheel
-        x = self.width_canvas-int(xthird-xthird/3)
+        x = self.width_canvas-int(xthird-xthird/5)
         y = self.height_canvas-int(ythird-ythird/3)
+        cards = self.game_state['areas'].get('wheel_defender_cards', None)
+        if cards is not None:
+            for j, card_object in enumerate(cards):
+                card, w, h = self.render_card(card_object)
+                half_width = int(w/2)
+                half_height = int(h/2)
+                xoff = j*(w+self.card_spacing)-int(len(cards)*(w+self.card_spacing)/2)
+                box_target = (x+xoff, y-half_height, x+xoff+w, y+half_height)
+                self.canvas.paste(card, box_target, mask=card)
+            y -= width + self.card_spacing
         angle = self.game_state['visual']['wheel_defender_value']
         leader = self.game_state['visual'].get('wheel_defender_leader', None)
         username_area = 'wheel_defender_player_name'
