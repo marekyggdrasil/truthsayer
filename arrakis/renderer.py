@@ -27,6 +27,7 @@ def makeQR(data, box_size=4, border=4):
 
 class Renderer:
     def __init__(self, game_state, game_config, outfile, troop_tokens=[], dead_leaders=[], quality=95, battle=False):
+        self.txt_spacing_wheel = 5
         self.game_state = game_state
         self.game_config = game_config
         self.battle = battle
@@ -56,6 +57,9 @@ class Renderer:
         self.d = ImageDraw.Draw(self.txt)
         filename = pkg_resources.open_binary(assets, 'FreeSans.ttf')
         self.fnt = ImageFont.truetype(filename, 15)
+        del filename
+        filename = pkg_resources.open_binary(assets, 'FreeSans.ttf')
+        self.fnt_wheel = ImageFont.truetype(filename, 27)
         del filename
         filename = pkg_resources.open_binary(assets, 'RobotoCondensed-Bold.ttf')
         self.fnt_troop = ImageFont.truetype(filename, 22)
@@ -307,8 +311,7 @@ class Renderer:
             int(y+height_token))
         self.canvas.paste(token, box_target, mask=token)
 
-    def placeWheel(self, x, y, width, angle, leader=None):
-        print(angle)
+    def placeWheel(self, x, y, width, angle, username_area=None, faction_area=None, leader=None):
         filename = pkg_resources.open_binary(assets,
         'battle_wheel_numbers.png')
         token = Image.open(filename)
@@ -339,19 +342,36 @@ class Renderer:
             int(x+width_token/2),
             int(y+height_token/2))
         self.canvas.paste(token, box_target, mask=token)
-        if leader is None:
-            return None
-        print(leader)
-        filename = pkg_resources.open_binary(assets, leader)
-        token = Image.open(filename)
-        token = token.convert('RGBA')
-        token = token.resize((self.leader_size, self.leader_size), Image.ANTIALIAS)
-        width_token, height_token = token.size
-        dx = int(self.leader_size/2)
-        dy = int(self.leader_size/2)
-        half_width = int(width/4)
-        box_target = (x+half_width-dx, y+half_width-dy, x+half_width+dx, y+half_width+dy)
-        self.canvas.paste(token, box_target, mask=token)
+        if leader is not None:
+            filename = pkg_resources.open_binary(assets, leader)
+            token = Image.open(filename)
+            token = token.convert('RGBA')
+            token = token.resize((self.leader_size, self.leader_size), Image.ANTIALIAS)
+            width_token, height_token = token.size
+            dx = int(self.leader_size/2)
+            dy = int(self.leader_size/2)
+            half_width = int(width/4)
+            box_target = (x+half_width-dx, y+half_width-dy, x+half_width+dx, y+half_width+dy)
+            self.canvas.paste(token, box_target, mask=token)
+        y_txt = y + self.txt_spacing_wheel
+        if username_area is not None:
+            text = self.game_state['visual'][username_area]
+            print(text)
+            w, h = self.fnt_troop.getsize(text)
+            txt = Image.new('RGBA', self.canvas.size, (255,255,255,0))
+            draw = ImageDraw.Draw(txt)
+            draw.text((x, y_txt+h/2-2), text, font=self.fnt_wheel, fill='black', anchor='ms')
+            self.canvas = Image.alpha_composite(self.canvas, txt)
+            y_txt += h
+            y_txt += self.txt_spacing_wheel
+        if faction_area is not None:
+            text = self.game_state['visual'][faction_area]
+            print(text)
+            w, h = self.fnt_troop.getsize(text)
+            txt = Image.new('RGBA', self.canvas.size, (255,255,255,0))
+            draw = ImageDraw.Draw(txt)
+            draw.text((x, y_txt+h/2-2), text, font=self.fnt_wheel, fill='black', anchor='ms')
+            self.canvas = Image.alpha_composite(self.canvas, txt)
 
     def renderBattle(self):
         if not self.battle:
@@ -376,14 +396,17 @@ class Renderer:
         width = xthird
         angle = self.game_state['visual']['wheel_attacker_value']
         leader = self.game_state['visual'].get('wheel_attacker_leader', None)
-        print(leader)
-        self.placeWheel(x, y, width, angle, leader=leader)
+        username_area = 'wheel_attacker_player_name'
+        faction_area = 'wheel_attacker_player_faction'
+        self.placeWheel(x, y, width, angle, username_area=username_area, faction_area=faction_area, leader=leader)
         # place right wheel
         x = self.width_canvas-int(xthird-xthird/3)
         y = self.height_canvas-int(ythird-ythird/3)
         angle = self.game_state['visual']['wheel_defender_value']
         leader = self.game_state['visual'].get('wheel_defender_leader', None)
-        self.placeWheel(x, y, width, angle, leader=leader)
+        username_area = 'wheel_defender_player_name'
+        faction_area = 'wheel_defender_player_faction'
+        self.placeWheel(x, y, width, angle, username_area=username_area, faction_area=faction_area, leader=leader)
 
 
 def generateNeighborhood(centers, locations, neighbors, regions, outfile, quality=95, skip=[]):

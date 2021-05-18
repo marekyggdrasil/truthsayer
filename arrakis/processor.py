@@ -126,6 +126,18 @@ def process(game_state, game_config):
             leader = game_state['areas'][wheel]
             file = game_config['files'][leader]
             game_state['visual'][wheel] = file
+    wheel_players = ['wheel_attacker_player', 'wheel_defender_player']
+    wheel_players_refs = {}
+    for wheel in wheel_players:
+        if wheel in game_state['areas'].keys():
+            player_key = game_state['areas'][wheel]
+            faction_key = game_state['meta']['factions'][player_key]
+            faction_name = game_config['faction_names'][faction_key]
+            player_name = game_state['meta']['usernames'][player_key]
+            game_state['visual'][wheel + '_faction'] = faction_name
+            game_state['visual'][wheel + '_name'] = player_name
+            wheel_players_refs[wheel + '_faction'] = wheel
+            wheel_players_refs[wheel + '_name'] = wheel
     # optimize positions of tokens that need placement
     for area_name in to_place.keys():
         for region_name in to_place[area_name]:
@@ -153,6 +165,11 @@ def process(game_state, game_config):
             if area not in game_state['areas'].keys():
                 to_remove_points.append(area)
             continue
+        if area in wheel_players_refs.keys():
+            wheel = wheel_players_refs[area]
+            if wheel not in game_state['areas'].keys():
+                to_remove_points.append(area)
+            continue
         for token_object in game_state['visual'][area]:
             region = token_object['region']
             token = token_object['token']
@@ -170,4 +187,14 @@ def process(game_state, game_config):
         del game_state['visual'][area]
     for area, region, token in to_remove:
         del game_state['visual'][area][region][token]
+    # as a last thing, generate texts
+    for player_key, faction_key in game_state['meta']['factions'].items():
+        player_name = game_state['meta']['usernames'][player_key]
+        faction_name = game_config['faction_names'][faction_key]
+        text = '{0}\n{1}'.format(player_name, faction_name)
+        if 'texts' not in game_state['meta'].keys():
+            game_state['meta']['texts'] = {}
+        if 'usernames' not in game_state['meta']['texts'].keys():
+            game_state['meta']['texts']['usernames'] = {}
+        game_state['meta']['texts']['usernames'][player_key] = text
     return game_state
