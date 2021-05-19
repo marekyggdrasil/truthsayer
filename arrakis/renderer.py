@@ -137,8 +137,16 @@ class Renderer:
         self.pos_qr_x = 20
         self.pos_qr_y = int(self.height_canvas - self.height_qr - 40)
         self.canvas.paste(qr_code, (self.pos_qr_x, self.pos_qr_y))
-        self.d.text((self.pos_qr_x, self.height_canvas - 40), self.texts['promo'] + '\n' + self.texts['qr'], font=self.fnt, fill='white')
-        self.d.text((self.pos_qr_x, self.height_canvas - self.height_qr - 40 - 20), self.texts['promo_top'], font=self.fnt, fill='white')
+
+        x = self.pos_qr_x
+        y = self.height_canvas - 40
+        text = self.texts['promo'] + '\n' + self.texts['qr']
+        self.canvas, w, h = self.renderText(text, self.fnt, 'white', x, y, anchor=None)
+
+        x = self.pos_qr_x
+        y = self.height_canvas - self.height_qr - 40 - 20
+        text = self.texts['promo_top']
+        self.canvas, w, h = self.renderText(text, self.fnt, 'white', x, y, anchor=None)
 
     def renderRegionMarks(self):
         # region markings
@@ -228,20 +236,21 @@ class Renderer:
         dx = int(self.leader_r*math.cos(angle))
         x_info = int(self.width_canvas/2)+dx-int(self.leader_size/2)
         y_info = 110
-        self.d.text((x_info, y_info), self.texts['game_info'], font=self.fnt, fill='white')
+        text = self.texts['game_info']
+        self.canvas, w, h = self.renderText(text, self.fnt, 'white', x_info, y_info, anchor=None)
 
     def render(self):
         self.placeStorm()
-        # self.renderQR()
-        # self.renderRegionMarks()
+        self.renderRegionMarks()
         self.renderFactionPositions()
-        # self.renderTleilaxuTanks()
-        # self.renderTroops()
-        # self.renderGameInfo()
+        self.renderTleilaxuTanks()
+        self.renderTroops()
         self.placeSpice()
         # compose the text layer
         self.canvas = Image.alpha_composite(self.canvas, self.txt)
         self.renderBattle()
+        self.renderQR()
+        self.renderGameInfo()
         # remove alpha
         self.canvas = self.canvas.convert('RGB')
         self.canvas.save(self.outfile, quality=self.quality)
