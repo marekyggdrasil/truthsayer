@@ -1,5 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont
 
+import textwrap
 import qrcode
 import math
 
@@ -63,6 +64,15 @@ class Renderer:
         del filename
         filename = pkg_resources.open_binary(assets, 'FreeSans.ttf')
         self.fnt_wheel = ImageFont.truetype(filename, 27)
+        del filename
+        filename = pkg_resources.open_binary(assets, 'FreeSans.ttf')
+        self.fnt_card_large = ImageFont.truetype(filename, 24)
+        del filename
+        filename = pkg_resources.open_binary(assets, 'FreeSans.ttf')
+        self.fnt_card_small = ImageFont.truetype(filename, 19)
+        del filename
+        filename = pkg_resources.open_binary(assets, 'FreeSans.ttf')
+        self.fnt_card_tiny = ImageFont.truetype(filename, 13)
         del filename
         filename = pkg_resources.open_binary(assets, 'RobotoCondensed-Bold.ttf')
         self.fnt_troop = ImageFont.truetype(filename, 22)
@@ -157,7 +167,6 @@ class Renderer:
         for i in range(1, 7):
             area_name = 'player_{0}'.format(str(i))
             token_name = self.game_state['visual'].get(area_name, None)
-            print(token_name)
             if token_name is None:
                 continue
             filename = pkg_resources.open_binary(assets, token_name)
@@ -339,7 +348,33 @@ class Renderer:
         width = 25*unit
         height = 35*unit
         size = width, height
-        card = self.round_rectangle(size, radius, fill)
+        # card = self.round_rectangle(size, radius, fill)
+        filename = pkg_resources.open_binary(assets,
+        'czempak_card_background.png')
+        token = Image.open(filename)
+        token = token.convert('RGBA')
+        width_token, height_token = token.size
+        token = token.resize((width, height), Image.ANTIALIAS)
+        width_token, height_token = token.size
+        del filename
+        card = token
+        # render card content
+        text = card_object['header']
+        x, y = 10, 10
+        for line in textwrap.wrap(text, width=12):
+            card, w, h = self.renderText(line, self.fnt_card_large, 'white', x, y, anchor=None, canvas=card)
+            y += h + 9
+        y += 10
+        text = card_object['description']
+        for line in textwrap.wrap(text, width=30):
+            card, w, h = self.renderText(line, self.fnt_card_tiny, 'white', x, y, anchor=None, canvas=card)
+            y += 14
+        text = card_object['type']
+        text_subtype = card_object.get('subtype', None)
+        if text_subtype is not None:
+            text += ' / ' + text_subtype
+        x, y = 10, height_token - 12 - h
+        card, w, h = self.renderText(text, self.fnt_card_small, 'white', x, y, anchor=None, canvas=card)
         return card, width, height
 
     def placeWheel(self, x, y, width, angle, username_area=None, faction_area=None, leader=None):
@@ -387,22 +422,25 @@ class Renderer:
         y_txt = y + self.txt_spacing_wheel
         if username_area is not None:
             text = self.game_state['visual'][username_area]
-            print(text)
-            w, h = self.fnt_troop.getsize(text)
-            txt = Image.new('RGBA', self.canvas.size, (255,255,255,0))
-            draw = ImageDraw.Draw(txt)
-            draw.text((x, y_txt+h/2-2), text, font=self.fnt_wheel, fill='black', anchor='ms')
-            self.canvas = Image.alpha_composite(self.canvas, txt)
+            self.canvas, w, h = self.renderText(text, self.fnt_wheel, 'black', x, y_txt, ycenter=True)
             y_txt += h
             y_txt += self.txt_spacing_wheel
         if faction_area is not None:
             text = self.game_state['visual'][faction_area]
-            print(text)
-            w, h = self.fnt_troop.getsize(text)
-            txt = Image.new('RGBA', self.canvas.size, (255,255,255,0))
-            draw = ImageDraw.Draw(txt)
-            draw.text((x, y_txt+h/2-2), text, font=self.fnt_wheel, fill='black', anchor='ms')
-            self.canvas = Image.alpha_composite(self.canvas, txt)
+            self.canvas, w, h = self.renderText(text, self.fnt_wheel, 'black', x, y_txt, ycenter=True)
+
+    def renderText(self, text, font, fill, x, y, anchor='ms', ycenter=False, canvas=None):
+        if canvas is None:
+            canvas = self.canvas
+        w, h = self.fnt_troop.getsize(text)
+        txt = Image.new('RGBA', canvas.size, (255,255,255,0))
+        draw = ImageDraw.Draw(txt)
+        yt = y
+        if ycenter:
+            yt = y+h/2-2
+        draw.text((x, yt), text, font=font, fill=fill, anchor=anchor)
+        canvas = Image.alpha_composite(canvas, txt)
+        return canvas, w, h
 
     def renderBattle(self):
         if not self.battle:
@@ -428,7 +466,7 @@ class Renderer:
         cards = self.game_state['areas'].get('wheel_attacker_cards', None)
         width = xthird
         if cards is not None:
-            for j, card_object in enumerate(cards):
+            for j, (key, card_object) in enumerate(cards.items()):
                 card, w, h = self.render_card(card_object)
                 half_width = int(w/2)
                 half_height = int(h/2)
@@ -446,7 +484,7 @@ class Renderer:
         y = self.height_canvas-int(ythird-ythird/3)
         cards = self.game_state['areas'].get('wheel_defender_cards', None)
         if cards is not None:
-            for j, card_object in enumerate(cards):
+            for j, (key, card_object) in enumerate(cards.items()):
                 card, w, h = self.render_card(card_object)
                 half_width = int(w/2)
                 half_height = int(h/2)
