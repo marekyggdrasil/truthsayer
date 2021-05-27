@@ -1,4 +1,7 @@
 import math
+import random
+
+from shapely.geometry.point import Point
 
 from simpleai.search import SearchProblem
 
@@ -102,10 +105,10 @@ class MultiTokenPlacementProblem(SearchProblem):
             initial_state = self.generate_random_state()
         super().__init__(initial_state=initial_state)
 
-    def polygonize(self, state):
+    def polygonize(self, state, radius):
         x, y = state
         state_center = Point(x, y)
-        return state_center.buffer(self.target_radius)
+        return state_center.buffer(radius)
 
     # slow, but not meant to be used for more than
     # N=2 or N=3 polygons simultaneously
@@ -114,22 +117,29 @@ class MultiTokenPlacementProblem(SearchProblem):
         bad = 0
         for j in range(self.N):
             px, py = state[2*j], state[2*j+1]
-            state_polygon = self.polygonize((px, py))
+            radius = self.target_radii[j]
+            state_polygon = self.polygonize((px, py), radius)
             for avoid in self.polygons_avoid_overlap_areas:
                 area = state_polygon.intersection(avoid).area
                 bad += area**3
             overlap = (state_polygon.intersection(self.polygons_maximize_overlap).area)
             if overlap < state_polygon.area - self.tolerance:
                 centroid = self.polygons_maximize_overlap.centroid
-                ox, oy = centroid.x, centroid.y
-                bad += ((px - ox)**2 + (py - oy)**2)**5
-            else:
-                bad -= overlap
+                # ox, oy = centroid.x, centroid.y
+                # bad += ((px - ox)**2 + (py - oy)**2)**6
+                bad += state_polygon.area - overlap
+                # print('punish')
+            #else:
+            #    bad -= overlap
+            for k in range(j+1, self.N):
+                pkx, pky = state[2*k], state[2*k+1]
+                radiusk = self.target_radii[k]
+                state_polygon_k = self.polygonize((pkx, pky), radiusk)
+                collision = state_polygon.intersection(state_polygon_k).area
+                bad += collision
         return bad
 
     def crossover(self, mother, father):
-        x1, y1 = state1
-        x2, y2 = state2
         rnd = random.random()
         child = list(mother)
         # how much inherited from father?
@@ -138,6 +148,12 @@ class MultiTokenPlacementProblem(SearchProblem):
         for j in charm:
             child[2*j] = father[2*j]
             child[2*j+1] = father[2*j+1]
+        #if N == 0:
+        #    N = random.randint(0, self.N)
+        #    avgs = random.sample(list(range(self.N)), N)
+        #    for j in avgs:
+        #        child[2*j] = (father[2*j]+mother[2*j])/2
+        #        child[2*j+1] = (father[2*j]+mother[2*j])/2
         return child
 
     def mutate(self, state):
@@ -152,7 +168,7 @@ class MultiTokenPlacementProblem(SearchProblem):
         return mutated
 
     def generate_random_state(self):
-        state_centers = generate_random(self.N, self.polygons_maximize_overlap, centroid=True)[0]
+        state_centers = generate_random(self.N, self.polygons_maximize_overlap, centroid=True)
         state = []
         for state_center in state_centers:
             state.append(state_center.x)

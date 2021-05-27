@@ -111,8 +111,34 @@ class Renderer:
         self.d.text((x, y+h/2-2), text, font=self.fnt_troop, fill=text_fill, anchor='ms')
 
     def renderTroops(self):
-        for x, y, faction, number in self.troop_tokens:
-            self.renderTroop(x, y, faction, number)
+        areas = self.game_config['generated']['areas']['polygons']
+        type_point = self.game_config['types']['areas']['point']
+        for area_name, region_object in self.game_state['visual'].items():
+            if area_name in type_point:
+                continue
+            if area_name == 'storm':
+                continue
+            if type(region_object) is str:
+                continue
+            if area_name.startswith('wheel_'):
+                continue
+            # print('region object')
+            # print(region_object)
+            for region_name, token_object in region_object.items():
+                # print('token object')
+                # print(token_object)
+                if region_name[0] != 'R':
+                    continue
+                for token_name, token_instance in token_object.items():
+                    # print('token instnace')
+                    # print(token_instance)
+                    x = token_instance['x']
+                    y = token_instance['y']
+                    token_type = token_instance['type']
+                    if token_type == 'troop_token':
+                        faction = token_instance['token']
+                        number = token_instance['c']
+                        self.renderTroop(x, y, faction, number)
 
     def calculateFactionLeadersPositions(self):
         positions = []

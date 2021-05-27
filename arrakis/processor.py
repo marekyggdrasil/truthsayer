@@ -3,63 +3,94 @@ import math
 from shapely.geometry import Polygon
 from shapely.geometry.point import Point
 
+from simpleai.search.local import genetic
+
 from arrakis.opti import TokenPlacementProblem
 from arrakis.opti import MultiTokenPlacementProblem
 
 
 def getRadius(game_config, element):
     diameter = None
-    if element in game_config['static']['leader_tokens'].keys():
-        diameter = game_config['static']['dimensions']['leader']
-    elif element in game_config['static']['troop_tokens']:
-        diameter = game_config['static']['dimensions']['troop']
+    print(element)
+    if element in game_config['types']['tokens']['leaders']:
+        diameter = game_config['dimensions']['leader']
+    elif element in game_config['types']['tokens']['troop_tokens']:
+        diameter = game_config['dimensions']['troop']
     radius = diameter/2
+    print(radius)
     return radius
 
 
 def prepareInstance(game_state, game_config, area_name, region_name):
-    polygons_maximize_overlap = Polygon(game_config['generated']['polygons'][area_name])
+    polygons_maximize_overlap = Polygon(game_config['generated']['areas']['polygons'][area_name])
+    # print(polygons_maximize_overlap.svg())
+    # print(polygons_maximize_overlap.area)
     if region_name != 'whole':
-        polygons_region = Polygon(areas['generated']['polygons'][region_name])
+        # print('making region')
+        polygons_region = Polygon(game_config['generated']['areas']['polygons'][region_name])
+        # print(polygons_region.svg())
+        # print(polygons_region.area)
         polygons_maximize_overlap = polygons_maximize_overlap.intersection(polygons_region)
+        # print(polygons_maximize_overlap.svg())
+        # print(polygons_maximize_overlap.area)
     avoid_overlap_areas = []
     if area_name not in game_state['visual'].keys():
         game_state['visual'][area_name] = {}
     if region_name not in game_state['visual'][area_name].keys():
         game_state['visual'][area_name][region_name] = {}
     for token_name in game_state['visual'][area_name][region_name].keys():
-        x, y = game_state['visual'][area_name][region_name][token_name]
+        element_object = game_state['visual'][area_name][region_name][token_name]
+        x = element_object['x']
+        y = element_object['y']
         radius = getRadius(game_config, token_name)
         polygon_token = Point(x, y).buffer(radius)
         avoid_overlap_areas.append(polygon_token)
     return polygons_maximize_overlap, avoid_overlap_areas
 
 
-def placeSingleToken(game_state, game_config, area_name, region_name, element, tolerance=0.01):
-    target_radius = getRadius(game_config, element)
+def placeSingleToken(game_state, game_config, area_name, region_name, element_name, tolerance=0.01, amount=0):
+    target_radius = getRadius(game_config, element_name)
     polygons_maximize_overlap, avoid_overlap_areas = prepareInstance(game_state, game_config, area_name, region_name)
     problem = TokenPlacementProblem(polygons_maximize_overlap, avoid_overlap_areas, target_radius, tolerance=0.01)
     result = genetic(problem, population_size=75, mutation_chance=0.15, iterations_limit=120)
     x, y = result.state
-    game_state['visual'][area_name][region_name][element] = x, y
+    token_type = None
+    if element_name in game_config['types']['tokens']['leaders']:
+        token_type = 'leader'
+    if element_name in game_config['types']['tokens']['troop_tokens']:
+        token_type = 'troop_token'
+    game_state['visual'][area_name][region_name][element_name] = {
+        'token': element_name,
+        'type': token_type,
+        'x': x,
+        'y': y,
+        'c': amount
+    }
     return result.state
 
 
-def placeMultipleTokens(game_state, area_name, region_name, elements):
-    target_radii = [getRadius(game_config, element) for element in elements]
+def placeMultipleTokens(game_state, game_config, area_name, region_name, names, amounts):
+    target_radii = [getRadius(game_config, name) for name in names]
     polygons_maximize_overlap, avoid_overlap_areas = prepareInstance(game_state, game_config, area_name, region_name)
     problem = MultiTokenPlacementProblem(polygons_maximize_overlap, avoid_overlap_areas, target_radii, tolerance=0.01)
-    result = genetic(problem, population_size=75, mutation_chance=0.15, iterations_limit=120)
-    for i, element in enumerate(elements):
+    result = genetic(problem, population_size=75, mutation_chance=0.2, iterations_limit=100)
+    for i, (name, amount) in enumerate(zip(names, amounts)):
         x = result.state[i*2]
         y = result.state[i*2+1]
-        token_object = {
-            'token': element,
-            'region': region_name,
+        token_type = None
+        print('multiplace')
+        print(name)
+        if name in game_config['types']['tokens']['leaders']:
+            token_type = 'leader_token'
+        elif name in game_config['types']['tokens']['troop_tokens']:
+            token_type = 'troop_token'
+        game_state['visual'][area_name][region_name][name] = {
+            'token': name,
+            'type': token_type,
             'x': x,
-            'y': y
+            'y': y,
+            'c': amount
         }
-        game_state['visual'][area_name][region_name][element] = token_object
     return result.state
 
 def calculateStormPosition(game_config, position):
@@ -92,20 +123,24 @@ def process(game_state, game_config):
     for area in all_areas:
         if area in game_state['areas'].keys():
             if area not in game_state['visual'].keys():
-                game_state['visual'][area] = {}
+                 game_state['visual'][area] = {}
             if area in game_config['types']['areas']['point']:
                 if area in game_config['types']['areas']['spice']:
                     value = game_state['areas'][area]
                     game_state['visual'][area] = value
                 continue
             for region in game_state['areas'][area].keys():
+                # print(region)
+                if type(game_state['areas'][area][region]) is not dict:
+                    continue
+                # print(region)
                 for token in game_state['areas'][area][region].keys():
                     if token not in game_state['visual'][area].keys():
                         if area not in to_place:
                             to_place[area] = {}
                         if region not in to_place[area].keys():
-                            to_place[area][region] = []
-                        to_place[area][region].append(token)
+                            to_place[area][region] = {}
+                        to_place[area][region][token] = game_state['areas'][area][region][token]
     if 'storm' in game_state['areas'].keys():
         position = game_state['areas']['storm']
         storm_object = calculateStormPosition(game_config, position)
@@ -140,13 +175,23 @@ def process(game_state, game_config):
             wheel_players_refs[wheel + '_name'] = wheel
     # optimize positions of tokens that need placement
     for area_name in to_place.keys():
-        for region_name in to_place[area_name]:
+        for region_name in to_place[area_name].keys():
             elements = to_place[area_name][region_name]
-            if len(elements) == 1:
-                element = elements[0]
-                placeSingleToken(game_state, game_config, area_name, region_name, element)
+            print(elements)
+            print(len(elements.keys()))
+            if len(elements.keys()) > 1:
+                amounts = []
+                names = []
+                for element_name in elements.keys():
+                    element_amount = elements[element_name]
+                    amounts.append(element_amount)
+                    names.append(element_name)
+                placeMultipleTokens(game_state, game_config, area_name, region_name, names, amounts)
                 continue
-            placeMultipleTokens(game_state, area_name, region_name, elements)
+            for element_name in elements.keys():
+                element_amount = elements[element_name]
+                placeSingleToken(game_state, game_config, area_name, region_name, element_name, amount=element_amount)
+            continue
     # find objects which have coordinates but should be removed
     to_remove = []
     to_remove_points = []
@@ -173,6 +218,8 @@ def process(game_state, game_config):
                 to_remove_points.append(area)
             continue
         for token_object in game_state['visual'][area]:
+            if type(token_object) is str:
+                continue
             region = token_object['region']
             token = token_object['token']
             removal = None
