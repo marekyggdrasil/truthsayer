@@ -27,13 +27,14 @@ def makeQR(data, box_size=4, border=4):
 
 
 class Renderer:
-    def __init__(self, game_state, game_config, outfile, troop_tokens=[], dead_leaders=[], quality=95, battle=False):
+    def __init__(self, game_state, game_config, card_objects, outfile, troop_tokens=[], dead_leaders=[], quality=95, battle=False):
         self.txt_spacing_wheel = 5
         self.card_unit = 8
         self.card_radius = 10
         self.card_spacing = 10
         self.game_state = game_state
         self.game_config = game_config
+        self.card_objects = card_objects
         self.battle = battle
         self.troop_edge = game_config['dimensions']['troop_edge']
         self.troop_size = game_config['dimensions']['troop']
@@ -501,7 +502,8 @@ class Renderer:
         cards = self.game_state['areas'].get('wheel_attacker_cards', None)
         width = xthird
         if cards is not None:
-            for j, (key, card_object) in enumerate(cards.items()):
+            for j, key in enumerate(cards):
+                card_object = self.card_objects[key]
                 card, w, h = self.render_card(card_object)
                 half_width = int(w/2)
                 half_height = int(h/2)
@@ -519,7 +521,8 @@ class Renderer:
         y = self.height_canvas-int(ythird-ythird/3)
         cards = self.game_state['areas'].get('wheel_defender_cards', None)
         if cards is not None:
-            for j, (key, card_object) in enumerate(cards.items()):
+            for j, key in enumerate(cards):
+                card_object = self.card_objects[key]
                 card, w, h = self.render_card(card_object)
                 half_width = int(w/2)
                 half_height = int(h/2)
