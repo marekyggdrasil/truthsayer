@@ -3,14 +3,14 @@ import setuptools
 setuptools.setup(
     name='arrakis',
     version='0.0.1',
-    packages=['arrakis',],
+    packages=['truthsayer',],
     license='MIT',
-    description = 'Visualizes Dune the Board Game state',
+    description = 'Visualizes and manages Dune the Board Game state',
     long_description=open('README.md').read(),
     long_description_content_type="text/markdown",
     author = 'Marek Narozniak',
     author_email = '',
-    install_requires=['pillow', 'qrcode', 'beautifulsoup4==4.8.1', 'simpleai'],
+    install_requires=['pillow', 'qrcode', 'beautifulsoup4==4.8.1', 'simpleai', 'mementeur'],
     url = 'https://github.com/marekyggdrasil/arrakis',
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -21,6 +21,6 @@ setuptools.setup(
     include_package_data=True,
     package_data = {
         # If any package contains *.txt or *.rst files, include them:
-        '': ['assets/__init__.py', 'assets/*.png', 'assets/*.ttf'],
+        '': ['assets/__init__.py', 'assets/*.png', 'assets/*.ttf', 'assets/json/*.json'],
     }
 )
