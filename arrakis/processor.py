@@ -6,6 +6,8 @@ from shapely.geometry.point import Point
 
 from simpleai.search.local import genetic
 
+from mementeur.memento import OriginatorJSON
+
 from arrakis.opti import TokenPlacementProblem
 from arrakis.opti import MultiTokenPlacementProblem
 
@@ -297,3 +299,39 @@ class RenderingProcessor:
                 game_state['meta']['texts']['usernames'] = {}
             game_state['meta']['texts']['usernames'][player_key] = text
         return game_state
+
+
+class OriginatorTruthsayer(OriginatorJSON):
+    def __init__(self, game_state):
+        super().__init__(game_state)
+
+    def move(self, source_area, source_region, target_area, target_region, faction, N, unit=None):
+        pass
+
+    def ship(self, faction, target_area, target_region, N):
+        pass
+
+    def change(self, target_area, target_region, N):
+        pass
+
+    # payee is the one receiving
+    def pay(self, spice, payor, payee):
+        pass
+
+    def kill(self, leader, area=None, region=None, N=1):
+        pass
+
+    def revive(self, leader_or_unit, N=1):
+        pass
+
+    def lead(self, leader):
+        pass
+
+    def treachery(self, faction, card):
+        pass
+
+    def battle(self, faction, N):
+        pass
+
+    def storm(self, region):
+        pass
