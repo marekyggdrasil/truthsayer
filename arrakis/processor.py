@@ -18,7 +18,7 @@ except ImportError:
 from arrakis import assets
 
 
-class Manager:
+class ConfigManager:
     def __init__(self):
         json_file = pkg_resources.read_text(assets, 'game_config.json')
         self.game_config = json.load(json_file)
@@ -71,9 +71,9 @@ class Manager:
      def getFactionName(self, faction_key):
          return self.game_config['faction_names'][faction_key]
 
-class Processor:
+class RenderingProcessor:
     def __init__(self):
-        self.manager = Manager()
+        self.manager = ConfigManager()
         self.game_config = self.manager.game_config
 
     def prepareInstance(game_state, area_name, region_name):
