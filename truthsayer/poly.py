@@ -18,7 +18,7 @@ except ImportError:
     # Try backported to PY<37 `importlib_resources`.
     import importlib_resources as pkg_resources
 
-from arrakis import assets
+from truthsayer import assets
 
 def extract():
     coordinates_file = pkg_resources.read_text(assets, 'arrakis.html')

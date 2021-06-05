@@ -5,7 +5,7 @@ from shapely.geometry.point import Point
 
 from simpleai.search import SearchProblem
 
-from arrakis.poly import generate_random
+from truthsayer.poly import generate_random
 
 
 def rotateAboutPoint(ox, oy, px, py, angle):

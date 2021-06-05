@@ -8,8 +8,8 @@ from simpleai.search.local import genetic
 
 from mementeur.memento import OriginatorJSON
 
-from arrakis.opti import TokenPlacementProblem
-from arrakis.opti import MultiTokenPlacementProblem
+from truthsayer.opti import TokenPlacementProblem
+from truthsayer.opti import MultiTokenPlacementProblem
 
 try:
     import importlib.resources as pkg_resources
@@ -17,7 +17,7 @@ except ImportError:
     # Try backported to PY<37 `importlib_resources`.
     import importlib_resources as pkg_resources
 
-from arrakis import assets
+from truthsayer import assets
 
 
 class ConfigManager:

@@ -10,7 +10,7 @@ except ImportError:
     # Try backported to PY<37 `importlib_resources`.
     import importlib_resources as pkg_resources
 
-from arrakis import assets
+from truthsayer import assets
 
 
 def makeQR(data, box_size=4, border=4):
