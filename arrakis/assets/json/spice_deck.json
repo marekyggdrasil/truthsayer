@@ -1,0 +1,122 @@
+{
+  "spice_deck": [
+    {
+      "card": "shai_hulud",
+      "spice": null,
+      "header": "Shai Hulud",
+      "description": "Discard all spice and forces in the territory now showing in the Spice Deck discard pile. Then draw cards (discarding any more Shai-Hulug Cards) until another Territory Card is revealed and placespice there. Now the Nexus occurs. Players can form or break Alliances.",
+      "occurences": 6
+    },
+    {
+      "card": "sandtrout",
+      "spice": null,
+      "header": "Sandtrout",
+      "description": "Cancel all current alliances. Set this card aside and draw a replacement card. The next time a Shai-Hulug card is drawn (either this turn or subsequent turn), it is discarded without effect, and a new Spice Card is drawn, doubling any Spice Blow.",
+      "occurences": 1
+    },
+    {
+      "card": "broken_land",
+      "spice": 8,
+      "header": "Broken Land",
+      "description": "Add 8 spice on Broken Land.",
+      "occurences": 1
+    },
+    {
+      "card": "red_chasm",
+      "spice": 8,
+      "header": "Red Chasm",
+      "description": "Add 8 spice on Red Chasm.",
+      "occurences": 1
+    },
+    {
+      "card": "habbanya_erg",
+      "spice": 8,
+      "header": "Habbanya Erg",
+      "description": "Add 8 spice on Habbanya Erg.",
+      "occurences": 1
+    },
+    {
+      "card": "old_gap",
+      "spice": 6,
+      "header": "Old Gap",
+      "description": "Add 6 spice on Old Gap.",
+      "occurences": 1
+    },
+    {
+      "card": "wind_pass_north",
+      "spice": 6,
+      "header": "Wind Pass North",
+      "description": "Add 6 spice on Wind Pass North.",
+      "occurences": 1
+    },
+    {
+      "card": "south_mesa",
+      "spice": 10,
+      "header": "South Mesa",
+      "description": "Add 10 spice on South Mesa.",
+      "occurences": 1
+    },
+    {
+      "card": "rock_outcroppings",
+      "spice": 6,
+      "header": "Rock Outcroppings",
+      "description": "Add 6 spice on Rock Outcroppings.",
+      "occurences": 1
+    },
+    {
+      "card": "the_minor_erg",
+      "spice": 8,
+      "header": "The Minor Erg",
+      "description": "Add 8 spice on The Minor Erg.",
+      "occurences": 1
+    },
+    {
+      "card": "cielago_south",
+      "spice": 12,
+      "header": "Cielago South",
+      "description": "Add 12 spice on Cielago South.",
+      "occurences": 1
+    },
+    {
+      "card": "cielago_north",
+      "spice": 8,
+      "header": "Cielago North",
+      "description": "Add 8 spice on Cielago North.",
+      "occurences": 1
+    },
+    {
+      "card": "funeral_plain",
+      "spice": 6,
+      "header": "Funeral Plain",
+      "description": "Add 6 spice on Funeral Plain.",
+      "occurences": 1
+    },
+    {
+      "card": "the_great_flat",
+      "spice": 10,
+      "header": "The Great Flat",
+      "description": "Add 10 spice on The Great Flat.",
+      "occurences": 1
+    },
+    {
+      "card": "hagga_basin",
+      "spice": 6,
+      "header": "Hagga Basin",
+      "description": "Add 6 spice on Hagga Basin.",
+      "occurences": 1
+    },
+    {
+      "card": "habbanya_ridge_flat",
+      "spice": 10,
+      "header": "Habbanya Ridge Flat",
+      "description": "Add 10 spice on Habbanya Ridge Flat.",
+      "occurences": 1
+    },
+    {
+      "card": "sihaya_ridge",
+      "spice": 6,
+      "header": "Sihaya Ridge",
+      "description": "Add 6 spice on Sihaya Ridge.",
+      "occurences": 1
+    }
+}

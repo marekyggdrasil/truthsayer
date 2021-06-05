@@ -1,0 +1,34 @@
+{
+  "alliance_deck": [
+    {
+      "card": "alliance_atreides",
+      "header": "Atreides",
+      "description": "While the Atreides are your ally, they may assist you by forcing your opponent to show them one element of their Battle plan."
+    },
+    {
+      "card": "alliance_fremen",
+      "header": "Fremen",
+      "description": "While the Fremen are your ally, they may decide to protect (or not protect) you from being devoured by worms and, at their discretion, may also allow you to revive 3 forces for free during revival. In addition, if the Fremen win with the Frement Special Victory Condition, you also win."
+    },
+    {
+      "card": "alliance_spacing_guild",
+      "header": "Spacing Guild",
+      "description": "While the Spacing Guild is your ally, you may ship from your off-planet reserves onto Dune or cross-ship from one territory to another with forces that are already on Dune at the Spacing Guild half-price rate. If the Spacing Guild wins with the Spacing Guild Special Victory Condition, you also win."
+    },
+    {
+      "card": "alliance_bene_gesserit",
+      "header": "Bene Gesserit",
+      "description": "While the Bene Gesserit are your ally, they may Voice your opponent."
+    },
+    {
+      "card": "alliance_harkonnen",
+      "header": "Harkonnen",
+      "description": "While the Harkonnen are your ally, Traitor Cards they hold may be used against your opponent if they so choose."
+    },
+    {
+      "card": "alliance_emperor",
+      "header": "Emperor",
+      "description": "While the Emperor is your ally, he may share his great wealth with you by paying spice (directly to the Spice Bank) for the revival of up to 3 extra of your forces (for a possible total of 6 during each revival phase) from the Tleilaxu Tanks."
+    }
+  ]
+}

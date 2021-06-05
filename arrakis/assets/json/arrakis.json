@@ -1,0 +1,4 @@
+{
+  "territories": ["rock_outcroppings", "broken_land", "old_gap", "basin", "sihaya_ridge", "gara_kulon", "red_chasm", "south_mesa", "cielago_east", "cielago_south", "meridian", "habbanya_ridge_flat", "habbanya_sietch", "habbanya_erg", "the_great_flat", "funeral_plain", "bright_of_the_cliff", "sietch_tabr", "plastic_basin", "tsimpo", "carthag", "imperial_basin", "arrakeen", "rim_wall_west", "hole_in_the_rock", "shield_wall", "pasty_mesa", "tueks_sietch", "false_wall_south", "cielago_depression", "cielago_west", "false_wall_west", "wind_pass", "hagga_basin", "arsunt", "false_wall_east", "the_minor_erg", "harg_pass", "cielago_north", "wind_pass_north", "polar_sink"],
+  "units": ["atreides_troops", "harkonner_trops", "spiritual_advisor", "bene_gesserit_troops", "fremen_troops", "fedaykin", "emperor_troops", "sardaukar"]
+}

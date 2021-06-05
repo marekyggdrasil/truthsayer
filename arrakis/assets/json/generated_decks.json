@@ -1,0 +1,52 @@
+{
+  "storm_deck": {
+    "template": {
+      "card": "{0}_sectors",
+      "sectors": "{0}",
+      "header": "{0} sectors",
+      "description": "Move the storm {0} sectors counter-clockwise. All spice & forces in sectors passed over or covered by the storm in sand territories will be destroyed."
+    },
+    "values": [[1], [2], [3], [4], [5], [6]]
+  },
+  "traitor_deck": {
+    "template": {
+      "card": "traitor_{0}",
+      "header": "{1}",
+      "faction": "{2}",
+      "strength": "{3}"
+      "description": "Reveal when Battle Plans are revealed if this leader is used by your opponent.\nYou immediately win this battle and lose nothing (even if a Lasgun and Shield are revealed).\nEnemy leader is killed and you receive its fighting strength in spice.\nBoth players lose if both their leaders are traitors, and neither player gets any spice."
+    },
+    "values": [
+      ["princess_irulan", "Princess Irulan", "bene_gesserit", 5],
+      ["mother_ramallo", "Mother Ramallo", "bene_gesserit", 5],
+      ["lady_fenring", "Lady Fenring", "bene_gesserit", 5],
+      ["wanna_yueh", "Wanna Yueh", "bene_gesserit", 5],
+      ["alia", "Alia", "bene_gesserit", 5],
+      ["jamis", "Jamis", "fremen", 2],
+      ["shadout_mapes", "Shadout Mapes", "fremen", 3],
+      ["otheym", "Otheym", "fremen", 5],
+      ["chani", "Chani", "fremen", 6],
+      ["stilgar", "Stilgar", "fremen", 7],
+      ["bashar", "Bashar", "emperor", 2],
+      ["burseg", "Burseg", "emperor", 3],
+      ["caid", "Caid", "emperor", 3],
+      ["captain_aramsham", "Captain Aramsham", "emperor", 5],
+      ["hasimir_fenring", "Hasimir Fenring", "emperor", 6],
+      ["guild_representative", "Guild Representative", "spacing_guild", 1],
+      ["soo_soo_sook", "Soo-Soo Sook", "spacing_guild", 2],
+      ["esmar_tuek", "Esmar Tuek", "spacing_guild", 3],
+      ["master_bewt", "Master Bewt", "spacing_guild", 3],
+      ["staban_tuek", "Staban Tuek", "spacing_guild", 5],
+      ["umman_kudu", "Umman Kudu", "harkonnen", 1],
+      ["captain_iakin_nefud", "Captain Iakin Nefud", "harkonnen", 2],
+      ["piter_de_vries", "Piter De Vries", "harkonnen", 3],
+      ["beast_rabban", "Beast Rabban", "harkonnen", 4],
+      ["feyd_rautha", "Feyd-Rautha", "harkonnen", 6],
+      ["dr_yueh", "Dr. Yueh", "atreides", 1],
+      ["duncan_idaho", "Duncan Idaho", "atreides", 2],
+      ["gurney_halleck", "Gurney Halleck", "atreides", 4],
+      ["lady_jessica", "Lady Jessica", "atreides", 5],
+      ["thufir_hawat", "Thufir Hawat", "atreides", 5]
+    ]
+  }
+}
