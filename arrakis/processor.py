@@ -22,6 +22,9 @@ class Manager:
     def __init__(self):
         json_file = pkg_resources.read_text(assets, 'game_config.json')
         self.game_config = json.load(json_file)
+        all_areas = list(self.game_config['generated']['areas']['circles'].keys())
+        all_areas += list(self.game_config['generated']['areas']['polygons'].keys())
+        self.all_areas = list(set(all_areas))
 
     def isLeader(self, name):
         return name in self.game_config['types']['tokens']['leaders']
@@ -38,15 +41,35 @@ class Manager:
         radius = diameter/2
         return radius
 
+    def getAreas():
+        return self.all_areas
+
+    def isAreaPoint(self, area_name):
+        return area_name in self.game_config['types']['areas']['point']
+
+    def isAreaPlayerPosition(self, area_name):
+        return area_name in self.game_config['types']['areas']['players']
+
+    def isAreaSpice(self, area_name):
+        return area_name in self.game_config['types']['areas']['spice']
+
     def getPolygonArea(self, area_name):
         return self.game_config['generated']['areas']['polygons'][area_name]
 
-    def getCeneter(self):
+    def getCenter(self):
          cx = self.game_config['generated']['map_center']['x']
          cy = self.game_config['generated']['map_center']['y']
          cr = self.game_config['generated']['map_center']['r']+7
          return cx, cy, cr
 
+     def getFile(self, token_name):
+         return self.game_config['files'][token_name]
+
+     def getFactionSymbol(self, faction_name):
+         return self.game_config['faction_symbols'][faction_name]
+
+     def getFactionName(self, faction_key):
+         return self.game_config['faction_names'][faction_key]
 
 class Processor:
     def __init__(self):
@@ -54,12 +77,12 @@ class Processor:
         self.game_config = self.manager.game_config
 
     def prepareInstance(game_state, area_name, region_name):
-        polygons_maximize_overlap = Polygon(game_config['generated']['areas']['polygons'][area_name])
+        polygons_maximize_overlap = Polygon(self.manager.getPolygonArea(area_name))
         # print(polygons_maximize_overlap.svg())
         # print(polygons_maximize_overlap.area)
         if region_name != 'whole':
             # print('making region')
-            polygons_region = Polygon(game_config['generated']['areas']['polygons'][region_name])
+            polygons_region = Polygon(self.manager.getPolygonArea(region_name))
             # print(polygons_region.svg())
             # print(polygons_region.area)
             polygons_maximize_overlap = polygons_maximize_overlap.intersection(polygons_region)
@@ -133,7 +156,7 @@ class Processor:
         x = cx+math.cos(angle_rad)*cr
         y = cy+math.sin(angle_rad)*cr
         storm_object = {
-            'token': game_config['files']['storm'],
+            'token': self.manager.getFile('storm'),
             'x': x,
             'y': y,
             's': 0.5,
@@ -146,16 +169,13 @@ class Processor:
 
     def process(game_state):
         # find objects which should be rendered but have no coordinates
-        all_areas = list(self.game_config['generated']['areas']['circles'].keys())
-        all_areas += list(self.game_config['generated']['areas']['polygons'].keys())
-        all_areas = list(set(all_areas))
         to_place = {}
-        for area in all_areas:
+        for area in self.manager.getAreas():
             if area in self.game_state['areas'].keys():
                 if area not in self.game_state['visual'].keys():
                     game_state['visual'][area] = {}
-                if area in self.game_config['types']['areas']['point']:
-                    if area in self.game_config['types']['areas']['spice']:
+                if self.manager.isAreaPoint(area):
+                    if self.manager.isAreaSpice(area):
                         value = game_state['areas'][area]
                         game_state['visual'][area] = value
                     continue
@@ -176,8 +196,8 @@ class Processor:
             storm_object = self.calculateStormPosition(position)
             game_state['visual']['storm'] = storm_object
         for area, faction in game_state['meta']['factions'].items():
-            faction_symbol = game_config['faction_symbols'][faction]
-            file = game_config['files'][faction_symbol]
+            faction_symbol = self.manager.getFactionSymbol(faction)
+            file = self.manager.getFactionSymbol(faction)
             print(faction, faction_symbol, file)
             game_state['visual'][area] = file
         wheel_values = ['wheel_attacker_value', 'wheel_defender_value']
@@ -189,7 +209,7 @@ class Processor:
         for wheel in wheel_leaders:
             if wheel in game_state['areas'].keys():
                 leader = game_state['areas'][wheel]
-                file = game_config['files'][leader]
+                file = self.manager.getFile(leader)
                 game_state['visual'][wheel] = file
         wheel_players = ['wheel_attacker_player', 'wheel_defender_player']
         wheel_players_refs = {}
@@ -197,7 +217,7 @@ class Processor:
             if wheel in game_state['areas'].keys():
                 player_key = game_state['areas'][wheel]
                 faction_key = game_state['meta']['factions'][player_key]
-                faction_name = game_config['faction_names'][faction_key]
+                faction_name = self.manager.getFactionName(faction_key)
                 player_name = game_state['meta']['usernames'][player_key]
                 game_state['visual'][wheel + '_faction'] = faction_name
                 game_state['visual'][wheel + '_name'] = player_name
@@ -216,11 +236,11 @@ class Processor:
                         element_amount = elements[element_name]
                         amounts.append(element_amount)
                         names.append(element_name)
-                    placeMultipleTokens(game_state, game_config, area_name, region_name, names, amounts)
+                    placeMultipleTokens(game_state, area_name, region_name, names, amounts)
                     continue
                 for element_name in elements.keys():
                     element_amount = elements[element_name]
-                    placeSingleToken(game_state, game_config, area_name, region_name, element_name, amount=element_amount)
+                    placeSingleToken(game_state, area_name, region_name, element_name, amount=element_amount)
                 continue
         # find objects which have coordinates but should be removed
         to_remove = []
@@ -228,8 +248,8 @@ class Processor:
         for area in game_state['visual'].keys():
             if area in ['wheel_attacker_cards', 'wheel_defender_cards']:
                 continue
-            if area in game_config['types']['areas']['point']:
-                if area in game_config['types']['areas']['players']:
+            if self.manager.isAreaPoint(area):
+                if self.manager.isAreaPlayerPosition(area):
                     continue
                 if area not in game_state['areas'].keys():
                     to_remove_points.append(area)
@@ -269,7 +289,7 @@ class Processor:
         # as a last thing, generate texts
         for player_key, faction_key in game_state['meta']['factions'].items():
             player_name = game_state['meta']['usernames'][player_key]
-            faction_name = game_config['faction_names'][faction_key]
+            faction_name = self.manager.getFactionName(faction_key)
             text = '{0}\n{1}'.format(player_name, faction_name)
             if 'texts' not in game_state['meta'].keys():
                 game_state['meta']['texts'] = {}
