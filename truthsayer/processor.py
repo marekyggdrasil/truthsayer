@@ -6,10 +6,12 @@ from shapely.geometry.point import Point
 
 from simpleai.search.local import genetic
 
-from mementeur.memento import OriginatorJSON
+from brackette.memento import OriginatorJSON
 
 from truthsayer.opti import TokenPlacementProblem
 from truthsayer.opti import MultiTokenPlacementProblem
+from truthsayer.renderer import Renderer
+
 
 try:
     import importlib.resources as pkg_resources
@@ -23,7 +25,7 @@ from truthsayer import assets
 class ConfigManager:
     def __init__(self):
         json_file = pkg_resources.read_text(assets, 'game_config.json')
-        self.game_config = json.load(json_file)
+        self.game_config = json.loads(json_file)
         all_areas = list(self.game_config['generated']['areas']['circles'].keys())
         all_areas += list(self.game_config['generated']['areas']['polygons'].keys())
         self.all_areas = list(set(all_areas))
@@ -43,7 +45,7 @@ class ConfigManager:
         radius = diameter/2
         return radius
 
-    def getAreas():
+    def getAreas(self):
         return self.all_areas
 
     def isAreaPoint(self, area_name):
@@ -64,14 +66,14 @@ class ConfigManager:
          cr = self.game_config['generated']['map_center']['r']+7
          return cx, cy, cr
 
-     def getFile(self, token_name):
-         return self.game_config['files'][token_name]
+    def getFile(self, token_name):
+        return self.game_config['files'][token_name]
 
-     def getFactionSymbol(self, faction_name):
-         return self.game_config['faction_symbols'][faction_name]
+    def getFactionSymbol(self, faction_name):
+        return self.game_config['faction_symbols'][faction_name]
 
-     def getFactionName(self, faction_key):
-         return self.game_config['faction_names'][faction_key]
+    def getFactionName(self, faction_key):
+        return self.game_config['faction_names'][faction_key]
 
 class RenderingProcessor:
     def __init__(self):
@@ -169,12 +171,12 @@ class RenderingProcessor:
     def calculateWheel(self, value):
         return 360*(value+1.25)/21
 
-    def process(game_state):
+    def process(self, game_state):
         # find objects which should be rendered but have no coordinates
         to_place = {}
         for area in self.manager.getAreas():
-            if area in self.game_state['areas'].keys():
-                if area not in self.game_state['visual'].keys():
+            if area in game_state['areas'].keys():
+                if area not in game_state['visual'].keys():
                     game_state['visual'][area] = {}
                 if self.manager.isAreaPoint(area):
                     if self.manager.isAreaSpice(area):
@@ -199,7 +201,7 @@ class RenderingProcessor:
             game_state['visual']['storm'] = storm_object
         for area, faction in game_state['meta']['factions'].items():
             faction_symbol = self.manager.getFactionSymbol(faction)
-            file = self.manager.getFactionSymbol(faction)
+            file = self.manager.getFile(faction_symbol)
             print(faction, faction_symbol, file)
             game_state['visual'][area] = file
         wheel_values = ['wheel_attacker_value', 'wheel_defender_value']
@@ -302,8 +304,12 @@ class RenderingProcessor:
 
 
 class OriginatorTruthsayer(OriginatorJSON):
-    def __init__(self, game_state):
+    def __init__(self, game_state={}, meta={}):
+        if game_state == {}:
+            game_state = self.initiate(meta)
         super().__init__(game_state)
+        self.processor = RenderingProcessor()
+        self.card_objects = {} # TODO
 
     def move(self, source_area, source_region, target_area, target_region, faction, N, unit=None):
         pass
@@ -335,3 +341,23 @@ class OriginatorTruthsayer(OriginatorJSON):
 
     def storm(self, region):
         pass
+
+    def initiate(self, meta):
+        _object_state = {
+            'hidden': {},
+            'areas': {},
+            'visual': {},
+            'meta': meta
+        }
+        return _object_state
+
+    def render(self, outfile, battle=False):
+       self._object_state = self.processor.process(self._object_state)
+       self.backup()
+       renderer = Renderer(
+           self._object_state,
+           self.processor.game_config,
+           self.card_objects,
+           outfile,
+           battle=battle)
+       renderer.render()
