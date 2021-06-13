@@ -1,4 +1,5 @@
 import math
+import random
 import json
 
 from shapely.geometry import Polygon
@@ -89,9 +90,9 @@ class ConfigManager:
     def getRadius(self, element):
         diameter = None
         if self.isLeader(element):
-            diameter = game_config['dimensions']['leader']
+            diameter = self.game_config['dimensions']['leader']
         elif self.isTroop(element):
-            diameter = game_config['dimensions']['troop']
+            diameter = self.game_config['dimensions']['troop']
         radius = diameter/2
         return radius
 
@@ -130,7 +131,7 @@ class RenderingProcessor:
         self.manager = ConfigManager()
         self.game_config = self.manager.game_config
 
-    def prepareInstance(game_state, area_name, region_name):
+    def prepareInstance(self, game_state, area_name, region_name):
         polygons_maximize_overlap = Polygon(self.manager.getPolygonArea(area_name))
         # print(polygons_maximize_overlap.svg())
         # print(polygons_maximize_overlap.area)
@@ -290,11 +291,11 @@ class RenderingProcessor:
                         element_amount = elements[element_name]
                         amounts.append(element_amount)
                         names.append(element_name)
-                    placeMultipleTokens(game_state, area_name, region_name, names, amounts)
+                    self.placeMultipleTokens(game_state, area_name, region_name, names, amounts)
                     continue
                 for element_name in elements.keys():
                     element_amount = elements[element_name]
-                    placeSingleToken(game_state, area_name, region_name, element_name, amount=element_amount)
+                    self.placeSingleToken(game_state, area_name, region_name, element_name, amount=element_amount)
                 continue
         # find objects which have coordinates but should be removed
         to_remove = []
@@ -393,9 +394,69 @@ class OriginatorTruthsayer(OriginatorJSON):
         pass
 
     def initiate(self, meta):
+        hidden = {
+            'reserves': {},
+            'spice': {}
+        }
+        areas = {}
+        for player, faction in meta['factions'].items():
+            if faction == 'atreides':
+                hidden['reserves']['atreides_troops'] = 10
+                hidden['spice']['atreides'] = 10
+                areas['arrakeen'] = {
+                    'R10': {
+                        'atreides_troops': 10
+                    }
+                }
+            if faction == 'harkonnen':
+                hidden['reserves']['harkonnen_troops'] = 10
+                hidden['spice']['harkonnen'] = 10
+                areas['carthag'] = {
+                    'R11': {
+                        'harkonnen_troops': 10
+                    }
+                }
+            if faction == 'bene_gesserit':
+                hidden['reserves']['bene_gesserit_troops'] = 19
+                hidden['spice']['bene_gesserit'] = 5
+                areas['polar_sink'] = {
+                    'whole': {
+                        'bene_gesserit_troops': 1
+                    }
+                }
+            if faction == 'spacing_guild':
+                hidden['reserves']['spacing_guild_troops'] = 15
+                hidden['spice']['spacing_guild'] = 5
+                areas['tueks_sietch'] = {
+                    'R5': {
+                        'spacing_guild_troops': 5
+                    }
+                }
+            if faction == 'fremen':
+                hidden['reserves']['fremen_troops'] = 7
+                hidden['reserves']['fedaykin'] = 3
+                hidden['spice']['fremen'] = 3
+                a = random.randint(0, 7)
+                b = random.randint(0, 7-a)
+                c = random.randint(0, 7-a-b)
+                areas['sietch_tabr'] = {
+                    'R14': {
+                        'fremen_troops': 1 + a
+                    }
+                }
+                areas['false_wall_south'] = {
+                    'R4': {
+                        'fremen_troops': 1 + b
+                    }
+                }
+                areas['false_wall_west'] = {
+                    'R18': {
+                        'fremen_troops': 1 + c
+                    }
+                }
         _object_state = {
-            'hidden': {},
-            'areas': {},
+            'hidden': hidden,
+            'areas': areas,
             'visual': {},
             'meta': meta
         }

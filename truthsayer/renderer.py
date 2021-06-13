@@ -128,7 +128,7 @@ class Renderer:
             for region_name, token_object in region_object.items():
                 # print('token object')
                 # print(token_object)
-                if region_name[0] != 'R':
+                if region_name[0] != 'R' and region_name != 'whole':
                     continue
                 for token_name, token_instance in token_object.items():
                     # print('token instnace')
@@ -432,7 +432,7 @@ class Renderer:
         self.canvas.paste(token, box_target, mask=token)
         # top of the wheel
         filename = pkg_resources.open_binary(assets,
-        'battle_wheel_top.png')
+                                             'battle_wheel_top.png')
         token = Image.open(filename)
         token = token.convert('RGBA')
         width_token, height_token = token.size
