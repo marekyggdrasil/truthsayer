@@ -20,7 +20,57 @@ except ImportError:
     import importlib_resources as pkg_resources
 
 from truthsayer import assets
+from truthsayer.assets import json as json_files
 
+
+class CardsManager:
+    def __init__(self):
+        self.deck_treachery = json.loads(pkg_resources.read_text(json_files, 'treachery_deck.json'))['treachery_deck']
+        self.deck_alliance = json.loads(pkg_resources.read_text(json_files, 'alliance_deck.json'))['alliance_deck']
+        self.deck_spice = json.loads(pkg_resources.read_text(json_files, 'spice_deck.json'))['spice_deck']
+        self.deck_generator = json.loads(pkg_resources.read_text(json_files, 'generated_decks.json'))
+        self.generateStormDeck()
+        self.generateTraitorDeck()
+        self.generateCardIndex()
+
+    def generateStormDeck(self):
+        cards = []
+        template = self.deck_generator['storm_deck']['template']
+        values = self.deck_generator['storm_deck']['values']
+        for entry in values:
+            card = {
+                'card': template['card'].format(*entry),
+                'sectors': template['sectors'].format(*entry),
+                'header': template['header'].format(*entry),
+                'description': template['description'].format(*entry)
+            }
+            cards.append(card)
+        self.deck_storm = cards
+
+    def generateTraitorDeck(self):
+        cards = []
+        template = self.deck_generator['traitor_deck']['template']
+        values = self.deck_generator['traitor_deck']['values']
+        for entry in values:
+            card = {
+                'card': template['card'].format(*entry),
+                'header': template['header'].format(*entry),
+                'faction': template['faction'].format(*entry),
+                'strength': template['strength'].format(*entry),
+                'description': template['description'].format(*entry)
+            }
+            cards.append(card)
+        self.deck_traitor = cards
+
+    def generateCardIndex(self):
+        self.card_objects = {}
+        all_cards = self.deck_treachery
+        all_cards += self.deck_alliance
+        all_cards += self.deck_spice
+        all_cards += self.deck_storm
+        all_cards += self.deck_traitor
+        for card in all_cards:
+            self.card_objects[card['card']] = card
 
 class ConfigManager:
     def __init__(self):
@@ -309,7 +359,7 @@ class OriginatorTruthsayer(OriginatorJSON):
             game_state = self.initiate(meta)
         super().__init__(game_state)
         self.processor = RenderingProcessor()
-        self.card_objects = {} # TODO
+        self.cards_manager = CardsManager()
 
     def move(self, source_area, source_region, target_area, target_region, faction, N, unit=None):
         pass
@@ -357,7 +407,7 @@ class OriginatorTruthsayer(OriginatorJSON):
        renderer = Renderer(
            self._object_state,
            self.processor.game_config,
-           self.card_objects,
+           self.cards_manager.card_objects,
            outfile,
            battle=battle)
        renderer.render()
