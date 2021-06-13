@@ -263,7 +263,8 @@ class Renderer:
         dx = int(self.leader_r*math.cos(angle))
         x_info = int(self.width_canvas/2)+dx-int(self.leader_size/2)
         y_info = 110
-        text = self.texts['game_info']
+        game_info = 'Game {0}\nTurn {1}\n{2} phase'.format(self.texts['game_id'], str(self.texts['game_turn']), self.texts['game_phase'])
+        text = game_info
         self.canvas, w, h = self.renderText(text, self.fnt, 'white', x_info, y_info, anchor=None)
 
     def render(self):
