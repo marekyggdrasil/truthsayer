@@ -369,16 +369,36 @@ class OriginatorTruthsayer(OriginatorJSON):
         self.processor = RenderingProcessor()
         self.cards_manager = CardsManager()
 
-    def validateMapLocation(target_area, target_region):
+    def validateMapLocation(self, target_area, target_region):
         if target_area not in self.processor.manager.getAreas():
             raise ValueError('Invalid area')
         if target_region[0] != 'R' and target_region != 'whole':
             raise ValueError('Invalid region')
 
-    def move(self, source_area, source_region, target_area, target_region, faction, N, unit=None):
-        pass
+    def move(self, faction, source_area, source_region, target_area, target_region, N, troop_type=None):
+        self.validateMapLocation(source_area, source_region)
+        self.validateMapLocation(target_area, target_region)
+        if troop_type is None:
+            troop_type = '{0}_troops'.format(faction)
+        if source_area not in self._object_state['areas'].keys():
+            raise ValueError('No troops in this area')
+        if source_region not in self._object_state['areas'][source_area].keys():
+            raise ValueError('No troops in this region')
+        if troop_type not in self._object_state['areas'][source_area][source_region].keys():
+            raise ValueError('No troops in this region')
+        if self._object_state['areas'][source_area][source_region][troop_type] < N:
+            raise ValueError('Insufficient amount of troops to perform this action')
+        if target_area not in self._object_state['areas'].keys():
+            self._object_state['areas'][target_area] = {}
+        if target_region not in self._object_state['areas'][target_area].keys():
+            self._object_state['areas'][target_area][target_region] = {}
+        if troop_type not in self._object_state['areas'][target_area][target_region].keys():
+            self._object_state['areas'][target_area][target_region][troop_type] = 0
+        self._object_state['areas'][source_area][source_region][troop_type] -= N
+        self._object_state['areas'][target_area][target_region][troop_type] += N
 
     def ship(self, faction, target_area, target_region, N, troop_type=None):
+        self.validateMapLocation(target_area, target_region)
         if faction not in self._object_state['hidden']['reserves'].keys():
             raise ValueError('Incorrect faction')
         if troop_type is None:
