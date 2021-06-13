@@ -421,7 +421,10 @@ class OriginatorTruthsayer(OriginatorJSON):
 
     # payee is the one receiving
     def pay(self, spice, payor, payee):
-        pass
+        if self._object_state['hidden']['spice'][payor] < spice:
+            raise ValueError('Insufficient funds')
+        self._object_state['hidden']['spice'][payor] -= spice
+        self._object_state['hidden']['spice'][payee] += spice
 
     def kill(self, leader, area=None, region=None, N=1):
         pass
