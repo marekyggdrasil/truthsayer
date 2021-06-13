@@ -13,7 +13,7 @@
       "card": "traitor_{0}",
       "header": "{1}",
       "faction": "{2}",
-      "strength": "{3}"
+      "strength": "{3}",
       "description": "Reveal when Battle Plans are revealed if this leader is used by your opponent.\nYou immediately win this battle and lose nothing (even if a Lasgun and Shield are revealed).\nEnemy leader is killed and you receive its fighting strength in spice.\nBoth players lose if both their leaders are traitors, and neither player gets any spice."
     },
     "values": [
