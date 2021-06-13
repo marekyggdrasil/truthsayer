@@ -235,17 +235,24 @@ class RenderingProcessor:
                         game_state['visual'][area] = value
                     continue
                 for region in game_state['areas'][area].keys():
-                    # print(region)
                     if type(game_state['areas'][area][region]) is not dict:
                         continue
-                    # print(region)
                     for token in game_state['areas'][area][region].keys():
-                        if token not in game_state['visual'][area].keys():
-                            if area not in to_place:
-                                to_place[area] = {}
-                            if region not in to_place[area].keys():
-                                to_place[area][region] = {}
-                            to_place[area][region][token] = game_state['areas'][area][region][token]
+                        if area in game_state['visual'].keys():
+                            if region in game_state['visual'][area].keys():
+                                if token in game_state['visual'][area][region].keys():
+                                    old_count = game_state['visual'][area][region][token]['c']
+                                    new_count = game_state['areas'][area][region][token]
+                                    if new_count == 0:
+                                        del game_state['visual'][area][region][token]
+                                    elif old_count != new_count:
+                                        game_state['visual'][area][region][token]['c'] = new_count
+                                    continue
+                        if area not in to_place:
+                            to_place[area] = {}
+                        if region not in to_place[area].keys():
+                            to_place[area][region] = {}
+                        to_place[area][region][token] = game_state['areas'][area][region][token]
         if 'storm' in game_state['areas'].keys():
             position = game_state['areas']['storm']
             storm_object = self.calculateStormPosition(position)
@@ -362,11 +369,32 @@ class OriginatorTruthsayer(OriginatorJSON):
         self.processor = RenderingProcessor()
         self.cards_manager = CardsManager()
 
+    def validateMapLocation(target_area, target_region):
+        if target_area not in self.processor.manager.getAreas():
+            raise ValueError('Invalid area')
+        if target_region[0] != 'R' and target_region != 'whole':
+            raise ValueError('Invalid region')
+
     def move(self, source_area, source_region, target_area, target_region, faction, N, unit=None):
         pass
 
-    def ship(self, faction, target_area, target_region, N):
-        pass
+    def ship(self, faction, target_area, target_region, N, troop_type=None):
+        if faction not in self._object_state['hidden']['reserves'].keys():
+            raise ValueError('Incorrect faction')
+        if troop_type is None:
+            troop_type = '{0}_troops'.format(faction)
+        if troop_type not in self._object_state['hidden']['reserves'][faction].keys():
+            raise ValueError('Invalid troop type')
+        if self._object_state['hidden']['reserves'][faction][troop_type] < N:
+            raise ValueError('Not enough forces in reserves')
+        if target_area not in self._object_state['areas'].keys():
+            self._object_state['areas'][target_area] = {}
+        if target_region not in self._object_state['areas'][target_area].keys():
+            self._object_state['areas'][target_area][target_region] = {}
+        if troop_type not in self._object_state['areas'][target_area][target_region].keys():
+            self._object_state['areas'][target_area][target_region][troop_type] = 0
+        self._object_state['areas'][target_area][target_region][troop_type] += N
+        self._object_state['hidden']['reserves'][faction][troop_type] -= N
 
     def change(self, target_area, target_region, N):
         pass
@@ -401,7 +429,9 @@ class OriginatorTruthsayer(OriginatorJSON):
         areas = {}
         for player, faction in meta['factions'].items():
             if faction == 'atreides':
-                hidden['reserves']['atreides_troops'] = 10
+                hidden['reserves']['atreides'] = {
+                    'atreides_troops': 10
+                }
                 hidden['spice']['atreides'] = 10
                 areas['arrakeen'] = {
                     'R10': {
@@ -409,15 +439,25 @@ class OriginatorTruthsayer(OriginatorJSON):
                     }
                 }
             if faction == 'harkonnen':
-                hidden['reserves']['harkonnen_troops'] = 10
+                hidden['reserves']['harkonnen'] = {
+                    'harkonnen_troops': 10
+                }
                 hidden['spice']['harkonnen'] = 10
                 areas['carthag'] = {
                     'R11': {
                         'harkonnen_troops': 10
                     }
                 }
+            if faction == 'emperor':
+                hidden['reserves']['emperor'] = {
+                    'emperor_troops': 15,
+                    'sardaukar': 5
+                }
+                hidden['spice']['emperor'] = 10
             if faction == 'bene_gesserit':
-                hidden['reserves']['bene_gesserit_troops'] = 19
+                hidden['reserves']['bene_gesserit'] = {
+                    'bene_gesserit_troops': 19
+                }
                 hidden['spice']['bene_gesserit'] = 5
                 areas['polar_sink'] = {
                     'whole': {
@@ -425,7 +465,9 @@ class OriginatorTruthsayer(OriginatorJSON):
                     }
                 }
             if faction == 'spacing_guild':
-                hidden['reserves']['spacing_guild_troops'] = 15
+                hidden['reserves']['spacing_guild'] = {
+                    'spacing_guild_troops': 15
+                }
                 hidden['spice']['spacing_guild'] = 5
                 areas['tueks_sietch'] = {
                     'R5': {
@@ -433,8 +475,10 @@ class OriginatorTruthsayer(OriginatorJSON):
                     }
                 }
             if faction == 'fremen':
-                hidden['reserves']['fremen_troops'] = 7
-                hidden['reserves']['fedaykin'] = 3
+                hidden['reserves']['fremen'] = {
+                    'fremen_troops': 7,
+                    'fedaykin': 3
+                }
                 hidden['spice']['fremen'] = 3
                 a = random.randint(0, 7)
                 b = random.randint(0, 7-a)
