@@ -442,14 +442,23 @@ class OriginatorTruthsayer(OriginatorJSON):
         pass
 
     def storm(self, region):
-        pass
+        if region[0] != 'R':
+            raise ValueError('Invalid region')
+        position_str = region[1:]
+        try:
+            position = int(position_str)
+        except:
+            raise ValueError('Invalid region')
+        self._object_state['areas']['storm'] = position
 
     def initiate(self, meta):
         hidden = {
             'reserves': {},
             'spice': {}
         }
-        areas = {}
+        areas = {
+            'storm': random.randint(1, 18)
+        }
         for player, faction in meta['factions'].items():
             if faction == 'atreides':
                 hidden['reserves']['atreides'] = {
