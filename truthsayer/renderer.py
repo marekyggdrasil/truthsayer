@@ -161,18 +161,23 @@ class Renderer:
             return None
         qr_code = makeQR(self.texts['qr'])
         self.width_qr, self.height_qr = qr_code.size
-        self.pos_qr_x = 20
+        self.pos_qr_x = int(self.width_canvas-self.width_qr-20)
         self.pos_qr_y = int(self.height_canvas - self.height_qr - 40)
         self.canvas.paste(qr_code, (self.pos_qr_x, self.pos_qr_y))
 
-        x = self.pos_qr_x
+        w, h = self.fnt.getsize(self.texts['promo'])
+        w2, h2 = self.fnt.getsize(self.texts['qr'])
+        if w2 > w:
+            w = w2
+        x = int(self.width_canvas-w-20)
         y = self.height_canvas - 40
         text = self.texts['promo'] + '\n' + self.texts['qr']
         self.canvas, w, h = self.renderText(text, self.fnt, 'white', x, y, anchor=None)
 
-        x = self.pos_qr_x
-        y = self.height_canvas - self.height_qr - 40 - 20
         text = self.texts['promo_top']
+        w, h = self.fnt.getsize(text)
+        x = int(self.width_canvas-w-20)
+        y = self.height_canvas - self.height_qr - 40 - 20
         self.canvas, w, h = self.renderText(text, self.fnt, 'white', x, y, anchor=None)
 
     def renderRegionMarks(self):
@@ -267,6 +272,16 @@ class Renderer:
         text = game_info
         self.canvas, w, h = self.renderText(text, self.fnt, 'white', x_info, y_info, anchor=None)
 
+    def renderLastCommands(self):
+        text = '\n'.join(self.texts['commands'])
+        lh = 0
+        for cmd in self.texts['commands']:
+            _, h = self.fnt.getsize(text)
+            lh += h
+        x_info = 20
+        y_info = int(self.height_canvas-lh)
+        self.canvas, _, _ = self.renderText(text, self.fnt, 'white', x_info, y_info, anchor=None)
+
     def render(self):
         self.placeStorm()
         self.renderRegionMarks()
@@ -279,6 +294,7 @@ class Renderer:
         self.renderBattle()
         self.renderQR()
         self.renderGameInfo()
+        self.renderLastCommands()
         # remove alpha
         self.canvas = self.canvas.convert('RGB')
         self.canvas.save(self.outfile, quality=self.quality)

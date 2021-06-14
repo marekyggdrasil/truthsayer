@@ -396,6 +396,8 @@ class OriginatorTruthsayer(OriginatorJSON):
             self._object_state['areas'][target_area][target_region][troop_type] = 0
         self._object_state['areas'][source_area][source_region][troop_type] -= N
         self._object_state['areas'][target_area][target_region][troop_type] += N
+        cmd = '/{0} {1} {2} {3} {4} {5} {6}'.format('move', faction, source_area, source_region, target_area, target_region, str(N))
+        self.appendCMD(cmd)
 
     def ship(self, faction, target_area, target_region, N, troop_type=None):
         self.validateMapLocation(target_area, target_region)
@@ -415,6 +417,8 @@ class OriginatorTruthsayer(OriginatorJSON):
             self._object_state['areas'][target_area][target_region][troop_type] = 0
         self._object_state['areas'][target_area][target_region][troop_type] += N
         self._object_state['hidden']['reserves'][faction][troop_type] -= N
+        cmd = '/{0} {1} {2} {3} {4}'.format('ship', faction, target_area, target_region, str(N))
+        self.appendCMD(cmd)
 
     def change(self, target_area, target_region, N):
         pass
@@ -424,22 +428,124 @@ class OriginatorTruthsayer(OriginatorJSON):
         if self._object_state['hidden']['spice'][payor] < spice:
             raise ValueError('Insufficient funds')
         self._object_state['hidden']['spice'][payor] -= spice
-        self._object_state['hidden']['spice'][payee] += spice
+        if payee != 'spice_bank':
+            self._object_state['hidden']['spice'][payee] += spice
+        cmd = '/{0} {1} {2} {3}'.format('pay', spice, payor, payee)
+        self.appendCMD(cmd)
 
-    def kill(self, leader, area=None, region=None, N=1):
-        pass
+    def spiceblow(self, target_area, N):
+        target_area_spice = target_area + '_spice'
+        if not self.processor.manager.isAreaSpice(target_area_spice):
+            raise ValueError('Invalid target area')
+        if target_area not in self._object_state['areas'].keys():
+            self._object_state['areas'][target_area_spice] = 0
+        self._object_state['areas'][target_area_spice] += N
+        cmd = '/{0} {1} {2}'.format('spiceblow', target_area, str(N))
+        self.appendCMD(cmd)
+
+    def harvest(self, faction, target_area, N):
+        target_area_spice = target_area + '_spice'
+        if not self.processor.manager.isAreaSpice(target_area_spice):
+            raise ValueError('Invalid target area')
+        if target_area not in self._object_state['areas'].keys():
+            self._object_state['areas'][target_area_spice] = 0
+        if self._object_state['areas'][target_area_spice] < N:
+            raise ValueError('Insufficient spice supply')
+        self._object_state['areas'][target_area_spice] -= N
+        self._object_state['hidden']['spice'][faction] += N
+        cmd = '/{0} {1} {2} {3}'.format('harvest', faction, target_area_spice, str(N))
+        self.appendCMD(cmd)
+
+    def kill(self, leader):
+        if not self.processor.manager.isLeader(leader):
+            raise ValueError('Invalid leader')
+        self._object_state['areas']['tleilaxu_tanks'][leader] = 1
+        cmd = '/{0} {1}'.format('kill', leader)
+        self.appendCMD(cmd)
 
     def revive(self, leader_or_unit, N=1):
         pass
 
-    def lead(self, leader):
-        pass
+    def lead(self, player, leader):
+        participants = [
+            self._game_state['areas']['wheel_attacker_player'],
+            self._game_state['areas']['wheel_defender_player']
+        ]
+        if player not in participants:
+            raise ValueError('Player is not a battle participant')
+        if not self.processor.manager.isLeader(leader):
+            raise ValueError('Invalid leader')
+        if player == participants[0]:
+            self._object_state['areas']['wheel_attacker_leader'] = leader
+        if player == participants[1]:
+            self._object_state['areas']['wheel_defender_leader'] = leader
 
-    def treachery(self, faction, card):
-        pass
+    def treachery(self, player, card):
+        participants = [
+            self._game_state['areas']['wheel_attacker_player'],
+            self._game_state['areas']['wheel_defender_player']
+        ]
+        if player not in participants:
+            raise ValueError('Player is not a battle participant')
+        faction = self._object_state['meta']['factions'][player]
+        if card not in self._object_state['hidden']['cards'][faction]:
+            raise ValueError('Player does not have that card in the hand')
+        if card in self._object_state['hidden']['cards'][faction]: self._object_state['hidden']['cards'][faction].remove(card)
+        if player == participants[0]:
+            self._object_state['areas']['wheel_attacker_cards'] += [card]
+        if player == participants[1]:
+            self._object_state['areas']['wheel_defender_cards'] += [card]
 
-    def battle(self, faction, N):
-        pass
+    def discard(self, player, card):
+        participants = [
+            self._game_state['areas']['wheel_attacker_player'],
+            self._game_state['areas']['wheel_defender_player']
+        ]
+        if player not in participants:
+            raise ValueError('Player is not a battle participant')
+        faction = self._object_state['meta']['factions'][player]
+        key = 'wheel_attacker_cards'
+        if player == participants[1]:
+            key = 'wheel_defender_cards'
+        if card not in self._object_state['areas'][key]:
+            raise ValueError('This card is not part of the battle plan')
+        self._object_state['areas'][key].remove(card)
+        self._object_state['hidden']['discarded'].append(card)
+        cmd = '/{0} {1} {2}'.format('discard', player, card)
+        self.appendCMD(cmd)
+
+    def takeback(self, player):
+        participants = [
+            self._game_state['areas']['wheel_attacker_player'],
+            self._game_state['areas']['wheel_defender_player']
+        ]
+        if player not in participants:
+            raise ValueError('Player is not a battle participant')
+        faction = self._object_state['meta']['factions'][player]
+        key = 'wheel_attacker_cards'
+        if player == participants[1]:
+            key = 'wheel_defender_cards'
+        for card in self._object_state['areas'][key]:
+            self._object_state['hidden']['cards'][faction].append(card)
+        self._object_state['areas'][key] = []
+        cmd = '/{0} {1}'.format('takeback', player)
+        self.appendCMD(cmd)
+
+    def battle(self, aggressor_player, defender_player):
+        self._object_state['areas']['wheel_attacker_player'] = aggressor_player
+        self._object_state['areas']['wheel_defender_player'] = defender_player
+        self._object_state['areas']['wheel_attacker_cards'] = []
+        self._object_state['areas']['wheel_defender_cards'] = []
+        self._object_state['areas']['wheel_attacker_value'] = 0
+        self._object_state['areas']['wheel_defender_value'] = 0
+        self._object_state['areas']['wheel_attacker_leader'] = None
+        self._object_state['areas']['wheel_defender_leader'] = None
+        cmd = '/{0} {1} {2}'.format('battle', aggressor_player, defender_player)
+        self.appendCMD(cmd)
+
+    def deployment(self, faction, N):
+        cmd = '/{0} {1} {2}'.format('deployment', faction, N)
+        self.appendCMD(cmd)
 
     def storm(self, region):
         if region[0] != 'R':
@@ -450,16 +556,34 @@ class OriginatorTruthsayer(OriginatorJSON):
         except:
             raise ValueError('Invalid region')
         self._object_state['areas']['storm'] = position
+        cmd = '/{0} {1}'.format('storm', region)
+        self.appendCMD(cmd)
+
+    def appendCMD(self, cmd):
+        self._object_state['hidden']['height'] += 1
+        height = self._object_state['hidden']['height']
+        self._object_state['meta']['texts']['commands'].append(str(height) + ' ' + cmd)
+        if len(self._object_state['meta']['texts']['commands']) > 4:
+            self._object_state['meta']['texts']['commands'].pop()
+        print(self._object_state['meta']['texts'])
 
     def initiate(self, meta):
         hidden = {
             'reserves': {},
-            'spice': {}
+            'spice': {},
+            'battle': {
+                'aggressor': None,
+                'defender': None
+            },
+            'cards': {},
+            'discarded': [],
+            'height': 0
         }
         areas = {
             'storm': random.randint(1, 18)
         }
         for player, faction in meta['factions'].items():
+            hidden['cards'][faction] = []
             if faction == 'atreides':
                 hidden['reserves']['atreides'] = {
                     'atreides_troops': 10
