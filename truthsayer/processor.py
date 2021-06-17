@@ -27,8 +27,17 @@ from truthsayer.assets import json as json_files
 class CardsManager:
     def __init__(self):
         self.deck_treachery = json.loads(pkg_resources.read_text(json_files, 'treachery_deck.json'))['treachery_deck']
+        self.headers_deck_treachery = []
+        for card in self.deck_treachery:
+            self.headers_deck_treachery.append(card['card'])
         self.deck_alliance = json.loads(pkg_resources.read_text(json_files, 'alliance_deck.json'))['alliance_deck']
+        self.headers_deck_alliance = []
+        for card in self.deck_alliance:
+            self.headers_deck_alliance.append(card['card'])
         self.deck_spice = json.loads(pkg_resources.read_text(json_files, 'spice_deck.json'))['spice_deck']
+        self.headers_deck_spice = []
+        for card in self.deck_spice:
+            self.headers_deck_spice.append(card['card'])
         self.deck_generator = json.loads(pkg_resources.read_text(json_files, 'generated_decks.json'))
         self.generateStormDeck()
         self.generateTraitorDeck()
@@ -36,6 +45,7 @@ class CardsManager:
 
     def generateStormDeck(self):
         cards = []
+        headers = []
         template = self.deck_generator['storm_deck']['template']
         values = self.deck_generator['storm_deck']['values']
         for entry in values:
@@ -46,10 +56,13 @@ class CardsManager:
                 'description': template['description'].format(*entry)
             }
             cards.append(card)
+            headers.append(values[0])
         self.deck_storm = cards
+        self.headers_deck_storm = headers[]
 
     def generateTraitorDeck(self):
         cards = []
+        headers = []
         template = self.deck_generator['traitor_deck']['template']
         values = self.deck_generator['traitor_deck']['values']
         for entry in values:
@@ -61,7 +74,9 @@ class CardsManager:
                 'description': template['description'].format(*entry)
             }
             cards.append(card)
+            headers.append(values[0])
         self.deck_traitor = cards
+        self.headers_deck_traitor = headers[]
 
     def generateCardIndex(self):
         self.card_objects = {}
@@ -570,6 +585,26 @@ class OriginatorTruthsayer(OriginatorJSON):
         cmd = '/{0} {1}'.format('storm', region)
         self.appendCMD(cmd)
 
+    def peak(self, player, deck):
+        if deck not in self._object_state['hidden']['decks'].keys():
+            raise ValueError('Invalid deck name')
+        faction = self._object_state['meta']['factions'][player]
+        cmd = '/{0} {1} {2}'.format('peak', faction, deck)
+        self.appendCMD(cmd)
+        card_id = self._object_state['meta']['decks'][deck][0]
+        card = self.cards_manager.cards_objects[card_id]
+        return card
+
+    def draw(self, player, deck):
+        if deck not in self._object_state['hidden']['decks'].keys():
+            raise ValueError('Invalid deck name')
+        faction = self._object_state['meta']['factions'][player]
+        cmd = '/{0} {1} {2}'.format('draw', faction, deck)
+        self.appendCMD(cmd)
+        card_id = self._object_state['meta']['decks'][deck].pop()
+        card = self.cards_manager.cards_objects[card_id]
+        return card
+
     def appendCMD(self, cmd):
         self._object_state['hidden']['height'] += 1
         height = self._object_state['hidden']['height']
@@ -588,7 +623,13 @@ class OriginatorTruthsayer(OriginatorJSON):
             },
             'cards': {},
             'discarded': [],
-            'height': 0
+            'height': 0,
+            'decks': {
+                'treachery': list(random.shuffle(self.cards_manager.headers_deck_treachery)),
+                'spice': list(random.shuffle(self.cards_manager.headers_deck_spice)),
+                'storm': list(random.shuffle(self.cards_manager.headers_deck_storm)),
+                'traitor': list(random.shuffle(self.cards_manager.headers_deck_traitor))
+            }
         }
         areas = {
             'storm': random.randint(1, 18)
