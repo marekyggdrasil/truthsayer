@@ -279,7 +279,7 @@ class Renderer:
             _, h = self.fnt.getsize(text)
             lh += h
         x_info = 20
-        y_info = int(self.height_canvas-lh)
+        y_info = int(self.height_canvas-lh-20)
         self.canvas, _, _ = self.renderText(text, self.fnt, 'white', x_info, y_info, anchor=None)
 
     def render(self):

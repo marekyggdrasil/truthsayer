@@ -58,7 +58,7 @@ class CardsManager:
             cards.append(card)
             headers.append(values[0])
         self.deck_storm = cards
-        self.headers_deck_storm = headers[]
+        self.headers_deck_storm = headers
 
     def generateTraitorDeck(self):
         cards = []
@@ -76,7 +76,7 @@ class CardsManager:
             cards.append(card)
             headers.append(values[0])
         self.deck_traitor = cards
-        self.headers_deck_traitor = headers[]
+        self.headers_deck_traitor = headers
 
     def generateCardIndex(self):
         self.card_objects = {}
@@ -378,11 +378,11 @@ class RenderingProcessor:
 
 class OriginatorTruthsayer(OriginatorJSON):
     def __init__(self, game_state={}, meta={}):
+        self.processor = RenderingProcessor()
+        self.cards_manager = CardsManager()
         if game_state == {}:
             game_state = self.initiate(meta)
         super().__init__(game_state)
-        self.processor = RenderingProcessor()
-        self.cards_manager = CardsManager()
 
     def validateMapLocation(self, target_area, target_region):
         if target_area not in self.processor.manager.getAreas():
@@ -483,8 +483,8 @@ class OriginatorTruthsayer(OriginatorJSON):
 
     def lead(self, player, leader):
         participants = [
-            self._game_state['areas']['wheel_attacker_player'],
-            self._game_state['areas']['wheel_defender_player']
+            self._object_state['areas']['wheel_attacker_player'],
+            self._object_state['areas']['wheel_defender_player']
         ]
         if player not in participants:
             raise ValueError('Player is not a battle participant')
@@ -497,8 +497,8 @@ class OriginatorTruthsayer(OriginatorJSON):
 
     def treachery(self, player, card):
         participants = [
-            self._game_state['areas']['wheel_attacker_player'],
-            self._game_state['areas']['wheel_defender_player']
+            self._object_state['areas']['wheel_attacker_player'],
+            self._object_state['areas']['wheel_defender_player']
         ]
         if player not in participants:
             raise ValueError('Player is not a battle participant')
@@ -513,8 +513,8 @@ class OriginatorTruthsayer(OriginatorJSON):
 
     def discard(self, player, card):
         participants = [
-            self._game_state['areas']['wheel_attacker_player'],
-            self._game_state['areas']['wheel_defender_player']
+            self._object_state['areas']['wheel_attacker_player'],
+            self._object_state['areas']['wheel_defender_player']
         ]
         if player not in participants:
             raise ValueError('Player is not a battle participant')
@@ -531,8 +531,8 @@ class OriginatorTruthsayer(OriginatorJSON):
 
     def takeback(self, player):
         participants = [
-            self._game_state['areas']['wheel_attacker_player'],
-            self._game_state['areas']['wheel_defender_player']
+            self._object_state['areas']['wheel_attacker_player'],
+            self._object_state['areas']['wheel_defender_player']
         ]
         if player not in participants:
             raise ValueError('Player is not a battle participant')
@@ -560,8 +560,8 @@ class OriginatorTruthsayer(OriginatorJSON):
 
     def deployment(self, player, N):
         participants = [
-            self._game_state['areas']['wheel_attacker_player'],
-            self._game_state['areas']['wheel_defender_player']
+            self._object_state['areas']['wheel_attacker_player'],
+            self._object_state['areas']['wheel_defender_player']
         ]
         if player not in participants:
             raise ValueError('Player is not a battle participant')
@@ -570,8 +570,6 @@ class OriginatorTruthsayer(OriginatorJSON):
         if player == participants[1]:
             key = 'wheel_defender_value'
         self._object_state['areas'][key] = N
-        cmd = '/{0} {1} {2}'.format('deployment', faction, N)
-        self.appendCMD(cmd)
 
     def storm(self, region):
         if region[0] != 'R':
@@ -592,7 +590,7 @@ class OriginatorTruthsayer(OriginatorJSON):
         cmd = '/{0} {1} {2}'.format('peak', faction, deck)
         self.appendCMD(cmd)
         card_id = self._object_state['meta']['decks'][deck][0]
-        card = self.cards_manager.cards_objects[card_id]
+        card = self.cards_manager.card_objects[card_id]
         return card
 
     def draw(self, player, deck):
@@ -601,19 +599,36 @@ class OriginatorTruthsayer(OriginatorJSON):
         faction = self._object_state['meta']['factions'][player]
         cmd = '/{0} {1} {2}'.format('draw', faction, deck)
         self.appendCMD(cmd)
-        card_id = self._object_state['meta']['decks'][deck].pop()
-        card = self.cards_manager.cards_objects[card_id]
+        card_id = self._object_state['hidden']['decks'][deck].pop()
+        self._object_state['hidden']['cards'][faction].append(card_id)
+        card = self.cards_manager.card_objects[card_id]
         return card
+
+    def hand(self, player):
+        faction = self._object_state['meta']['factions'][player]
+        return {
+            'cards': self._object_state['hidden']['cards'][faction],
+            'spice': self._object_state['hidden']['spice'][faction],
+            'reserves': self._object_state['hidden']['reserves'][faction]
+        }
 
     def appendCMD(self, cmd):
         self._object_state['hidden']['height'] += 1
         height = self._object_state['hidden']['height']
         self._object_state['meta']['texts']['commands'].append(str(height) + ' ' + cmd)
-        if len(self._object_state['meta']['texts']['commands']) > 4:
-            self._object_state['meta']['texts']['commands'].pop()
+        if len(self._object_state['meta']['texts']['commands']) > 8:
+            del self._object_state['meta']['texts']['commands'][0]
         print(self._object_state['meta']['texts'])
 
     def initiate(self, meta):
+        deck_treachery = list(self.cards_manager.headers_deck_treachery)
+        deck_spice = list(self.cards_manager.headers_deck_spice)
+        deck_storm = list(self.cards_manager.headers_deck_storm)
+        deck_traitor = list(self.cards_manager.headers_deck_traitor)
+        random.shuffle(deck_treachery)
+        random.shuffle(deck_spice)
+        random.shuffle(deck_storm)
+        random.shuffle(deck_traitor)
         hidden = {
             'reserves': {},
             'spice': {},
@@ -625,10 +640,10 @@ class OriginatorTruthsayer(OriginatorJSON):
             'discarded': [],
             'height': 0,
             'decks': {
-                'treachery': list(random.shuffle(self.cards_manager.headers_deck_treachery)),
-                'spice': list(random.shuffle(self.cards_manager.headers_deck_spice)),
-                'storm': list(random.shuffle(self.cards_manager.headers_deck_storm)),
-                'traitor': list(random.shuffle(self.cards_manager.headers_deck_traitor))
+                'treachery': deck_treachery,
+                'spice': deck_spice,
+                'storm': deck_storm,
+                'traitor': deck_traitor
             }
         }
         areas = {
