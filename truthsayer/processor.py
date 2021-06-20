@@ -617,11 +617,11 @@ class OriginatorTruthsayer(OriginatorJSON):
         params = [param1, param2]
         self._object_state['configs'][key] = params
         args = ['configs', key]
+        cmd = '/' + 'configs'
         if param1 is not None:
-            args += [param1]
+            cmd += ' ' + str(param1)
         if param2 is not None:
-            args += [param2]
-        cmd = '/{0} {1} {2}'.format(*args)
+            cmd += ' ' + str(param2)
         self.appendCMD(cmd)
 
     def appendCMD(self, cmd):
