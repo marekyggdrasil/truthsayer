@@ -612,6 +612,18 @@ class OriginatorTruthsayer(OriginatorJSON):
             'reserves': self._object_state['hidden']['reserves'][faction]
         }
 
+    def config(self, key, param1, param2):
+        # TODO validation?
+        params = [param1, param2]
+        self._object_state['configs'][key] = params
+        args = ['configs', key]
+        if param1 is not None:
+            args += [param1]
+        if param2 is not None:
+            args += [param2]
+        cmd = '/{0} {1} {2}'.format(*args)
+        self.appendCMD(cmd)
+
     def appendCMD(self, cmd):
         self._object_state['hidden']['height'] += 1
         height = self._object_state['hidden']['height']
@@ -725,7 +737,8 @@ class OriginatorTruthsayer(OriginatorJSON):
             'hidden': hidden,
             'areas': areas,
             'visual': {},
-            'meta': meta
+            'meta': meta,
+            'configs': {}
         }
         return _object_state
 

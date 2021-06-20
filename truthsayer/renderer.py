@@ -301,11 +301,16 @@ class Renderer:
         del self.canvas
 
     def placeSpice(self):
-        filename = pkg_resources.open_binary(assets, 'czempak_spice_1.png')
+        params = self.game_state['configs'].get('spice_token', ['czempak_spice_1', self.spice_size])
+        if params[1] is None:
+            params[1] = self.spice_size
+        filename = params[0] + '.png'
+        spice_size = params[1]
+        filename = pkg_resources.open_binary(assets, filename)
         token = Image.open(filename)
         token = token.convert('RGBA')
         width_token, height_token = token.size
-        token = token.resize((self.spice_size, self.spice_size), Image.ANTIALIAS)
+        token = token.resize((spice_size, spice_size), Image.ANTIALIAS)
         width_token, height_token = token.size
         del filename
         filename = pkg_resources.open_binary(assets, 'RobotoCondensed-Bold.ttf')
@@ -395,15 +400,16 @@ class Renderer:
         return rectangle
 
     def render_card(self, card_object):
-        unit = self.card_unit
         radius = self.card_radius
         fill = 'white'
+        # card = self.round_rectangle(size, radius, fill)
+        params = self.game_state['configs'].get('card_background', ['czempak_card_background', self.card_unit])
+        filename = params[0] + '.png'
+        unit = params[1]
+        filename = pkg_resources.open_binary(assets, filename)
         width = 25*unit
         height = 35*unit
         size = width, height
-        # card = self.round_rectangle(size, radius, fill)
-        filename = pkg_resources.open_binary(assets,
-        'czempak_card_background.png')
         token = Image.open(filename)
         token = token.convert('RGBA')
         width_token, height_token = token.size

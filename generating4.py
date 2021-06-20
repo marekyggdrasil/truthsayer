@@ -44,6 +44,9 @@ originator.render('images/originator/originator4.jpg')
 originator.spiceblow('sihaya_ridge', 5)
 originator.render('images/originator/originator5.jpg')
 
+originator.config('spice_token', 'spiceglow', 500)
+originator.render('images/originator/originator6.jpg')
+
 # draw some cards
 originator.draw('player_1', 'treachery')
 originator.draw('player_1', 'treachery')
@@ -71,5 +74,5 @@ originator.deployment('player_2', 4)
 originator.lead('player_2', 'alia')
 originator.treachery('player_2', hand_player_2['cards'][0])
 
-originator.render('images/originator/originator6.jpg', battle=True)
+originator.render('images/originator/originator7.jpg', battle=True)
 
