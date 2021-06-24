@@ -366,13 +366,17 @@ class RenderingProcessor:
         # as a last thing, generate texts
         for player_key, faction_key in game_state['meta']['factions'].items():
             player_name = game_state['meta']['usernames'][player_key]
+            user_id = game_state['meta']['user_ids'][player_key]
             faction_name = self.manager.getFactionName(faction_key)
             text = '{0}\n{1}'.format(player_name, faction_name)
             if 'texts' not in game_state['meta'].keys():
                 game_state['meta']['texts'] = {}
-            if 'usernames' not in game_state['meta']['texts'].keys():
-                game_state['meta']['texts']['usernames'] = {}
-            game_state['meta']['texts']['usernames'][player_key] = text
+            if 'player_names' not in game_state['meta']['texts'].keys():
+                game_state['meta']['texts']['player_names'] = {}
+            if 'user_ids' not in game_state['meta']['texts'].keys():
+                game_state['meta']['texts']['user_ids'] = {}
+            game_state['meta']['texts']['player_names'][player_key] = player_name
+            game_state['meta']['texts']['user_ids'][player_key] = user_id
         return game_state
 
 
@@ -612,6 +616,48 @@ class OriginatorTruthsayer(OriginatorJSON):
             'reserves': self._object_state['hidden']['reserves'][faction]
         }
 
+    def join(self, seat, username, player_id, faction='random'):
+        if len(self._object_state['meta']['usernames'].keys()) >= 6:
+            raise ValueError('too many players at the table')
+        if seat not in list(range(1, 7)):
+            raise ValueError('seat should be an integer between 1 and 6')
+        key = 'player_{0}'.format(str(seat))
+        self._object_state['meta']['usernames'][key] = username
+        self._object_state['meta']['user_ids'][key] = player_id
+        used = []
+        for _, value in self._object_state['meta']['factions'].items():
+            used.append(value)
+        if faction in used:
+            raise ValueError('this faction is already taken')
+        if faction == 'random':
+            available = []
+            all_factions = ['atreides', 'bene_gesserit', 'emperor', 'spacing_guild', 'fremen', 'harkonnen']
+            for f in all_factions:
+                if f not in used:
+                    available.append(f)
+            faction = random.choice(available)
+        self._object_state['meta']['factions'][key] = faction
+        # print()
+        # print(seat, username, player_id, faction, key)
+        # print(self._object_state['meta']['factions'])
+        # print()
+        cmd = '/{0} {1} {2} {3}'.format('join', seat, username, player_id)
+        if faction is not 'random':
+            cmd += ' ' + faction
+        self.appendCMD(cmd)
+
+    def randomize(self, what):
+        if what == 'factions':
+            used = []
+            for key, value in self._object_state['meta']['factions'].items():
+                used.append(value)
+            random.shuffle(used)
+            for key, f in zip(self._object_state['meta']['factions'].keys(), used):
+                self._object_state['meta']['factions'][key] = f
+            print('randomized')
+            print(self._object_state['meta']['factions'])
+            self.appendCMD('/randomize factions')
+
     def config(self, key, param1, param2):
         # TODO validation?
         params = [param1, param2]
@@ -632,7 +678,7 @@ class OriginatorTruthsayer(OriginatorJSON):
             del self._object_state['meta']['texts']['commands'][0]
         print(self._object_state['meta']['texts'])
 
-    def initiate(self, meta):
+    def initgame(self):
         deck_treachery = list(self.cards_manager.headers_deck_treachery)
         deck_spice = list(self.cards_manager.headers_deck_spice)
         deck_storm = list(self.cards_manager.headers_deck_storm)
@@ -641,22 +687,13 @@ class OriginatorTruthsayer(OriginatorJSON):
         random.shuffle(deck_spice)
         random.shuffle(deck_storm)
         random.shuffle(deck_traitor)
-        hidden = {
-            'reserves': {},
-            'spice': {},
-            'battle': {
-                'aggressor': None,
-                'defender': None
-            },
-            'cards': {},
-            'discarded': [],
-            'height': 0,
-            'decks': {
-                'treachery': deck_treachery,
-                'spice': deck_spice,
-                'storm': deck_storm,
-                'traitor': deck_traitor
-            }
+        meta = self._object_state['meta']
+        hidden = self._object_state['hidden']
+        hidden['decks'] = {
+            'treachery': deck_treachery,
+            'spice': deck_spice,
+            'storm': deck_storm,
+            'traitor': deck_traitor
         }
         areas = {
             'storm': random.randint(1, 18)
@@ -733,9 +770,27 @@ class OriginatorTruthsayer(OriginatorJSON):
                         'fremen_troops': 1 + c
                     }
                 }
+        self._object_state['hidden'] = hidden
+        self._object_state['areas'] = areas
+        self.appendCMD('/init')
+
+
+    def initiate(self, meta):
+        hidden = {
+            'reserves': {},
+            'spice': {},
+            'battle': {
+                'aggressor': None,
+                'defender': None
+            },
+            'cards': {},
+            'discarded': [],
+            'height': 0,
+            'decks': {}
+        }
         _object_state = {
             'hidden': hidden,
-            'areas': areas,
+            'areas': {},
             'visual': {},
             'meta': meta,
             'configs': {}

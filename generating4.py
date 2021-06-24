@@ -1,22 +1,9 @@
 from truthsayer.processor import OriginatorTruthsayer
 
 meta = {
-    'factions': {
-        'player_1': 'atreides',
-        'player_2': 'bene_gesserit',
-        'player_3': 'emperor',
-        'player_4': 'spacing_guild',
-        'player_5': 'fremen',
-        'player_6': 'harkonnen'
-    },
-    'usernames': {
-        'player_1': '@marek',
-        'player_2': '@john',
-        'player_3': '@renzokuken',
-        'player_4': '@somedude',
-        'player_5': '@andy',
-        'player_6': '@zylwia'
-    },
+    'factions': {},
+    'usernames': {},
+    'user_ids': {},
     'texts': {
         'promo_top': 'Truthsayer Discord',
         'promo': 'Join us for more Dune games!',
@@ -30,22 +17,41 @@ meta = {
 
 
 originator = OriginatorTruthsayer(meta=meta)
-originator.render('images/originator/originator.jpg')
+originator.render('images/originator/originator00.jpg')
+
+originator.join(1, '@marek', '#467263')
+originator.join(5, '@renzokuken', '#387843')
+originator.join(3, '@zylwia', '#198264')
+
+originator.render('images/originator/originator01.jpg')
+
+originator.join(2, '@andy', '#430293')
+originator.join(4, '@john', '#098532')
+originator.join(6, '@somedude', '#130539')
+
+originator.render('images/originator/originator02.jpg')
+
+originator.randomize('factions')
+
+originator.render('images/originator/originator03.jpg')
+
+originator.initgame()
+originator.render('images/originator/originator04.jpg')
 
 originator.ship('emperor', 'plastic_basin', 'R13', 4)
-originator.render('images/originator/originator2.jpg')
+originator.render('images/originator/originator05.jpg')
 
 originator.move('atreides', 'arrakeen', 'R10', 'hole_in_the_rock', 'R9', 3)
-originator.render('images/originator/originator3.jpg')
+originator.render('images/originator/originator06.jpg')
 
 originator.storm('R9')
-originator.render('images/originator/originator4.jpg')
+originator.render('images/originator/originator07.jpg')
 
 originator.spiceblow('sihaya_ridge', 5)
-originator.render('images/originator/originator5.jpg')
+originator.render('images/originator/originator08.jpg')
 
 originator.config('spice_token', 'spiceglow', 500)
-originator.render('images/originator/originator6.jpg')
+originator.render('images/originator/originator09.jpg')
 
 # draw some cards
 originator.draw('player_1', 'treachery')
@@ -74,5 +80,5 @@ originator.deployment('player_2', 4)
 originator.lead('player_2', 'alia')
 originator.treachery('player_2', hand_player_2['cards'][0])
 
-originator.render('images/originator/originator7.jpg', battle=True)
+originator.render('images/originator/originator10.jpg', battle=True)
 

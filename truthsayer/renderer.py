@@ -246,7 +246,8 @@ class Renderer:
             if i == 5:
                 x_info = 5
                 y_info = y + half_width
-            self.d.text((x_info, y_info), self.texts['usernames'][area_name], font=self.fnt, fill='white')
+            text = self.texts['player_names'][area_name] + '\n' + self.texts['user_ids'][area_name]
+            self.d.text((x_info, y_info), text, font=self.fnt, fill='white')
 
     def renderTleilaxuTanks(self):
         # dead leaders in the tleilaxu_tanks
