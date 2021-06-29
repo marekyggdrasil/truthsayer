@@ -7,7 +7,7 @@ from shapely.geometry.point import Point
 
 from simpleai.search.local import genetic
 
-from brackette.memento import OriginatorJSON
+from brackette.memento import OriginatorJSON, Caretaker
 
 from truthsayer.opti import TokenPlacementProblem
 from truthsayer.opti import MultiTokenPlacementProblem
