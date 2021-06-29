@@ -203,8 +203,8 @@ class RenderingProcessor:
             x = result.state[i*2]
             y = result.state[i*2+1]
             token_type = None
-            print('multiplace')
-            print(name)
+            # print('multiplace')
+            # print(name)
             if self.manager.isLeader(name):
                 token_type = 'leader_token'
             elif self.manager.isTroop(name):
@@ -275,7 +275,7 @@ class RenderingProcessor:
         for area, faction in game_state['meta']['factions'].items():
             faction_symbol = self.manager.getFactionSymbol(faction)
             file = self.manager.getFile(faction_symbol)
-            print(faction, faction_symbol, file)
+            # print(faction, faction_symbol, file)
             game_state['visual'][area] = file
         wheel_values = ['wheel_attacker_value', 'wheel_defender_value']
         for wheel in wheel_values:
@@ -304,8 +304,8 @@ class RenderingProcessor:
         for area_name in to_place.keys():
             for region_name in to_place[area_name].keys():
                 elements = to_place[area_name][region_name]
-                print(elements)
-                print(len(elements.keys()))
+                # print(elements)
+                # print(len(elements.keys()))
                 if len(elements.keys()) > 1:
                     amounts = []
                     names = []
@@ -654,8 +654,8 @@ class OriginatorTruthsayer(OriginatorJSON):
             random.shuffle(used)
             for key, f in zip(self._object_state['meta']['factions'].keys(), used):
                 self._object_state['meta']['factions'][key] = f
-            print('randomized')
-            print(self._object_state['meta']['factions'])
+            # print('randomized')
+            # print(self._object_state['meta']['factions'])
             self.appendCMD('/randomize factions')
 
     def config(self, key, param1, param2):
@@ -676,7 +676,7 @@ class OriginatorTruthsayer(OriginatorJSON):
         self._object_state['meta']['texts']['commands'].append(str(height) + ' ' + cmd)
         if len(self._object_state['meta']['texts']['commands']) > 8:
             del self._object_state['meta']['texts']['commands'][0]
-        print(self._object_state['meta']['texts'])
+        # print(self._object_state['meta']['texts'])
 
     def initgame(self):
         deck_treachery = list(self.cards_manager.headers_deck_treachery)
