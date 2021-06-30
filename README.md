@@ -68,7 +68,7 @@ caretaker.backup()
 originator.render('images/originator/originator06.jpg')
 ```
 
-![arrakis_cartography](https://github.com/marekyggdrasil/arrakis/blob/main/images/originator06.jpg?raw=true)
+![arrakis_cartography](https://github.com/marekyggdrasil/arrakis/blob/main/images/originator/originator06.jpg?raw=true)
 
 We can move the storm, undo moves, cause Spiceblow and change sprite assets
 
@@ -146,7 +146,7 @@ caretaker.backup()
 originator.render('images/originator/originator11.jpg', battle=True)
 ```
 
-![arrakis_cartography](https://github.com/marekyggdrasil/arrakis/blob/main/images/originator11.jpg?raw=true)
+![arrakis_cartography](https://github.com/marekyggdrasil/arrakis/blob/main/images/originator/originator11.jpg?raw=true)
 
 ## Credits
 
