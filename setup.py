@@ -1,7 +1,7 @@
 import setuptools
 
 setuptools.setup(
-    name='arrakis',
+    name='truthsayer',
     version='0.0.1',
     packages=['truthsayer',],
     license='MIT',
