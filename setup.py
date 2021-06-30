@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name='truthsayer',
-    version='0.0.1',
+    version='0.0.2',
     packages=['truthsayer',],
     license='MIT',
     description = 'Visualizes and manages Dune the Board Game state',
