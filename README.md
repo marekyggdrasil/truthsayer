@@ -94,7 +94,7 @@ caretaker.backup()
 originator.render('images/originator/originator10.jpg')
 ```
 
-![arrakis_cartography](https://github.com/marekyggdrasil/arrakis/blob/main/images/originator10.jpg?raw=true)
+![arrakis_cartography](https://github.com/marekyggdrasil/arrakis/blob/main/images/originator/originator10.jpg?raw=true)
 
 Now few examples how to draw cards and conduct the battle phase
 
