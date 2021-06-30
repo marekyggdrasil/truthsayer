@@ -1,4 +1,8 @@
-# arrakis
+# Truthsayer
+
+This module allows to visualize the state of [Dune the boardgame](https://boardgamegeek.com/boardgame/121/dune). The motivation for it is to build a bot allowing to play Dune online via Discord on the [Truthsayer Discord channel](https://discord.gg/VVYM22Hs2t).
+
+## Examples
 
 You can generate a map of Arrakis as follows
 
