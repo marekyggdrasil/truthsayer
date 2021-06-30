@@ -9,7 +9,7 @@ setuptools.setup(
     long_description=open('README.md').read(),
     long_description_content_type="text/markdown",
     author = 'Marek Narozniak',
-    author_email = '',
+    author_email = 'marek.yggdrasil@gmail.com',
     install_requires=['pillow', 'qrcode', 'beautifulsoup4==4.8.1', 'simpleai', 'mementeur'],
     url = 'https://github.com/marekyggdrasil/arrakis',
     classifiers=[
