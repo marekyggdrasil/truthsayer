@@ -114,6 +114,40 @@ class ConfigManager:
     def getAreas(self):
         return self.all_areas
 
+    def getRegions(self):
+        return self.game_config['generated']['regions']
+
+    def getRegionsChoices(self, sort=False, reverse=False):
+        regions = self.getRegions()
+        choices = []
+        for region in regions:
+            value = region.replace('R', 'region ')
+            choices.append({
+                'name': region,
+                'value': value
+            })
+        if sort:
+            options = sorted(choices, key=lambda choice: len(choice['name']), reverse=True)
+        return choices
+
+    def getLocations(self):
+        return self.game_config['generated']['locations']
+
+    def getLocationsChoices(self, sort=False, reverse=False):
+        locations = self.getLocations()
+        choices = []
+        for location in locations:
+            if location == 'arrakis':
+                continue
+            value = location.replace('_', ' ').title()
+            choices.append({
+                'name': location,
+                'value': value
+            })
+        if sort:
+            choices = sorted(choices, key=lambda choice: len(choice['name']), reverse=reverse)
+        return choices
+
     def isAreaPoint(self, area_name):
         return area_name in self.game_config['types']['areas']['point']
 

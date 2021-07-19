@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name='truthsayer',
-    version='0.0.2',
+    version='0.0.3',
     packages=['truthsayer',],
     license='MIT',
     description = 'Visualizes and manages Dune the Board Game state',
@@ -10,8 +10,8 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     author = 'Marek Narozniak',
     author_email = 'marek.yggdrasil@gmail.com',
-    install_requires=['pillow', 'qrcode', 'beautifulsoup4==4.8.1', 'simpleai', 'mementeur'],
-    url = 'https://github.com/marekyggdrasil/arrakis',
+    install_requires=['pillow', 'qrcode', 'beautifulsoup4==4.8.1', 'simpleai', 'brackette'],
+    url = 'https://github.com/marekyggdrasil/truthsayer',
     classifiers=[
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 2",
@@ -21,6 +21,6 @@ setuptools.setup(
     include_package_data=True,
     package_data = {
         # If any package contains *.txt or *.rst files, include them:
-        '': ['assets/__init__.py', 'assets/*.png', 'assets/*.ttf', 'assets/json/*.json'],
+        '': ['assets/__init__.py', 'assets/*.png', 'assets/*.ttf', 'assets/*.json', 'assets/json/*.json'],
     }
 )

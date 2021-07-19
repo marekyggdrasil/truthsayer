@@ -152,6 +152,10 @@ originator.render('images/originator/originator11.jpg', battle=True)
 
 ![arrakis_cartography](https://github.com/marekyggdrasil/arrakis/blob/main/images/originator/originator11.jpg?raw=true)
 
+## Improve the Truthsayer experience
+
+1. To allow our bot to suggest territory names in commands try to convince Discord to increase the [limits](https://discord.com/developers/docs/interactions/slash-commands#a-quick-note-on-limits) on number of choices from 25 to at least 42. 
+
 ## Credits
 
 Game assets from [Sorvan's website](http://www.sorvan.com/games/dune/).
