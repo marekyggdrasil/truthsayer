@@ -21,7 +21,7 @@ except ImportError:
     import importlib_resources as pkg_resources
 
 from truthsayer import assets
-from truthsayer.assets import json as json_files
+from truthsayer.assets import json_files
 
 
 class CardsManager:
@@ -147,6 +147,24 @@ class ConfigManager:
         if sort:
             choices = sorted(choices, key=lambda choice: len(choice['name']), reverse=reverse)
         return choices
+
+    def getFactions(self):
+        return self.game_config['faction_names'].keys()
+
+    def getFactionsChoices(self, sort=False, reverse=False, swap=False):
+        choices = []
+        for faction, faction_name in self.game_config['faction_names'].items():
+            name, value = faction, faction_name
+            if swap:
+                value, name = faction, faction_name
+            choices.append({
+                'name': name,
+                'value': value
+            })
+        if sort:
+            choices = sorted(choices, key=lambda choice: len(choice['name']), reverse=reverse)
+        return choices
+
 
     def isAreaPoint(self, area_name):
         return area_name in self.game_config['types']['areas']['point']
@@ -621,11 +639,11 @@ class OriginatorTruthsayer(OriginatorJSON):
         cmd = '/{0} {1}'.format('storm', region)
         self.appendCMD(cmd)
 
-    def peak(self, player, deck):
+    def peek(self, player, deck):
         if deck not in self._object_state['hidden']['decks'].keys():
             raise ValueError('Invalid deck name')
         faction = self._object_state['meta']['factions'][player]
-        cmd = '/{0} {1} {2}'.format('peak', faction, deck)
+        cmd = '/{0} {1} {2}'.format('peek', faction, deck)
         self.appendCMD(cmd)
         card_id = self._object_state['meta']['decks'][deck][0]
         card = self.cards_manager.card_objects[card_id]

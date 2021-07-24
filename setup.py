@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name='truthsayer',
-    version='0.0.3',
+    version='0.0.4',
     packages=['truthsayer',],
     license='MIT',
     description = 'Visualizes and manages Dune the Board Game state',
@@ -21,6 +21,6 @@ setuptools.setup(
     include_package_data=True,
     package_data = {
         # If any package contains *.txt or *.rst files, include them:
-        '': ['assets/__init__.py', 'assets/*.png', 'assets/*.ttf', 'assets/*.json', 'assets/json/*.json'],
+        '': ['assets/__init__.py', 'assets/json_files/__init__.py', 'assets/*.png', 'assets/*.ttf', 'assets/*.json', 'assets/json_files/*.json'],
     }
 )
