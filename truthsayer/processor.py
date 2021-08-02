@@ -117,13 +117,16 @@ class ConfigManager:
     def getRegions(self):
         return self.game_config['generated']['regions']
 
-    def getRegionsChoices(self, sort=False, reverse=False):
+    def getRegionsChoices(self, sort=False, reverse=False, swap=False):
         regions = self.getRegions()
         choices = []
         for region in regions:
-            value = region.replace('R', 'region ')
+            region_value = region.replace('R', 'region ')
+            name, value = region, region_value
+            if swap:
+                value, name = region, region_value
             choices.append({
-                'name': region,
+                'name': name,
                 'value': value
             })
         if sort:
@@ -133,15 +136,18 @@ class ConfigManager:
     def getLocations(self):
         return self.game_config['generated']['locations']
 
-    def getLocationsChoices(self, sort=False, reverse=False):
+    def getLocationsChoices(self, sort=False, reverse=False, swap=False):
         locations = self.getLocations()
         choices = []
         for location in locations:
             if location == 'arrakis':
                 continue
-            value = location.replace('_', ' ').title()
+            location_name = location.replace('_', ' ').title()
+            name, value = location, location_name
+            if swap:
+                value, name = location, location_name
             choices.append({
-                'name': location,
+                'name': name,
                 'value': value
             })
         if sort:
