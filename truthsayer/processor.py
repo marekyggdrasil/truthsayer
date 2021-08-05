@@ -56,7 +56,7 @@ class CardsManager:
                 'description': template['description'].format(*entry)
             }
             cards.append(card)
-            headers.append(values[0])
+            headers.append(str(entry[0]) + '_sectors')
         self.deck_storm = cards
         self.headers_deck_storm = headers
 
@@ -74,7 +74,7 @@ class CardsManager:
                 'description': template['description'].format(*entry)
             }
             cards.append(card)
-            headers.append(values[0])
+            headers.append('traitor_' + entry[0])
         self.deck_traitor = cards
         self.headers_deck_traitor = headers
 
@@ -170,6 +170,26 @@ class ConfigManager:
         if sort:
             choices = sorted(choices, key=lambda choice: len(choice['name']), reverse=reverse)
         return choices
+
+    def getDeckChoices(self):
+        return [
+            {
+                'name': 'Treachery deck',
+                'value': 'treachery'
+            },
+            {
+                'name': 'Spice deck',
+                'value': 'spice'
+            },
+            {
+                'name': 'Storm deck',
+                'value': 'storm'
+            },
+            {
+                'name': 'Traitor deck',
+                'value': 'traitor'
+            }
+        ]
 
 
     def isAreaPoint(self, area_name):
@@ -645,26 +665,28 @@ class OriginatorTruthsayer(OriginatorJSON):
         cmd = '/{0} {1}'.format('storm', region)
         self.appendCMD(cmd)
 
-    def peek(self, player, deck):
+    def peek(self, faction, deck):
         if deck not in self._object_state['hidden']['decks'].keys():
             raise ValueError('Invalid deck name')
-        faction = self._object_state['meta']['factions'][player]
         cmd = '/{0} {1} {2}'.format('peek', faction, deck)
         self.appendCMD(cmd)
-        card_id = self._object_state['meta']['decks'][deck][0]
+        card_id = self._object_state['hidden']['decks'][deck][0]
         card = self.cards_manager.card_objects[card_id]
-        return card
+        game_id = self._object_state['meta']['texts']['game_id']
+        return game_id, card
 
-    def draw(self, player, deck):
+    def draw(self, faction, deck):
+        for name in self._object_state['hidden']['decks'].keys():
+            print(name)
         if deck not in self._object_state['hidden']['decks'].keys():
             raise ValueError('Invalid deck name')
-        faction = self._object_state['meta']['factions'][player]
         cmd = '/{0} {1} {2}'.format('draw', faction, deck)
         self.appendCMD(cmd)
         card_id = self._object_state['hidden']['decks'][deck].pop()
         self._object_state['hidden']['cards'][faction].append(card_id)
         card = self.cards_manager.card_objects[card_id]
-        return card
+        game_id = self._object_state['meta']['texts']['game_id']
+        return game_id, card
 
     def hand(self, faction):
         return {
