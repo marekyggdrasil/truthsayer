@@ -666,9 +666,10 @@ class OriginatorTruthsayer(OriginatorJSON):
         card = self.cards_manager.card_objects[card_id]
         return card
 
-    def hand(self, player):
-        faction = self._object_state['meta']['factions'][player]
+    def hand(self, faction):
         return {
+            'game_id': self._object_state['meta']['texts']['game_id'],
+            'faction_name': self.processor.game_config['faction_names'][faction],
             'cards': self._object_state['hidden']['cards'][faction],
             'spice': self._object_state['hidden']['spice'][faction],
             'reserves': self._object_state['hidden']['reserves'][faction]
