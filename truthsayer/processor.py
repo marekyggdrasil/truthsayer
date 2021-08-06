@@ -90,6 +90,7 @@ class CardsManager:
 
 class ConfigManager:
     def __init__(self):
+        self.deck_generator = json.loads(pkg_resources.read_text(json_files, 'generated_decks.json'))
         json_file = pkg_resources.read_text(assets, 'game_config.json')
         self.game_config = json.loads(json_file)
         all_areas = list(self.game_config['generated']['areas']['circles'].keys())
@@ -170,6 +171,38 @@ class ConfigManager:
         if sort:
             choices = sorted(choices, key=lambda choice: len(choice['name']), reverse=reverse)
         return choices
+
+    def getLeaders(self, faction):
+        selected = []
+        values = self.deck_generator['traitor_deck']['values']
+        for entry in values:
+            leader = entry[0]
+            leader_name = entry[1]
+            leader_faction = entry[2]
+            if leader_faction == faction:
+                selected.append(leader)
+        return selected
+
+    def getLeadersChoices(self, faction, sort=False, reverse=False, swap=False):
+        choices = []
+        values = self.deck_generator['traitor_deck']['values']
+        for entry in values:
+            leader = entry[0]
+            leader_name = entry[1]
+            leader_faction = entry[2]
+            if leader_faction != faction:
+                continue
+            name, value = leader, leader_name
+            if swap:
+                value, name = leader, leader_name
+            choices.append({
+                'name': name,
+                'value': value
+            })
+        if sort:
+            choices = sorted(choices, reverse=reverse)
+        return choices
+
 
     def getDeckChoices(self):
         return [
@@ -560,7 +593,10 @@ class OriginatorTruthsayer(OriginatorJSON):
         cmd = '/{0} {1}'.format('kill', leader)
         self.appendCMD(cmd)
 
-    def revive(self, leader_or_unit, N=1):
+    def reviveLeader(self, faction, leader):
+        pass
+
+    def revive(self, faction, n, special=False):
         pass
 
     def lead(self, player, leader):
@@ -781,6 +817,7 @@ class OriginatorTruthsayer(OriginatorJSON):
         }
         for player, faction in meta['factions'].items():
             hidden['cards'][faction] = []
+            hidden['leaders'][faction] = self.processor.manager.getLeaders(faction)
             if faction == 'atreides':
                 hidden['reserves']['atreides'] = {
                     'atreides_troops': 10
