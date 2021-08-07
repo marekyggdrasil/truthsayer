@@ -474,20 +474,19 @@ class RenderingProcessor:
                 if wheel not in game_state['areas'].keys():
                     to_remove_points.append(area)
                 continue
-            for token_object in game_state['visual'][area]:
-                if type(token_object) is str:
-                    continue
-                region = token_object['region']
-                token = token_object['token']
-                removal = None
-                if area not in game_state['areas'].keys():
-                    removal = area, region, token
-                elif region not in game_state['areas'][area].keys():
-                    removal = area, region, token
-                elif token not in game_state['areas'][area][region].keys():
-                    removal = area, region, token
-                if removal is not None:
-                    to_remove.append(removal)
+            for token_region in game_state['visual'][area].keys():
+                for token in game_state['visual'][area][token_region].keys():
+                    region = token_region
+                    removal = None
+                    if area not in game_state['areas'].keys():
+                        removal = area, region, token
+                    elif region not in game_state['areas'][area].keys():
+                        removal = area, region, token
+                    elif token not in game_state['areas'][area][region].keys():
+                        removal = area, region, token
+                    print(removal)
+                    if removal is not None:
+                        to_remove.append(removal)
         # remove gathered
         for area in to_remove_points:
             del game_state['visual'][area]
@@ -620,8 +619,20 @@ class OriginatorTruthsayer(OriginatorJSON):
         cmd = '/{0} {1}'.format('kill', leader)
         self.appendCMD(cmd)
 
-    def reviveLeader(self, faction, leader):
-        pass
+    def reviveLeader(self, leader):
+        if not self.processor.manager.isLeader(leader):
+            raise ValueError('Invalid leader')
+        if 'tleilaxu_tanks' not in self._object_state['areas'].keys():
+            raise ValueError('Leader not in Tleilaxu Tanks')
+        if 'whole' not in self._object_state['areas']['tleilaxu_tanks'].keys():
+            raise ValueError('Leader not in Tleilaxu Tanks')
+        if leader not in self._object_state['areas']['tleilaxu_tanks']['whole'].keys():
+            raise ValueError('Leader not in Tleilaxu Tanks')
+        faction = self.processor.manager.getLeadersFaction(leader)
+        del self._object_state['areas']['tleilaxu_tanks']['whole'][leader]
+        self._object_state['hidden']['leaders'][faction].append(leader)
+        cmd = '/{0} {1}'.format('reviveLeader', leader)
+        self.appendCMD(cmd)
 
     def revive(self, faction, n, special=False):
         pass
