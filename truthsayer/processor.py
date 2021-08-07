@@ -183,6 +183,15 @@ class ConfigManager:
                 selected.append(leader)
         return selected
 
+    def getLeadersNamesStrength(self, lst):
+        selected = []
+        values = self.deck_generator['traitor_deck']['values']
+        for entry in values:
+            leader = entry[0]
+            if leader in lst:
+                selected.append(entry)
+        return selected
+
     def getLeadersChoices(self, faction, sort=False, reverse=False, swap=False):
         choices = []
         values = self.deck_generator['traitor_deck']['values']
@@ -725,12 +734,15 @@ class OriginatorTruthsayer(OriginatorJSON):
         return game_id, card
 
     def hand(self, faction):
+        leaders_list = self._object_state['hidden']['leaders'][faction]
+        leaders_data = self.processor.manager.getLeadersNamesStrength(leaders_list)
         return {
             'game_id': self._object_state['meta']['texts']['game_id'],
             'faction_name': self.processor.game_config['faction_names'][faction],
             'cards': self._object_state['hidden']['cards'][faction],
             'spice': self._object_state['hidden']['spice'][faction],
-            'reserves': self._object_state['hidden']['reserves'][faction]
+            'reserves': self._object_state['hidden']['reserves'][faction],
+            'leaders': leaders_data
         }
 
     def join(self, seat, username, player_id, faction='random'):
@@ -812,6 +824,7 @@ class OriginatorTruthsayer(OriginatorJSON):
             'storm': deck_storm,
             'traitor': deck_traitor
         }
+        hidden['leaders'] = {}
         areas = {
             'storm': random.randint(1, 18)
         }
