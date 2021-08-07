@@ -183,6 +183,16 @@ class ConfigManager:
                 selected.append(leader)
         return selected
 
+    def getLeadersFaction(self, leader):
+        selected = []
+        values = self.deck_generator['traitor_deck']['values']
+        for entry in values:
+            leader_id = entry[0]
+            leader_faction = entry[2]
+            if leader_id == leader:
+                return leader_faction
+        return None
+
     def getLeadersNamesStrength(self, lst):
         selected = []
         values = self.deck_generator['traitor_deck']['values']
@@ -598,7 +608,15 @@ class OriginatorTruthsayer(OriginatorJSON):
     def kill(self, leader):
         if not self.processor.manager.isLeader(leader):
             raise ValueError('Invalid leader')
-        self._object_state['areas']['tleilaxu_tanks'][leader] = 1
+        faction = self.processor.manager.getLeadersFaction(leader)
+        if leader not in self._object_state['hidden']['leaders'][faction]:
+            raise ValueError('Leader not in players hand')
+        self._object_state['hidden']['leaders'][faction].remove(leader)
+        if 'tleilaxu_tanks' not in self._object_state['areas'].keys():
+            self._object_state['areas']['tleilaxu_tanks'] = {
+                'whole': {}
+            }
+        self._object_state['areas']['tleilaxu_tanks']['whole'][leader] = 1
         cmd = '/{0} {1}'.format('kill', leader)
         self.appendCMD(cmd)
 
@@ -930,7 +948,6 @@ class OriginatorTruthsayer(OriginatorJSON):
 
     def render(self, outfile, battle=False):
        self._object_state = self.processor.process(self._object_state)
-       self.backup()
        renderer = Renderer(
            self._object_state,
            self.processor.game_config,

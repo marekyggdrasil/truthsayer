@@ -1,6 +1,6 @@
 import json
 
-from arrakis.poly import extract, getRegionsLocations, findNeighboring, findIntersections, findStorm
+from truthsayer.poly import extract, getRegionsLocations, findNeighboring, findIntersections, findStorm
 
 areas = extract()
 regions, locations = getRegionsLocations(areas)
@@ -9,7 +9,7 @@ neighbors = findNeighboring(areas, regions, locations, skip=['arrakis', 'tleilax
 
 cx, cy, r = findStorm(areas)
 
-filename = 'arrakis/assets/game_config.json'
+filename = 'truthsayer/assets/game_config.json'
 
 game_config = None
 with open(filename) as json_file:

@@ -3,6 +3,7 @@ from PIL import Image, ImageDraw, ImageFont
 import textwrap
 import qrcode
 import math
+import json
 
 try:
     import importlib.resources as pkg_resources
@@ -11,6 +12,7 @@ except ImportError:
     import importlib_resources as pkg_resources
 
 from truthsayer import assets
+from truthsayer.assets import json_files
 
 
 def makeQR(data, box_size=4, border=4):
@@ -28,6 +30,7 @@ def makeQR(data, box_size=4, border=4):
 
 class Renderer:
     def __init__(self, game_state, game_config, card_objects, outfile, troop_tokens=[], dead_leaders=[], quality=95, battle=False):
+        self.deck_generator = json.loads(pkg_resources.read_text(json_files, 'generated_decks.json'))
         self.txt_spacing_wheel = 5
         self.card_unit = 8
         self.card_radius = 10
@@ -250,17 +253,30 @@ class Renderer:
             self.d.text((x_info, y_info), text, font=self.fnt, fill='white')
 
     def renderTleilaxuTanks(self):
-        # dead leaders in the tleilaxu_tanks
-        for x, y, disc_filename in self.dead_leaders:
-            filename = pkg_resources.open_binary(assets, disc_filename)
-            token = Image.open(filename)
-            token = token.convert('RGBA')
-            token = token.resize((self.leader_size, self.leader_size), Image.ANTIALIAS)
-            width_token, height_token = token.size
-            dx = int(self.leader_size/2)
-            dy = int(self.leader_size/2)
-            box_target = (x-dx, y-dy, x+dx, y+dy)
-            self.canvas.paste(token, box_target, mask=token)
+        if 'tleilaxu_tanks' not in self.game_state['visual'].keys():
+            return None
+        if 'whole' not in self.game_state['visual']['tleilaxu_tanks'].keys():
+            return None
+        values = self.deck_generator['traitor_deck']['values']
+        for leader, token_instance in self.game_state['visual']['tleilaxu_tanks']['whole'].items():
+            for entry in values:
+                token_name = entry[0]
+                if leader != token_name:
+                    continue
+                leader_faction = entry[2]
+                disc_filename = leader_faction + '_' + leader + '.png'
+                x = int(token_instance['x'])
+                y = int(token_instance['y'])
+                filename = pkg_resources.open_binary(assets, disc_filename)
+                token = Image.open(filename)
+                token = token.convert('RGBA')
+                token = token.resize((self.leader_size, self.leader_size), Image.ANTIALIAS)
+                width_token, height_token = token.size
+                dx = int(self.leader_size/2)
+                dy = int(self.leader_size/2)
+                box_target = (x-dx, y-dy, x+dx, y+dy)
+                self.canvas.paste(token, box_target, mask=token)
+                break
 
     def renderGameInfo(self):
         # game info
