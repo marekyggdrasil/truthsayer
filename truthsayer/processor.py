@@ -702,6 +702,12 @@ class OriginatorTruthsayer(OriginatorJSON):
         cmd = '/{0} {1}'.format('takeback', player)
         self.appendCMD(cmd)
 
+    def traitor(self, caller_faction, leader):
+        # check if caller has a traitor card for this leader
+        if 'traitor_' + leader not in self._object_state['hidden']['cards'][caller_faction]:
+            raise ValueError('Player does not have this traitor')
+        return True
+
     def battle(self, aggressor_player, defender_player):
         self._object_state['areas']['wheel_attacker_player'] = aggressor_player
         self._object_state['areas']['wheel_defender_player'] = defender_player
