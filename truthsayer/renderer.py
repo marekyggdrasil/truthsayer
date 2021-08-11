@@ -142,6 +142,8 @@ class Renderer:
                     if token_type == 'troop_token':
                         faction = token_instance['token']
                         number = token_instance['c']
+                        if number == 0:
+                            continue
                         self.renderTroop(x, y, faction, number)
 
     def calculateFactionLeadersPositions(self):

@@ -115,6 +115,16 @@ class ConfigManager:
     def getAreas(self):
         return self.all_areas
 
+    def getTroopTypes(self, faction):
+        troop_types = [faction + '_troops']
+        if faction == 'bene_gesserit':
+            troop_types.append('spiritual_advisor')
+        if faction == 'fremen':
+            troop_types.append('fedaykin')
+        if faction == 'emperor':
+            troop_types.append('sardaukar')
+        return troop_types
+
     def getRegions(self):
         return self.game_config['generated']['regions']
 
@@ -133,6 +143,16 @@ class ConfigManager:
         if sort:
             options = sorted(choices, key=lambda choice: len(choice['name']), reverse=True)
         return choices
+
+    def getLocationsOfSectors(self):
+        data = {}
+        for location, sectors in self.game_config['generated']['location_regions'].items():
+            for sector in sectors:
+                if sector not in data.keys():
+                    data[sector] = []
+                data[sector].append(location)
+                data[sector] = list(set(data[sector]))
+        return data
 
     def getLocations(self):
         return self.game_config['generated']['locations']
@@ -219,7 +239,24 @@ class ConfigManager:
                 'value': value
             })
         if sort:
-            choices = sorted(choices, reverse=reverse)
+            choices = sorted(choices, key=lambda choice: choice['name'], reverse=reverse)
+        return choices
+
+
+    def getSpiceAreasChoices(self, sort=False, reverse=False, swap=False):
+        choices = []
+        for area in self.game_config['types']['areas']['spice']:
+            area_value = area.replace('_spice', '')
+            area_name = area_value.replace('_', ' ').title()
+            name, value = area_name, area_value
+            if swap:
+                value, name = area_name, area_value
+            choices.append({
+                'name': name,
+                'value': value
+            })
+        if sort:
+            choices = sorted(choices, key=lambda choice: choice['name'], reverse=reverse)
         return choices
 
 
@@ -484,7 +521,7 @@ class RenderingProcessor:
                         removal = area, region, token
                     elif token not in game_state['areas'][area][region].keys():
                         removal = area, region, token
-                    print(removal)
+                    # print(removal)
                     if removal is not None:
                         to_remove.append(removal)
         # remove gathered
@@ -522,6 +559,21 @@ class OriginatorTruthsayer(OriginatorJSON):
             raise ValueError('Invalid area')
         if target_region[0] != 'R' and target_region != 'whole':
             raise ValueError('Invalid region')
+
+    def getAreasOfPresence(self, faction):
+        troop_types = self.processor.manager.getTroopTypes(faction)
+        areas = {}
+        for area, content in self._object_state['areas'].items():
+            if type(content) is not dict:
+                continue
+            for region in content.keys():
+                for troop_type in troop_types:
+                    if troop_type in content[region].keys():
+                        if content[region][troop_type] > 0:
+                            if area not in areas.keys():
+                                areas[area] = {}
+                            areas[area][region] = content[region][troop_type]
+        return areas
 
     def move(self, faction, source_area, source_region, target_area, target_region, N, troop_type=None):
         self.validateMapLocation(source_area, source_region)
@@ -756,8 +808,6 @@ class OriginatorTruthsayer(OriginatorJSON):
         return game_id, card
 
     def draw(self, faction, deck):
-        for name in self._object_state['hidden']['decks'].keys():
-            print(name)
         if deck not in self._object_state['hidden']['decks'].keys():
             raise ValueError('Invalid deck name')
         cmd = '/{0} {1} {2}'.format('draw', faction, deck)
