@@ -719,55 +719,52 @@ class OriginatorTruthsayer(OriginatorJSON):
         if player == participants[1]:
             self._object_state['areas']['wheel_defender_leader'] = leader
 
-    def treachery(self, player, card):
+    def treachery(self, faction, card):
         participants = [
             self._object_state['areas']['wheel_attacker_player'],
             self._object_state['areas']['wheel_defender_player']
         ]
-        if player not in participants:
+        if faction not in participants:
             raise ValueError('Player is not a battle participant')
-        faction = self._object_state['meta']['factions'][player]
         if card not in self._object_state['hidden']['cards'][faction]:
             raise ValueError('Player does not have that card in the hand')
         if card in self._object_state['hidden']['cards'][faction]: self._object_state['hidden']['cards'][faction].remove(card)
-        if player == participants[0]:
+        if faction == participants[0]:
             self._object_state['areas']['wheel_attacker_cards'] += [card]
-        if player == participants[1]:
+        if faction == participants[1]:
             self._object_state['areas']['wheel_defender_cards'] += [card]
 
-    def discard(self, player, card):
+    def discard(self, faction, card):
         participants = [
             self._object_state['areas']['wheel_attacker_player'],
             self._object_state['areas']['wheel_defender_player']
         ]
-        if player not in participants:
+        if faction not in participants:
             raise ValueError('Player is not a battle participant')
-        faction = self._object_state['meta']['factions'][player]
         key = 'wheel_attacker_cards'
-        if player == participants[1]:
+        if faction == participants[1]:
             key = 'wheel_defender_cards'
         if card not in self._object_state['areas'][key]:
             raise ValueError('This card is not part of the battle plan')
         self._object_state['areas'][key].remove(card)
         self._object_state['hidden']['discarded'].append(card)
-        cmd = '/{0} {1} {2}'.format('discard', player, card)
+        cmd = '/{0} {1} {2}'.format('discard', faction, card)
         self.appendCMD(cmd)
 
-    def takeback(self, player):
+    def takeback(self, faction):
         participants = [
             self._object_state['areas']['wheel_attacker_player'],
             self._object_state['areas']['wheel_defender_player']
         ]
-        if player not in participants:
+        if faction not in participants:
             raise ValueError('Player is not a battle participant')
-        faction = self._object_state['meta']['factions'][player]
         key = 'wheel_attacker_cards'
-        if player == participants[1]:
+        if faction == participants[1]:
             key = 'wheel_defender_cards'
         for card in self._object_state['areas'][key]:
             self._object_state['hidden']['cards'][faction].append(card)
         self._object_state['areas'][key] = []
-        cmd = '/{0} {1}'.format('takeback', player)
+        cmd = '/{0} {1}'.format('takeback', faction)
         self.appendCMD(cmd)
 
     def traitor(self, caller_faction, leader):
@@ -776,16 +773,16 @@ class OriginatorTruthsayer(OriginatorJSON):
             raise ValueError('Player does not have this traitor')
         return True
 
-    def battle(self, aggressor_player, defender_player):
-        self._object_state['areas']['wheel_attacker_player'] = aggressor_player
-        self._object_state['areas']['wheel_defender_player'] = defender_player
+    def battle(self, aggressor_faction, defender_faction):
+        self._object_state['areas']['wheel_attacker_player'] = aggressor_faction
+        self._object_state['areas']['wheel_defender_player'] = defender_faction
         self._object_state['areas']['wheel_attacker_cards'] = []
         self._object_state['areas']['wheel_defender_cards'] = []
         self._object_state['areas']['wheel_attacker_value'] = 0
         self._object_state['areas']['wheel_defender_value'] = 0
         self._object_state['areas']['wheel_attacker_leader'] = None
         self._object_state['areas']['wheel_defender_leader'] = None
-        cmd = '/{0} {1} {2}'.format('battle', aggressor_player, defender_player)
+        cmd = '/{0} {1} {2}'.format('battle', aggressor_faction, defender_faction)
         self.appendCMD(cmd)
 
     def deployment(self, player, N):
