@@ -586,6 +586,11 @@ class OriginatorTruthsayer(OriginatorJSON):
                             areas[area][region][troop_type] = content[region][troop_type]
         return areas
 
+    def getAvailableReserves(self, faction):
+        if faction not in self._object_state['hidden']['reserves'].keys():
+            raise ValueError('Incorrect faction')
+        return self._object_state['hidden']['reserves'][faction]
+
     def move(self, faction, source_area, source_region, target_area, target_region, N, troop_type=None):
         self.validateMapLocation(source_area, source_region)
         self.validateMapLocation(target_area, target_region)
