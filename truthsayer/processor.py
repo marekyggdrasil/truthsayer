@@ -591,6 +591,23 @@ class OriginatorTruthsayer(OriginatorJSON):
             raise ValueError('Incorrect faction')
         return self._object_state['hidden']['reserves'][faction]
 
+    def getAvailableCards(self, faction):
+        if faction not in self._object_state['hidden']['cards'].keys():
+            raise ValueError('Incorrect faction')
+        return self._object_state['hidden']['cards'][faction]
+
+    def getSelectedCards(self, faction):
+        participants = [
+            self._object_state['areas']['wheel_attacker_player'],
+            self._object_state['areas']['wheel_defender_player']
+        ]
+        if faction not in participants:
+            raise ValueError('Player is not a battle participant')
+        key = 'wheel_attacker_cards'
+        if faction == participants[1]:
+            key = 'wheel_defender_cards'
+        return self._object_state['areas'][key]
+
     def move(self, faction, source_area, source_region, target_area, target_region, N, troop_type=None):
         self.validateMapLocation(source_area, source_region)
         self.validateMapLocation(target_area, target_region)
@@ -733,6 +750,21 @@ class OriginatorTruthsayer(OriginatorJSON):
             self._object_state['areas']['wheel_attacker_cards'] += [card]
         if faction == participants[1]:
             self._object_state['areas']['wheel_defender_cards'] += [card]
+
+    def reverseTreachery(self, faction, card):
+        participants = [
+            self._object_state['areas']['wheel_attacker_player'],
+            self._object_state['areas']['wheel_defender_player']
+        ]
+        if faction not in participants:
+            raise ValueError('Player is not a battle participant')
+        key = 'wheel_attacker_cards'
+        if faction == participants[1]:
+            key = 'wheel_defender_cards'
+        if card not in self._object_state['areas'][key]:
+            raise ValueError('This card is not part of the battle plan')
+        self._object_state['areas'][key].remove(card)
+        self._object_state['hidden']['cards'][faction].append(card)
 
     def discard(self, faction, card):
         participants = [
