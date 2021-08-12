@@ -103,6 +103,13 @@ class ConfigManager:
     def isTroop(self, name):
         return name in self.game_config['types']['tokens']['troop_tokens']
 
+    def isTroopSpecial(self, name):
+        if not self.isTroop(name):
+            raise ValueError('{0} is not a troop token at all'.format(name))
+        if name in ['spiritual_advisor', 'fedaykin', 'sardaukar']:
+            return True
+        return False
+
     def getRadius(self, element):
         diameter = None
         if self.isLeader(element):
@@ -132,7 +139,7 @@ class ConfigManager:
         regions = self.getRegions()
         choices = []
         for region in regions:
-            region_value = region.replace('R', 'region ')
+            region_value = region.replace('R', 'Sector ')
             name, value = region, region_value
             if swap:
                 value, name = region, region_value
@@ -147,6 +154,8 @@ class ConfigManager:
     def getLocationsOfSectors(self):
         data = {}
         for location, sectors in self.game_config['generated']['location_regions'].items():
+            if location == 'arrakis':
+                continue
             for sector in sectors:
                 if sector not in data.keys():
                     data[sector] = []
