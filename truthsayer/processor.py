@@ -572,7 +572,9 @@ class OriginatorTruthsayer(OriginatorJSON):
                         if content[region][troop_type] > 0:
                             if area not in areas.keys():
                                 areas[area] = {}
-                            areas[area][region] = content[region][troop_type]
+                            if region not in areas[area].keys():
+                                areas[area][region] = {}
+                            areas[area][region][troop_type] = content[region][troop_type]
         return areas
 
     def move(self, faction, source_area, source_region, target_area, target_region, N, troop_type=None):
