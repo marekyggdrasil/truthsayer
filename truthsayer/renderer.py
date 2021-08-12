@@ -82,7 +82,9 @@ class Renderer:
         self.fnt_troop = ImageFont.truetype(filename, 22)
         del filename
 
-    def renderTroop(self, x, y, faction, number):
+    # for text use self.d making sure text is on top of all the tokens
+    # for drawing tokens use d that would ensure they are under the spiceglow
+    def renderTroop(self, d, x, y, faction, number):
         colors = {
             'spiritual_advisor': '#274587',
             'bene_gesserit_troops': '#274587',
@@ -100,7 +102,7 @@ class Renderer:
             y-self.troop_size/2,
             x+self.troop_size/2,
             y+self.troop_size/2)
-        self.d.ellipse(box, fill=fill, outline ='black', width=2)
+        d.ellipse(box, fill=fill, outline ='black', width=2)
         text_fill = 'white'
         if faction in ['spiritual_advisor', 'sardaukar', 'fedaykin']:
             text_fill = 'black'
@@ -109,12 +111,16 @@ class Renderer:
                 y-self.troop_size/2+self.troop_edge,
                 x+self.troop_size/2-self.troop_edge,
                 y+self.troop_size/2-self.troop_edge)
-            self.d.ellipse(box, fill='white', outline ='black', width=2)
+            d.ellipse(box, fill='white', outline ='black', width=2)
         text = str(number)
         w, h = self.fnt_troop.getsize(text)
         self.d.text((x, y+h/2-2), text, font=self.fnt_troop, fill=text_fill, anchor='ms')
 
     def renderTroops(self):
+        # troop token layer
+        layer = Image.new('RGBA', self.canvas.size, (255,255,255,0))
+        d = ImageDraw.Draw(layer)
+        # handle the generation
         areas = self.game_config['generated']['areas']['polygons']
         type_point = self.game_config['types']['areas']['point']
         for area_name, region_object in self.game_state['visual'].items():
@@ -144,7 +150,9 @@ class Renderer:
                         number = token_instance['c']
                         if number == 0:
                             continue
-                        self.renderTroop(x, y, faction, number)
+                        self.renderTroop(d, x, y, faction, number)
+        # compose the tokens layer
+        self.canvas = Image.alpha_composite(self.canvas, layer)
 
     def calculateFactionLeadersPositions(self):
         positions = []
