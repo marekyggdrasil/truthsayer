@@ -783,6 +783,18 @@ class OriginatorTruthsayer(OriginatorJSON):
         cmd = '/{0} {1} {2}'.format('discard', faction, card)
         self.appendCMD(cmd)
 
+    def discardHand(self, faction, card):
+        participants = [
+            self._object_state['areas']['wheel_attacker_player'],
+            self._object_state['areas']['wheel_defender_player']
+        ]
+        if faction not in participants:
+            raise ValueError('Player is not a battle participant')
+        if card in self._object_state['hidden']['cards'][faction]: self._object_state['hidden']['cards'][faction].remove(card)
+        self._object_state['hidden']['discarded'].append(card)
+        cmd = '/{0} {1} {2}'.format('discard', faction, card)
+        self.appendCMD(cmd)
+
     def takeback(self, faction):
         participants = [
             self._object_state['areas']['wheel_attacker_player'],
