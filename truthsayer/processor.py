@@ -462,14 +462,20 @@ class RenderingProcessor:
         for wheel in wheel_leaders:
             if wheel in game_state['areas'].keys():
                 leader = game_state['areas'][wheel]
-                file = self.manager.getFile(leader)
-                game_state['visual'][wheel] = file
+                if leader is not None:
+                    file = self.manager.getFile(leader)
+                    game_state['visual'][wheel] = file
         wheel_players = ['wheel_attacker_player', 'wheel_defender_player']
         wheel_players_refs = {}
         for wheel in wheel_players:
             if wheel in game_state['areas'].keys():
-                player_key = game_state['areas'][wheel]
-                faction_key = game_state['meta']['factions'][player_key]
+                faction_key = game_state['areas'][wheel]
+                player_key = None
+                for f, key in game_state['meta']['factions'].items():
+                    if key == faction_key:
+                        player_key = f
+                if player_key is None:
+                    continue
                 faction_name = self.manager.getFactionName(faction_key)
                 player_name = game_state['meta']['usernames'][player_key]
                 game_state['visual'][wheel + '_faction'] = faction_name
