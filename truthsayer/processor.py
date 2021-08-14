@@ -110,6 +110,22 @@ class ConfigManager:
             return True
         return False
 
+    def getGamePhases(self):
+        return ['setup', 'storm', 'spice_blow', 'nexus', 'choam_charity', 'bidding', 'revival', 'shipment_and_movement', 'battle', 'spice_harvest', 'mentat_pause']
+
+    def getGamePhasesChoices(self):
+        phases = self.getGamePhases()
+        choices = []
+        for phase in phases:
+            choices.append({
+                'name': (phase+'_phase').replace('_', ' ').title(),
+                'value': phase
+            })
+        return choices
+
+    def isGamePhaseValid(self, phase):
+        return phase in self.getGamePhases()
+
     def getRadius(self, element):
         diameter = None
         if self.isLeader(element):
@@ -657,6 +673,20 @@ class OriginatorTruthsayer(OriginatorJSON):
         self._object_state['areas'][target_area][target_region][troop_type] += N
         self._object_state['hidden']['reserves'][faction][troop_type] -= N
         cmd = '/{0} {1} {2} {3} {4}'.format('ship', faction, target_area, target_region, str(N))
+        self.appendCMD(cmd)
+
+    def turn(self, N):
+        if N < 1:
+            raise ValueError('Turn has to be greater or equal than 1')
+        self._object_state['meta']['texts']['game_turn'] = N
+        cmd = '/{0} {1}'.format('turn', str(N))
+        self.appendCMD(cmd)
+
+    def phase(self, name):
+        if not self.processor.manager.isGamePhaseValid(name):
+            raise ValueError('Invalid game phase')
+        self._object_state['meta']['texts']['game_phase'] = name
+        cmd = '/{0} {1}'.format('phase', name)
         self.appendCMD(cmd)
 
     def change(self, target_area, target_region, N):
