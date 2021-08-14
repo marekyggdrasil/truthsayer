@@ -563,7 +563,7 @@ class Renderer:
                 box_target = (x+xoff, y-half_height, x+xoff+w, y+half_height)
                 self.canvas.paste(card, box_target, mask=card)
             y += width + self.card_spacing
-        angle = self.game_state['visual']['wheel_attacker_value']
+        angle = self.game_state['visual'].get('wheel_attacker_value', 0)
         leader = self.game_state['visual'].get('wheel_attacker_leader', None)
         username_area = 'wheel_attacker_player_name'
         faction_area = 'wheel_attacker_player_faction'
@@ -582,7 +582,7 @@ class Renderer:
                 box_target = (x+xoff, y-half_height, x+xoff+w, y+half_height)
                 self.canvas.paste(card, box_target, mask=card)
             y -= width + self.card_spacing
-        angle = self.game_state['visual']['wheel_defender_value']
+        angle = self.game_state['visual'].get('wheel_defender_value', 0)
         leader = self.game_state['visual'].get('wheel_defender_leader', None)
         username_area = 'wheel_defender_player_name'
         faction_area = 'wheel_defender_player_faction'

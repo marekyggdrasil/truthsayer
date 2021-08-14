@@ -689,8 +689,27 @@ class OriginatorTruthsayer(OriginatorJSON):
         cmd = '/{0} {1}'.format('phase', name)
         self.appendCMD(cmd)
 
-    def change(self, target_area, target_region, N):
-        pass
+    def change(self, faction, target_area, target_region):
+        if faction != 'bene_gesserit':
+            raise ValueError('Only Bene Gesserit can change unit types')
+        if target_area not in self._object_state['areas'].keys():
+            raise ValueError('Not enough troops')
+        if target_region not in self._object_state['areas'][target_area].keys():
+            raise ValueError('Not enough troops')
+        available = self._object_state['areas'][target_area][target_region].keys()
+        if 'bene_gesserit_troops' in availble:
+            source_troop_type = 'bene_gesserit_troops'
+            target_troop_type = 'spiritual_advisor'
+        elif 'bene_gesserit_troops' in available:
+            target_troop_type = 'bene_gesserit_troops'
+            source_troop_type = 'spiritual_advisor'
+        else:
+            raise ValueError('Not enough troops')
+        n = self._object_state['areas'][target_area][target_region][source_troop_type]
+        del self._object_state['areas'][target_area][target_region][source_troop_type]
+        self._object_state['areas'][target_area][target_region][target_troop_type] = n
+        cmd = '/{0} {1} {2}'.format('change', target_area, target_region)
+        self.appendCMD(cmd)
 
     # payee is the one receiving
     def pay(self, spice, payor, payee):
