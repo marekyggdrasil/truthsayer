@@ -506,12 +506,12 @@ class Renderer:
             box_target = (x+half_width-dx, y+half_width-dy, x+half_width+dx, y+half_width+dy)
             self.canvas.paste(token, box_target, mask=token)
         y_txt = y + self.txt_spacing_wheel
-        if username_area is not None:
+        if username_area is not None and username_area in self.game_state['visual'].keys():
             text = self.game_state['visual'][username_area]
             self.canvas, w, h = self.renderText(text, self.fnt_wheel, 'black', x, y_txt, ycenter=True)
             y_txt += h
             y_txt += self.txt_spacing_wheel
-        if faction_area is not None:
+        if faction_area is not None and faction_area in self.game_state['visual'].keys():
             text = self.game_state['visual'][faction_area]
             self.canvas, w, h = self.renderText(text, self.fnt_wheel, 'black', x, y_txt, ycenter=True)
 
