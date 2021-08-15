@@ -777,18 +777,18 @@ class OriginatorTruthsayer(OriginatorJSON):
     def revive(self, faction, n, special=False):
         pass
 
-    def lead(self, player, leader):
+    def lead(self, faction, leader):
         participants = [
             self._object_state['areas']['wheel_attacker_player'],
             self._object_state['areas']['wheel_defender_player']
         ]
-        if player not in participants:
+        if faction not in participants:
             raise ValueError('Player is not a battle participant')
         if not self.processor.manager.isLeader(leader):
             raise ValueError('Invalid leader')
-        if player == participants[0]:
+        if faction == participants[0]:
             self._object_state['areas']['wheel_attacker_leader'] = leader
-        if player == participants[1]:
+        if faction == participants[1]:
             self._object_state['areas']['wheel_defender_leader'] = leader
 
     def treachery(self, faction, card):
