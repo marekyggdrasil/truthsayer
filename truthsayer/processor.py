@@ -148,6 +148,29 @@ class ConfigManager:
             troop_types.append('sardaukar')
         return troop_types
 
+    def getTroopTypesAll(self):
+        troop_types = [faction + '_troops' for faction in self.getFactions()]
+        troop_types.append('spiritual_advisor')
+        troop_types.append('fedaykin')
+        troop_types.append('sardaukar')
+        return troop_types
+
+    def getTroopTypesChoices(self, sort=False, reverse=False, swap=False):
+        troop_types = self.getTroopTypesAll()
+        choices = []
+        for troop_type in troop_types:
+            troop_type_value = troop_type.replace('_', ' ').title()
+            name, value = troop_type, troop_type_value
+            if swap:
+                value, name = troop_type, troop_type_value
+            choices.append({
+                'name': name,
+                'value': value
+            })
+        if sort:
+            options = sorted(choices, key=lambda choice: len(choice['name']), reverse=True)
+        return choices
+
     def getFactionFromTroopType(self, troop_type):
         for faction in self.getFactions():
             if troop_type == faction + '_troops':
@@ -825,7 +848,7 @@ class OriginatorTruthsayer(OriginatorJSON):
         if self._object_state['areas']['tleilaxu_tanks']['whole'][troop_type] == 0:
             del self._object_state['areas']['tleilaxu_tanks']['whole'][troop_type]
         self._object_state['hidden']['reserves'][owner_faction][troop_type] += n
-        cmd = '/{0} {1}'.format('revive', leader)
+        cmd = '/{0} {1} {2}'.format('revive', str(n), troop_type)
         self.appendCMD(cmd)
 
     def lead(self, faction, leader):
