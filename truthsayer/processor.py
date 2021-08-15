@@ -772,15 +772,16 @@ class OriginatorTruthsayer(OriginatorJSON):
         self.appendCMD(cmd)
 
     def kill(self, faction, source_territory, source_region, n, troop_type):
-        if target_area not in self._object_state['areas'].keys():
+        if source_territory not in self._object_state['areas'].keys():
             raise ValueError('Not enough troops')
-        if target_region not in self._object_state['areas'][source_area].keys():
+        if source_region not in self._object_state['areas'][source_territory].keys():
             raise ValueError('Not enough troops')
-        available = self._object_state['areas'][source_area][source_region].keys()
+        available = self._object_state['areas'][source_territory][source_region].keys()
         if troop_type not in available:
             raise ValueError('Not enough troops')
-        if self._object_state['areas'][source_area][source_region][troop_type] < n:
+        if self._object_state['areas'][source_territory][source_region][troop_type] < n:
             raise ValueError('Not enough troops')
+        self._object_state['areas'][source_territory][source_region][troop_type] -= n
         if 'tleilaxu_tanks' not in self._object_state['areas'].keys():
             self._object_state['areas']['tleilaxu_tanks'] = {
                 'whole': {}
