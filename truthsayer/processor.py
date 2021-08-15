@@ -148,6 +148,18 @@ class ConfigManager:
             troop_types.append('sardaukar')
         return troop_types
 
+    def getFactionFromTroopType(self, troop_type):
+        for faction in self.getFactions():
+            if troop_type == faction + '_troops':
+                return faction
+        if troop_type == 'spiritual_advisor':
+            return 'bene_gesserit'
+        if troop_type == 'fedaykin':
+            return 'fremen'
+        if troop_type == 'sardaukar':
+            return 'emperor'
+        return None
+
     def getRegions(self):
         return self.game_config['generated']['regions']
 
@@ -744,7 +756,7 @@ class OriginatorTruthsayer(OriginatorJSON):
         cmd = '/{0} {1} {2} {3}'.format('harvest', faction, target_area_spice, str(N))
         self.appendCMD(cmd)
 
-    def kill(self, leader):
+    def killLeader(self, leader):
         if not self.processor.manager.isLeader(leader):
             raise ValueError('Invalid leader')
         faction = self.processor.manager.getLeadersFaction(leader)
@@ -758,6 +770,28 @@ class OriginatorTruthsayer(OriginatorJSON):
         self._object_state['areas']['tleilaxu_tanks']['whole'][leader] = 1
         cmd = '/{0} {1}'.format('kill', leader)
         self.appendCMD(cmd)
+
+    def kill(self, faction, source_territory, source_region, n, troop_type):
+        if target_area not in self._object_state['areas'].keys():
+            raise ValueError('Not enough troops')
+        if target_region not in self._object_state['areas'][source_area].keys():
+            raise ValueError('Not enough troops')
+        available = self._object_state['areas'][source_area][source_region].keys()
+        if troop_type not in available:
+            raise ValueError('Not enough troops')
+        if self._object_state['areas'][source_area][source_region][troop_type] < n:
+            raise ValueError('Not enough troops')
+        if 'tleilaxu_tanks' not in self._object_state['areas'].keys():
+            self._object_state['areas']['tleilaxu_tanks'] = {
+                'whole': {}
+            }
+        if 'whole' not in self._object_state['areas']['tleilaxu_tanks'].keys():
+            self._object_state['areas']['tleilaxu_tanks'] = {
+                'whole': {}
+            }
+        if troop_type not in self._object_state['areas']['tleilaxu_tanks']['whole'].keys():
+            self._object_state['areas']['tleilaxu_tanks']['whole'][troop_type] = 0
+        self._object_state['areas']['tleilaxu_tanks']['whole'][troop_type] += n
 
     def reviveLeader(self, leader):
         if not self.processor.manager.isLeader(leader):
@@ -774,8 +808,24 @@ class OriginatorTruthsayer(OriginatorJSON):
         cmd = '/{0} {1}'.format('reviveLeader', leader)
         self.appendCMD(cmd)
 
-    def revive(self, faction, n, special=False):
-        pass
+    def revive(self, caller_faction, n, troop_type):
+        owner_faction = self.processor.manager.getFactionFromTroopType(troop_type)
+        if owner_faction is None:
+            raise ValueError('Unrecognized troop type: ' + troop_type)
+        if 'tleilaxu_tanks' not in self._object_state['areas'].keys():
+            raise ValueError('Troops not in Tleilaxu Tanks')
+        if 'whole' not in self._object_state['areas']['tleilaxu_tanks'].keys():
+            raise ValueError('Troops not in Tleilaxu Tanks')
+        if troop_type not in self._object_state['areas']['tleilaxu_tanks']['whole'].keys():
+            raise ValueError('Troops not in Tleilaxu Tanks')
+        if self._object_state['areas']['tleilaxu_tanks']['whole'][troop_type] < n:
+            raise ValueError('Not enough troops in Tleilaxu Tanks')
+        self._object_state['areas']['tleilaxu_tanks']['whole'][troop_type] -= n
+        if self._object_state['areas']['tleilaxu_tanks']['whole'][troop_type] == 0:
+            del self._object_state['areas']['tleilaxu_tanks']['whole'][troop_type]
+        self._object_state['hidden']['reserves'][owner_faction][troop_type] += n
+        cmd = '/{0} {1}'.format('revive', leader)
+        self.appendCMD(cmd)
 
     def lead(self, faction, leader):
         participants = [
