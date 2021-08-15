@@ -697,7 +697,7 @@ class OriginatorTruthsayer(OriginatorJSON):
         if target_region not in self._object_state['areas'][target_area].keys():
             raise ValueError('Not enough troops')
         available = self._object_state['areas'][target_area][target_region].keys()
-        if 'bene_gesserit_troops' in availble:
+        if 'bene_gesserit_troops' in available:
             source_troop_type = 'bene_gesserit_troops'
             target_troop_type = 'spiritual_advisor'
         elif 'bene_gesserit_troops' in available:
