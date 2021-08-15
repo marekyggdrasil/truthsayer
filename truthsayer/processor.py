@@ -884,16 +884,13 @@ class OriginatorTruthsayer(OriginatorJSON):
         cmd = '/{0} {1} {2}'.format('battle', aggressor_faction, defender_faction)
         self.appendCMD(cmd)
 
-    def deployment(self, player, N):
+    def deployment(self, faction, N):
         participants = [
             self._object_state['areas']['wheel_attacker_player'],
             self._object_state['areas']['wheel_defender_player']
         ]
-        if player not in participants:
-            raise ValueError('Player is not a battle participant')
-        faction = self._object_state['meta']['factions'][player]
         key = 'wheel_attacker_value'
-        if player == participants[1]:
+        if faction == participants[1]:
             key = 'wheel_defender_value'
         self._object_state['areas'][key] = N
 
