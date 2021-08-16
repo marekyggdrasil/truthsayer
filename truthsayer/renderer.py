@@ -311,7 +311,26 @@ class Renderer:
         y_info = int(self.height_canvas-lh-20)
         self.canvas, _, _ = self.renderText(text, self.fnt, 'white', x_info, y_info, anchor=None)
 
+    def shieldWall(self):
+        if not self.game_state['meta'].get('shield_wall_destroyed', False):
+            return None
+        filename = self.game_config['files']['shield_wall_destroyed']
+        filename = pkg_resources.open_binary(assets, filename)
+        token = Image.open(filename)
+        token = token.convert('RGBA')
+        width_token, height_token = token.size
+        del filename
+        x = self.game_config['generated']['shield_wall_token']['min_x']
+        y = self.game_config['generated']['shield_wall_token']['min_y']
+        box_target = (
+            int(x),
+            int(y),
+            int(x+width_token),
+            int(y+height_token))
+        self.canvas.paste(token, box_target, mask=token)
+
     def render(self):
+        self.shieldWall()
         self.placeStorm()
         self.renderRegionMarks()
         self.renderFactionPositions()

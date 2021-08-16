@@ -1075,6 +1075,10 @@ class OriginatorTruthsayer(OriginatorJSON):
             del self._object_state['meta']['texts']['commands'][0]
         # print(self._object_state['meta']['texts'])
 
+    def shieldWallDestroyed(self, state: bool):
+        self._object_state['meta']['shield_wall_destroyed'] = state
+        self.appendCMD('/shield_wall {0}'.format(str(state)))
+
     def initgame(self):
         deck_treachery = list(self.cards_manager.headers_deck_treachery)
         deck_spice = list(self.cards_manager.headers_deck_spice)
