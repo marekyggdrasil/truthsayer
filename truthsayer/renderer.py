@@ -266,7 +266,7 @@ class Renderer:
             self.d.text((x_info, y_info), text, font=self.fnt, fill='white')
 
     def renderLeaders(self, map_object):
-        print(map_object)
+        # print(map_object)
         values = self.deck_generator['traitor_deck']['values']
         for leader, token_instance in map_object.items():
             for entry in values:
