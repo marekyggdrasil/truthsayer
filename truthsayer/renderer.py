@@ -139,6 +139,9 @@ class Renderer:
                 # print(token_object)
                 if region_name[0] != 'R' and region_name != 'whole':
                     continue
+                # in case if there are any leaders there
+                self.renderLeaders(token_object)
+                # troop tokens
                 for token_name, token_instance in token_object.items():
                     # print('token instnace')
                     # print(token_instance)
@@ -262,19 +265,16 @@ class Renderer:
             text = self.texts['player_names'][area_name] + '\n' + self.texts['user_ids'][area_name]
             self.d.text((x_info, y_info), text, font=self.fnt, fill='white')
 
-    def renderTleilaxuTanks(self):
-        if 'tleilaxu_tanks' not in self.game_state['visual'].keys():
-            return None
-        if 'whole' not in self.game_state['visual']['tleilaxu_tanks'].keys():
-            return None
+    def renderLeaders(self, map_object):
+        print(map_object)
         values = self.deck_generator['traitor_deck']['values']
-        for leader, token_instance in self.game_state['visual']['tleilaxu_tanks']['whole'].items():
+        for leader, token_instance in map_object.items():
             for entry in values:
                 token_name = entry[0]
                 if leader != token_name:
                     continue
                 leader_faction = entry[2]
-                disc_filename = leader_faction + '_' + leader + '.png'
+                disc_filename = self.game_config['files'][leader]
                 x = int(token_instance['x'])
                 y = int(token_instance['y'])
                 filename = pkg_resources.open_binary(assets, disc_filename)
@@ -287,6 +287,14 @@ class Renderer:
                 box_target = (x-dx, y-dy, x+dx, y+dy)
                 self.canvas.paste(token, box_target, mask=token)
                 break
+
+    def renderTleilaxuTanks(self):
+        if 'tleilaxu_tanks' not in self.game_state['visual'].keys():
+            return None
+        if 'whole' not in self.game_state['visual']['tleilaxu_tanks'].keys():
+            return None
+        map_object = self.game_state['visual']['tleilaxu_tanks']['whole']
+        self.renderLeaders(map_object)
 
     def renderGameInfo(self):
         # game info

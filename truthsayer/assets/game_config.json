@@ -102,6 +102,7 @@
     }
   },
   "files": {
+    "worm": "worm_token.png",
     "shield_wall_destroyed": "shield_wall_destroyed.png",
     "storm": "storm_marker_cropped.png",
     "princess_irulan": "bene_gesserit_princess_irulan.png",

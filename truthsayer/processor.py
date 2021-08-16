@@ -710,6 +710,50 @@ class OriginatorTruthsayer(OriginatorJSON):
         cmd = '/{0} {1} {2} {3} {4}'.format('ship', faction, target_area, target_region, str(N))
         self.appendCMD(cmd)
 
+    def placeLeader(self, faction, target_area, target_region, leader):
+        self.validateMapLocation(target_area, target_region)
+        if target_area not in self._object_state['areas'].keys():
+            self._object_state['areas'][target_area] = {}
+        if target_region not in self._object_state['areas'][target_area].keys():
+            self._object_state['areas'][target_area][target_region] = {}
+        if leader not in self._object_state['areas'][target_area][target_region].keys():
+            self._object_state['areas'][target_area][target_region][leader] = 1
+        else:
+            # take leader back to reserves
+            self._object_state['areas'][target_area][target_region][leader] = 0
+            self._object_state['hidden']['leaders'][faction].append(leader)
+            cmd = '/{0} {1} {2} {3} {4}'.format('placeLeader', faction, target_area, target_region, leader)
+            self.appendCMD(cmd)
+            return None
+        found = False
+        if leader in self._object_state['hidden']['leaders'][faction]:
+            found = True
+            self._object_state['hidden']['leaders'][faction].remove(leader)
+        elif leader == self._object_state['areas']['wheel_attacker_leader']:
+            found = True
+            self._object_state['areas']['wheel_attacker_leader'] = None
+        elif leader == self._object_state['areas']['wheel_defender_leader']:
+            found = True
+            self._object_state['areas']['wheel_defender_leader'] = None
+        if not found:
+            raise ValueError('Leader not found in available resources')
+        cmd = '/{0} {1} {2} {3} {4}'.format('placeLeader', faction, target_area, target_region, leader)
+        self.appendCMD(cmd)
+
+    def worm(self, target_area, target_region):
+        self.validateMapLocation(target_area, target_region)
+        if target_area not in self._object_state['areas'].keys():
+            self._object_state['areas'][target_area] = {}
+        if target_region not in self._object_state['areas'][target_area].keys():
+            self._object_state['areas'][target_area][target_region] = {}
+        token = 'worm'
+        if token not in self._object_state['areas'][target_area][target_region].keys():
+            self._object_state['areas'][target_area][target_region][token] = 1
+        else:
+            del self._object_state['areas'][target_area][target_region][token]
+        cmd = '/{0} {1} {2}'.format('worm', target_area, target_region)
+        self.appendCMD(cmd)
+
     def turn(self, N):
         if N < 1:
             raise ValueError('Turn has to be greater or equal than 1')
