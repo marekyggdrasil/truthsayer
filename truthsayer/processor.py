@@ -911,22 +911,31 @@ class OriginatorTruthsayer(OriginatorJSON):
         if faction == participants[1]:
             self._object_state['areas']['wheel_defender_leader'] = leader
 
-    def treachery(self, faction, card):
+    def treachery(self, faction, card_type, card):
+        print('treachery', card_type, card)
         participants = [
             self._object_state['areas']['wheel_attacker_player'],
             self._object_state['areas']['wheel_defender_player']
         ]
         if faction not in participants:
             raise ValueError('Player is not a battle participant')
-        if card not in self._object_state['hidden']['cards'][faction]:
+        if card_type not in self._object_state['hidden']['cards'][faction].keys():
             raise ValueError('Player does not have that card in the hand')
-        if card in self._object_state['hidden']['cards'][faction]: self._object_state['hidden']['cards'][faction].remove(card)
+        if card not in self._object_state['hidden']['cards'][faction][card_type]:
+            raise ValueError('Player does not have that card in the hand')
+        if card in self._object_state['hidden']['cards'][faction][card_type]:
+            self._object_state['hidden']['cards'][faction][card_type].remove(card)
         if faction == participants[0]:
-            self._object_state['areas']['wheel_attacker_cards'] += [card]
+            if card_type not in self._object_state['areas']['wheel_attacker_cards'].keys():
+                self._object_state['areas']['wheel_attacker_cards'][card_type] = []
+            self._object_state['areas']['wheel_attacker_cards'][card_type] += [card]
         if faction == participants[1]:
-            self._object_state['areas']['wheel_defender_cards'] += [card]
+            if card_type not in self._object_state['areas']['wheel_defender_cards'].keys():
+                self._object_state['areas']['wheel_defender_cards'][card_type] = []
+            self._object_state['areas']['wheel_defender_cards'][card_type] += [card]
 
-    def reverseTreachery(self, faction, card):
+    def reverseTreachery(self, faction, card_type, card):
+        print('rev-treachery', card_type, card)
         participants = [
             self._object_state['areas']['wheel_attacker_player'],
             self._object_state['areas']['wheel_defender_player']
@@ -936,12 +945,12 @@ class OriginatorTruthsayer(OriginatorJSON):
         key = 'wheel_attacker_cards'
         if faction == participants[1]:
             key = 'wheel_defender_cards'
-        if card not in self._object_state['areas'][key]:
+        if card not in self._object_state['areas'][key][card_type]:
             raise ValueError('This card is not part of the battle plan')
-        self._object_state['areas'][key].remove(card)
-        self._object_state['hidden']['cards'][faction].append(card)
+        self._object_state['areas'][key][card_type].remove(card)
+        self._object_state['hidden']['cards'][faction][card_type].append(card)
 
-    def discard(self, faction, card):
+    def discard(self, faction, card_type, card):
         participants = [
             self._object_state['areas']['wheel_attacker_player'],
             self._object_state['areas']['wheel_defender_player']
@@ -951,22 +960,24 @@ class OriginatorTruthsayer(OriginatorJSON):
         key = 'wheel_attacker_cards'
         if faction == participants[1]:
             key = 'wheel_defender_cards'
-        if card not in self._object_state['areas'][key]:
+        if card not in self._object_state['areas'][key][card_type]:
             raise ValueError('This card is not part of the battle plan')
-        self._object_state['areas'][key].remove(card)
-        self._object_state['hidden']['discarded'].append(card)
+        self._object_state['areas'][key][card_type].remove(card)
+        if card_type not in self._object_state['hidden']['discarded'].keys():
+            self._object_state['hidden']['discarded'][card_type] = []
+        self._object_state['hidden']['discarded'][card_type].append(card)
         cmd = '/{0} {1} {2}'.format('discard', faction, card)
         self.appendCMD(cmd)
 
-    def discardHand(self, faction, card):
-        participants = [
-            self._object_state['areas']['wheel_attacker_player'],
-            self._object_state['areas']['wheel_defender_player']
-        ]
-        if faction not in participants:
-            raise ValueError('Player is not a battle participant')
-        if card in self._object_state['hidden']['cards'][faction]: self._object_state['hidden']['cards'][faction].remove(card)
-        self._object_state['hidden']['discarded'].append(card)
+    def discardHand(self, faction, card_type, card):
+        if faction not in self._object_state['hidden']['reserves'].keys():
+            raise ValueError('Incorrect faction')
+        if card_type not in self._object_state['hidden']['cards'][faction].keys():
+            raise ValueError('Player does not have that card in the hand')
+        if card in self._object_state['hidden']['cards'][faction][card_type]: self._object_state['hidden']['cards'][faction][card_type].remove(card)
+        if card_type not in self._object_state['hidden']['discarded'].keys():
+            self._object_state['hidden']['discarded'][card_type] = []
+        self._object_state['hidden']['discarded'][card_type].append(card)
         cmd = '/{0} {1} {2}'.format('discard', faction, card)
         self.appendCMD(cmd)
 
@@ -980,8 +991,11 @@ class OriginatorTruthsayer(OriginatorJSON):
         key = 'wheel_attacker_cards'
         if faction == participants[1]:
             key = 'wheel_defender_cards'
-        for card in self._object_state['areas'][key]:
-            self._object_state['hidden']['cards'][faction].append(card)
+        for card_type, card_list in self._object_state['areas'][key].items():
+            if card_type not in self._object_state['hidden']['cards'][faction].keys():
+                self._object_state['hidden']['cards'][faction][card_type] = []
+            for card in card_list:
+                self._object_state['hidden']['cards'][faction][card_type].append(card)
         self._object_state['areas'][key] = []
         cmd = '/{0} {1}'.format('takeback', faction)
         self.appendCMD(cmd)
@@ -995,8 +1009,8 @@ class OriginatorTruthsayer(OriginatorJSON):
     def battle(self, aggressor_faction, defender_faction):
         self._object_state['areas']['wheel_attacker_player'] = aggressor_faction
         self._object_state['areas']['wheel_defender_player'] = defender_faction
-        self._object_state['areas']['wheel_attacker_cards'] = []
-        self._object_state['areas']['wheel_defender_cards'] = []
+        self._object_state['areas']['wheel_attacker_cards'] = {}
+        self._object_state['areas']['wheel_defender_cards'] = {}
         self._object_state['areas']['wheel_attacker_value'] = 0
         self._object_state['areas']['wheel_defender_value'] = 0
         self._object_state['areas']['wheel_attacker_leader'] = None
@@ -1042,7 +1056,9 @@ class OriginatorTruthsayer(OriginatorJSON):
         cmd = '/{0} {1} {2}'.format('draw', faction, deck)
         self.appendCMD(cmd)
         card_id = self._object_state['hidden']['decks'][deck].pop()
-        self._object_state['hidden']['cards'][faction].append(card_id)
+        if deck not in self._object_state['hidden']['cards'][faction].keys():
+            self._object_state['hidden']['cards'][faction][deck] = []
+        self._object_state['hidden']['cards'][faction][deck].append(card_id)
         card = self.cards_manager.card_objects[card_id]
         game_id = self._object_state['meta']['texts']['game_id']
         return game_id, card
@@ -1147,7 +1163,7 @@ class OriginatorTruthsayer(OriginatorJSON):
             'storm': random.randint(1, 18)
         }
         for player, faction in meta['factions'].items():
-            hidden['cards'][faction] = []
+            hidden['cards'][faction] = {}
             hidden['leaders'][faction] = self.processor.manager.getLeaders(faction)
             if faction == 'atreides':
                 hidden['reserves']['atreides'] = {
@@ -1233,7 +1249,7 @@ class OriginatorTruthsayer(OriginatorJSON):
                 'defender': None
             },
             'cards': {},
-            'discarded': [],
+            'discarded': {},
             'height': 0,
             'decks': {}
         }

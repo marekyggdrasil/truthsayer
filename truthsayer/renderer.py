@@ -471,17 +471,17 @@ class Renderer:
         del filename
         card = token
         # render card content
-        text = card_object['header']
+        text = card_object.get('header', '')
         x, y = 10, 10
         for line in textwrap.wrap(text, width=12):
             card, w, h = self.renderText(line, self.fnt_card_large, 'white', x, y, anchor=None, canvas=card)
             y += h + 9
         y += 10
-        text = card_object['description']
+        text = card_object.get('description', '')
         for line in textwrap.wrap(text, width=30):
             card, w, h = self.renderText(line, self.fnt_card_tiny, 'white', x, y, anchor=None, canvas=card)
             y += 14
-        text = card_object['type']
+        text = card_object.get('type', '')
         text_subtype = card_object.get('subtype', None)
         if text_subtype is not None:
             text += ' / ' + text_subtype
@@ -554,6 +554,12 @@ class Renderer:
         canvas = Image.alpha_composite(canvas, txt)
         return canvas, w, h
 
+    def extractCards(self, cards_object):
+        lst = []
+        for deck, cards in cards_object.items():
+            lst += cards
+        return lst
+
     def renderBattle(self):
         if not self.battle:
             return None
@@ -578,12 +584,13 @@ class Renderer:
         cards = self.game_state['areas'].get('wheel_attacker_cards', None)
         width = xthird
         if cards is not None:
-            for j, key in enumerate(cards):
+            cards_as_list = self.extractCards(cards)
+            for j, key in enumerate(cards_as_list):
                 card_object = self.card_objects[key]
                 card, w, h = self.render_card(card_object)
                 half_width = int(w/2)
                 half_height = int(h/2)
-                xoff = j*(w+self.card_spacing)-int(len(cards)*(w+self.card_spacing)/2)
+                xoff = j*(w+self.card_spacing)-int(len(cards_as_list)*(w+self.card_spacing)/2)
                 box_target = (x+xoff, y-half_height, x+xoff+w, y+half_height)
                 self.canvas.paste(card, box_target, mask=card)
             y += width + self.card_spacing
@@ -594,15 +601,16 @@ class Renderer:
         self.placeWheel(x, y, width, angle, username_area=username_area, faction_area=faction_area, leader=leader)
         # place right wheel
         x = self.width_canvas-int(xthird-xthird/5)
-        y = self.height_canvas-int(ythird-ythird/3)
+        y = self.height_canvas-int(ythird)
         cards = self.game_state['areas'].get('wheel_defender_cards', None)
         if cards is not None:
-            for j, key in enumerate(cards):
+            cards_as_list = self.extractCards(cards)
+            for j, key in enumerate(cards_as_list):
                 card_object = self.card_objects[key]
                 card, w, h = self.render_card(card_object)
                 half_width = int(w/2)
                 half_height = int(h/2)
-                xoff = j*(w+self.card_spacing)-int(len(cards)*(w+self.card_spacing)/2)
+                xoff = j*(w+self.card_spacing)-int(len(cards_as_list)*(w+self.card_spacing)/2)
                 box_target = (x+xoff, y-half_height, x+xoff+w, y+half_height)
                 self.canvas.paste(card, box_target, mask=card)
             y -= width + self.card_spacing
