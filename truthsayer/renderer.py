@@ -267,26 +267,23 @@ class Renderer:
 
     def renderLeaders(self, map_object):
         # print(map_object)
-        values = self.deck_generator['traitor_deck']['values']
         for leader, token_instance in map_object.items():
-            for entry in values:
-                token_name = entry[0]
-                if leader != token_name:
-                    continue
-                leader_faction = entry[2]
-                disc_filename = self.game_config['files'][leader]
-                x = int(token_instance['x'])
-                y = int(token_instance['y'])
-                filename = pkg_resources.open_binary(assets, disc_filename)
-                token = Image.open(filename)
-                token = token.convert('RGBA')
-                token = token.resize((self.leader_size, self.leader_size), Image.ANTIALIAS)
-                width_token, height_token = token.size
-                dx = int(self.leader_size/2)
-                dy = int(self.leader_size/2)
-                box_target = (x-dx, y-dy, x+dx, y+dy)
-                self.canvas.paste(token, box_target, mask=token)
-                break
+            token_type = token_instance['type']
+            if token_type not in ['leader', 'leader_like']:
+                continue
+            disc_filename = self.game_config['files'][leader]
+            x = int(token_instance['x'])
+            y = int(token_instance['y'])
+            filename = pkg_resources.open_binary(assets, disc_filename)
+            token = Image.open(filename)
+            token = token.convert('RGBA')
+            token = token.resize((self.leader_size, self.leader_size), Image.ANTIALIAS)
+            width_token, height_token = token.size
+            dx = int(self.leader_size/2)
+            dy = int(self.leader_size/2)
+            box_target = (x-dx, y-dy, x+dx, y+dy)
+            self.canvas.paste(token, box_target, mask=token)
+            break
 
     def renderTleilaxuTanks(self):
         if 'tleilaxu_tanks' not in self.game_state['visual'].keys():

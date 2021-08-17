@@ -132,6 +132,8 @@ class ConfigManager:
             diameter = self.game_config['dimensions']['leader']
         elif self.isTroop(element):
             diameter = self.game_config['dimensions']['troop']
+        elif element == 'worm':
+            diameter = self.game_config['dimensions']['leader']
         radius = diameter/2
         return radius
 
@@ -406,7 +408,7 @@ class RenderingProcessor:
         problem = TokenPlacementProblem(polygons_maximize_overlap, avoid_overlap_areas, target_radius, tolerance=0.01)
         result = genetic(problem, population_size=75, mutation_chance=0.15, iterations_limit=120)
         x, y = result.state
-        token_type = None
+        token_type = 'leader_like'
         if self.manager.isLeader(element_name):
             token_type = 'leader'
         if self.manager.isTroop(element_name):
@@ -429,7 +431,7 @@ class RenderingProcessor:
         for i, (name, amount) in enumerate(zip(names, amounts)):
             x = result.state[i*2]
             y = result.state[i*2+1]
-            token_type = None
+            token_type = 'leader_like'
             # print('multiplace')
             # print(name)
             if self.manager.isLeader(name):
