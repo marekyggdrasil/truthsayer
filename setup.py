@@ -12,7 +12,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     author = 'Marek Narozniak',
     author_email = 'marek.yggdrasil@gmail.com',
-    install_requires=['pillow', 'qrcode', 'beautifulsoup4==4.8.1', 'simpleai', 'brackette', 'shapely'],
+    install_requires=['pillow', 'qrcode', 'beautifulsoup4==4.8.1', 'simpleai', 'brackette', 'shapely', 'pareto'],
     url = 'https://github.com/marekyggdrasil/truthsayer',
     classifiers=[
         "Programming Language :: Python :: 3",
