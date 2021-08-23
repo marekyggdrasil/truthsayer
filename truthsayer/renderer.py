@@ -121,16 +121,16 @@ class Renderer:
         layer = Image.new('RGBA', self.canvas.size, (255,255,255,0))
         d = ImageDraw.Draw(layer)
         # handle the generation
-        areas = self.game_config['generated']['territories']['polygons']
+        territorys = self.game_config['generated']['territories']['polygons']
         type_point = self.game_config['types']['territories']['point']
-        for area_name, sector_object in self.game_state['visual'].items():
-            if area_name in type_point:
+        for territory_name, sector_object in self.game_state['visual'].items():
+            if territory_name in type_point:
                 continue
-            if area_name == 'storm':
+            if territory_name == 'storm':
                 continue
             if type(sector_object) is str:
                 continue
-            if area_name.startswith('wheel_'):
+            if territory_name.startswith('wheel_'):
                 continue
             # print('sector object')
             # print(sector_object)
@@ -221,8 +221,8 @@ class Renderer:
     def renderFactionPositions(self):
         # faction info around the map of Arrakis
         for i in range(1, 7):
-            area_name = 'player_{0}'.format(str(i))
-            token_name = self.game_state['visual'].get(area_name, None)
+            territory_name = 'player_{0}'.format(str(i))
+            token_name = self.game_state['visual'].get(territory_name, None)
             if token_name is None:
                 continue
             filename = pkg_resources.open_binary(assets, token_name)
@@ -232,7 +232,7 @@ class Renderer:
             token = token.resize((self.leader_size, self.leader_size), Image.ANTIALIAS)
             width_token, height_token = token.size
             del filename
-            x, y = self.game_config['generated']['territories']['circles'][area_name]
+            x, y = self.game_config['generated']['territories']['circles'][territory_name]
             half_width = int(width_token/2)
             half_height = int(height_token/2)
             if y - half_height < 0:
@@ -262,7 +262,7 @@ class Renderer:
             if i == 5:
                 x_info = 5
                 y_info = y + half_width
-            text = self.texts['player_names'][area_name] + '\n' + self.texts['user_ids'][area_name]
+            text = self.texts['player_names'][territory_name] + '\n' + self.texts['user_ids'][territory_name]
             self.d.text((x_info, y_info), text, font=self.fnt, fill='white')
 
     def renderLeaders(self, map_object):
@@ -371,9 +371,9 @@ class Renderer:
         del filename
         half_width = int(width_token/2)
         half_height = int(height_token/2)
-        for area_name, amount in self.game_state['visual'].items():
-            if area_name.endswith('_spice'):
-                x, y = self.game_config['generated']['territories']['circles'][area_name]
+        for territory_name, amount in self.game_state['visual'].items():
+            if territory_name.endswith('_spice'):
+                x, y = self.game_config['generated']['territories']['circles'][territory_name]
                 box_target = (
                     int(x-width_token/2),
                     int(y-width_token/2),
@@ -489,7 +489,7 @@ class Renderer:
         card, w, h = self.renderText(text, self.fnt_card_small, 'white', x, y, anchor=None, canvas=card)
         return card, width, height
 
-    def placeWheel(self, x, y, width, angle, username_area=None, faction_area=None, leader=None):
+    def placeWheel(self, x, y, width, angle, username_territory=None, faction_territory=None, leader=None):
         filename = pkg_resources.open_binary(assets,
         'battle_wheel_numbers.png')
         token = Image.open(filename)
@@ -532,13 +532,13 @@ class Renderer:
             box_target = (x+half_width-dx, y+half_width-dy, x+half_width+dx, y+half_width+dy)
             self.canvas.paste(token, box_target, mask=token)
         y_txt = y + self.txt_spacing_wheel
-        if username_area is not None and username_area in self.game_state['visual'].keys():
-            text = self.game_state['visual'][username_area]
+        if username_territory is not None and username_territory in self.game_state['visual'].keys():
+            text = self.game_state['visual'][username_territory]
             self.canvas, w, h = self.renderText(text, self.fnt_wheel, 'black', x, y_txt, ycenter=True)
             y_txt += h
             y_txt += self.txt_spacing_wheel
-        if faction_area is not None and faction_area in self.game_state['visual'].keys():
-            text = self.game_state['visual'][faction_area]
+        if faction_territory is not None and faction_territory in self.game_state['visual'].keys():
+            text = self.game_state['visual'][faction_territory]
             self.canvas, w, h = self.renderText(text, self.fnt_wheel, 'black', x, y_txt, ycenter=True)
 
     def renderText(self, text, font, fill, x, y, anchor='ms', ycenter=False, canvas=None):
@@ -596,9 +596,9 @@ class Renderer:
             y += width + self.card_spacing
         angle = self.game_state['visual'].get('wheel_attacker_value', 0)
         leader = self.game_state['visual'].get('wheel_attacker_leader', None)
-        username_area = 'wheel_attacker_player_name'
-        faction_area = 'wheel_attacker_player_faction'
-        self.placeWheel(x, y, width, angle, username_area=username_area, faction_area=faction_area, leader=leader)
+        username_territory = 'wheel_attacker_player_name'
+        faction_territory = 'wheel_attacker_player_faction'
+        self.placeWheel(x, y, width, angle, username_territory=username_territory, faction_territory=faction_territory, leader=leader)
         # place right wheel
         x = self.width_canvas-int(xthird-xthird/5)
         y = self.height_canvas-int(ythird)
@@ -616,9 +616,9 @@ class Renderer:
             y -= width + self.card_spacing
         angle = self.game_state['visual'].get('wheel_defender_value', 0)
         leader = self.game_state['visual'].get('wheel_defender_leader', None)
-        username_area = 'wheel_defender_player_name'
-        faction_area = 'wheel_defender_player_faction'
-        self.placeWheel(x, y, width, angle, username_area=username_area, faction_area=faction_area, leader=leader)
+        username_territory = 'wheel_defender_player_name'
+        faction_territory = 'wheel_defender_player_faction'
+        self.placeWheel(x, y, width, angle, username_territory=username_territory, faction_territory=faction_territory, leader=leader)
 
 
 def generateNeighborhood(centers, locations, neighbors, sectors, outfile, quality=95, skip=[]):
