@@ -123,21 +123,21 @@ class Renderer:
         # handle the generation
         areas = self.game_config['generated']['territories']['polygons']
         type_point = self.game_config['types']['territories']['point']
-        for area_name, region_object in self.game_state['visual'].items():
+        for area_name, sector_object in self.game_state['visual'].items():
             if area_name in type_point:
                 continue
             if area_name == 'storm':
                 continue
-            if type(region_object) is str:
+            if type(sector_object) is str:
                 continue
             if area_name.startswith('wheel_'):
                 continue
-            # print('region object')
-            # print(region_object)
-            for region_name, token_object in region_object.items():
+            # print('sector object')
+            # print(sector_object)
+            for sector_name, token_object in sector_object.items():
                 # print('token object')
                 # print(token_object)
-                if region_name[0] != 'R' and region_name != 'whole':
+                if sector_name[0] != 'S' and sector_name != 'whole':
                     continue
                 # in case if there are any leaders there
                 self.renderLeaders(token_object)
@@ -197,7 +197,7 @@ class Renderer:
         self.canvas, w, h = self.renderText(text, self.fnt, 'white', x, y, anchor=None)
 
     def renderRegionMarks(self):
-        # region markings
+        # sector markings
         for i in range(18):
             color = 'black'
             r = int((self.width_canvas/2)-70)
@@ -216,7 +216,7 @@ class Renderer:
             dy = int(r*math.sin(angle))
             x = int(self.width_canvas/2)+dx-4
             y = int(self.height_canvas/2)+dy
-            self.d.text((x, y), 'R'+str(i+1), font=self.fnt, fill=color, anchor='ms')
+            self.d.text((x, y), 'S'+str(i+1), font=self.fnt, fill=color, anchor='ms')
 
     def renderFactionPositions(self):
         # faction info around the map of Arrakis
@@ -621,7 +621,7 @@ class Renderer:
         self.placeWheel(x, y, width, angle, username_area=username_area, faction_area=faction_area, leader=leader)
 
 
-def generateNeighborhood(centers, locations, neighbors, regions, outfile, quality=95, skip=[]):
+def generateNeighborhood(centers, locations, neighbors, sectors, outfile, quality=95, skip=[]):
     dl = 10
     filename = pkg_resources.open_binary(assets, 'map.png')
     canvas = Image.open(filename)
@@ -634,7 +634,7 @@ def generateNeighborhood(centers, locations, neighbors, regions, outfile, qualit
     # drawing layer
     layer = Image.new('RGBA', canvas.size, (255, 255, 255, 0))
     draw = ImageDraw.Draw(layer)
-    # region markings
+    # sector markings
     for i in range(18):
         r = int((width_canvas/2)-25)
         reg = 2*math.pi/18
@@ -643,7 +643,7 @@ def generateNeighborhood(centers, locations, neighbors, regions, outfile, qualit
         dy = int(r*math.sin(angle))
         x = int(width_canvas/2)+dx
         y = int(height_canvas/2)+dy
-        draw.text((x, y), 'R'+str(i+1), font=fnt, fill='white', anchor='ms')
+        draw.text((x, y), 'S'+str(i+1), font=fnt, fill='white', anchor='ms')
     # mark centers
     for location in locations:
         if location in skip:
@@ -652,8 +652,8 @@ def generateNeighborhood(centers, locations, neighbors, regions, outfile, qualit
         x = int(x)
         y = int(y)
         draw.ellipse((x-dl, y-dl, x+dl, y+dl), fill='blue', outline='blue')
-        if location in regions.keys():
-            regs = regions[location]
+        if location in sectors.keys():
+            regs = sectors[location]
             txt = ', '.join(regs)
             if location == 'polar_sink':
                 txt = 'neutral'

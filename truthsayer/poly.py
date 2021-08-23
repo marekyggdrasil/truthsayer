@@ -49,34 +49,36 @@ def extract():
 
 
 def getRegionsLocations(areas, skip=[]):
-    regions = []
+    sectors = []
     locations = []
     for r in areas['polygons'].keys():
         if locations not in skip:
             if r[0] == 'R':
-                regions.append(r)
+                r[0] = 'S'
+            if r[0] == 'S':
+                sectors.append(r)
             else:
                 locations.append(r)
-    return regions, locations
+    return sectors, locations
 
 
-def findIntersections(areas, regions, locations, threshold=400):
+def findIntersections(areas, sectors, locations, threshold=400):
     locs = {}
-    for region in regions:
-        region_coords = areas['polygons'][region]
-        region_polygon = Polygon(region_coords)
+    for sector in sectors:
+        sector_coords = areas['polygons'][sector]
+        sector_polygon = Polygon(sector_coords)
         for location in locations:
             location_coords = areas['polygons'][location]
             location_polygon = Polygon(location_coords)
-            if region_polygon.intersection(location_polygon).area > threshold:
+            if sector_polygon.intersection(location_polygon).area > threshold:
                 if location not in locs.keys():
                     locs[location] = []
-                locs[location].append(region)
+                locs[location].append(sector)
                 locs[location] = list(set(locs[location]))
     return locs
 
 
-def findNeighboring(areas, regions, locations, skip=[]):
+def findNeighboring(areas, sectors, locations, skip=[]):
     neighbors = []
     for i in range(len(locations)):
         loc1 = locations[i]
@@ -138,10 +140,10 @@ def generate_random(number, polygon, centroid=False):
 def placeToken(
         areas,
         locations,
-        location_regions,
+        location_sectors,
         target_location,
         target_radius,
-        target_region=None,
+        target_sector=None,
         background=None,
         avoid_leaders=[],
         avoid_tokens=[],
@@ -153,9 +155,9 @@ def placeToken(
         w=1000,
         h=1000):
     polygons_maximize_overlap = Polygon(areas['polygons'][target_location])
-    if target_region is not None:
-        polygons_region = Polygon(areas['polygons'][target_region])
-        polygons_maximize_overlap = polygons_maximize_overlap.intersection(polygons_region)
+    if target_sector is not None:
+        polygons_sector = Polygon(areas['polygons'][target_sector])
+        polygons_maximize_overlap = polygons_maximize_overlap.intersection(polygons_sector)
     avoid_overlap_areas = []
     if background is not None:
         back = Polygon(background)
