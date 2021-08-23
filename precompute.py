@@ -16,7 +16,7 @@ with open(filename) as json_file:
     game_config = json.load(json_file)
 
 game_config['generated'] = {
-    'areas': areas,
+    'territories': areas,
     'regions': regions,
     'locations': locations,
     'location_regions': location_regions,

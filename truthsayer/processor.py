@@ -93,8 +93,8 @@ class ConfigManager:
         self.deck_generator = json.loads(pkg_resources.read_text(json_files, 'generated_decks.json'))
         json_file = pkg_resources.read_text(assets, 'game_config.json')
         self.game_config = json.loads(json_file)
-        all_areas = list(self.game_config['generated']['areas']['circles'].keys())
-        all_areas += list(self.game_config['generated']['areas']['polygons'].keys())
+        all_areas = list(self.game_config['generated']['territories']['circles'].keys())
+        all_areas += list(self.game_config['generated']['territories']['polygons'].keys())
         self.all_areas = list(set(all_areas))
 
     def isLeader(self, name):
@@ -307,7 +307,7 @@ class ConfigManager:
 
     def getSpiceAreasChoices(self, sort=False, reverse=False, swap=False):
         choices = []
-        for area in self.game_config['types']['areas']['spice']:
+        for area in self.game_config['types']['territories']['spice']:
             area_value = area.replace('_spice', '')
             area_name = area_value.replace('_', ' ').title()
             name, value = area_name, area_value
@@ -344,16 +344,16 @@ class ConfigManager:
 
 
     def isAreaPoint(self, area_name):
-        return area_name in self.game_config['types']['areas']['point']
+        return area_name in self.game_config['types']['territories']['point']
 
     def isAreaPlayerPosition(self, area_name):
-        return area_name in self.game_config['types']['areas']['players']
+        return area_name in self.game_config['types']['territories']['players']
 
     def isAreaSpice(self, area_name):
-        return area_name in self.game_config['types']['areas']['spice']
+        return area_name in self.game_config['types']['territories']['spice']
 
     def getPolygonArea(self, area_name):
-        return self.game_config['generated']['areas']['polygons'][area_name]
+        return self.game_config['generated']['territories']['polygons'][area_name]
 
     def getCenter(self):
          cx = self.game_config['generated']['map_center']['x']
@@ -470,23 +470,23 @@ class RenderingProcessor:
         # find objects which should be rendered but have no coordinates
         to_place = {}
         for area in self.manager.getAreas():
-            if area in game_state['areas'].keys():
+            if area in game_state['territories'].keys():
                 if area not in game_state['visual'].keys():
                     game_state['visual'][area] = {}
                 if self.manager.isAreaPoint(area):
                     if self.manager.isAreaSpice(area):
-                        value = game_state['areas'][area]
+                        value = game_state['territories'][area]
                         game_state['visual'][area] = value
                     continue
-                for region in game_state['areas'][area].keys():
-                    if type(game_state['areas'][area][region]) is not dict:
+                for region in game_state['territories'][area].keys():
+                    if type(game_state['territories'][area][region]) is not dict:
                         continue
-                    for token in game_state['areas'][area][region].keys():
+                    for token in game_state['territories'][area][region].keys():
                         if area in game_state['visual'].keys():
                             if region in game_state['visual'][area].keys():
                                 if token in game_state['visual'][area][region].keys():
                                     old_count = game_state['visual'][area][region][token]['c']
-                                    new_count = game_state['areas'][area][region][token]
+                                    new_count = game_state['territories'][area][region][token]
                                     if new_count == 0:
                                         del game_state['visual'][area][region][token]
                                     elif old_count != new_count:
@@ -496,9 +496,9 @@ class RenderingProcessor:
                             to_place[area] = {}
                         if region not in to_place[area].keys():
                             to_place[area][region] = {}
-                        to_place[area][region][token] = game_state['areas'][area][region][token]
-        if 'storm' in game_state['areas'].keys():
-            position = game_state['areas']['storm']
+                        to_place[area][region][token] = game_state['territories'][area][region][token]
+        if 'storm' in game_state['territories'].keys():
+            position = game_state['territories']['storm']
             storm_object = self.calculateStormPosition(position)
             game_state['visual']['storm'] = storm_object
         for area, faction in game_state['meta']['factions'].items():
@@ -508,21 +508,21 @@ class RenderingProcessor:
             game_state['visual'][area] = file
         wheel_values = ['wheel_attacker_value', 'wheel_defender_value']
         for wheel in wheel_values:
-            if wheel in game_state['areas'].keys():
-                value = game_state['areas'][wheel]
+            if wheel in game_state['territories'].keys():
+                value = game_state['territories'][wheel]
                 game_state['visual'][wheel] = self.calculateWheel(value)
         wheel_leaders = ['wheel_attacker_leader', 'wheel_defender_leader']
         for wheel in wheel_leaders:
-            if wheel in game_state['areas'].keys():
-                leader = game_state['areas'][wheel]
+            if wheel in game_state['territories'].keys():
+                leader = game_state['territories'][wheel]
                 if leader is not None:
                     file = self.manager.getFile(leader)
                     game_state['visual'][wheel] = file
         wheel_players = ['wheel_attacker_player', 'wheel_defender_player']
         wheel_players_refs = {}
         for wheel in wheel_players:
-            if wheel in game_state['areas'].keys():
-                faction_key = game_state['areas'][wheel]
+            if wheel in game_state['territories'].keys():
+                faction_key = game_state['territories'][wheel]
                 player_key = None
                 for f, key in game_state['meta']['factions'].items():
                     if key == faction_key:
@@ -563,31 +563,31 @@ class RenderingProcessor:
             if self.manager.isAreaPoint(area):
                 if self.manager.isAreaPlayerPosition(area):
                     continue
-                if area not in game_state['areas'].keys():
+                if area not in game_state['territories'].keys():
                     to_remove_points.append(area)
                 continue
             if area == 'storm':
-                if 'storm' not in game_state['areas'].keys():
+                if 'storm' not in game_state['territories'].keys():
                     to_remove_points.append(area)
                 continue
             if area in wheel_values + wheel_leaders:
-                if area not in game_state['areas'].keys():
+                if area not in game_state['territories'].keys():
                     to_remove_points.append(area)
                 continue
             if area in wheel_players_refs.keys():
                 wheel = wheel_players_refs[area]
-                if wheel not in game_state['areas'].keys():
+                if wheel not in game_state['territories'].keys():
                     to_remove_points.append(area)
                 continue
             for token_region in game_state['visual'][area].keys():
                 for token in game_state['visual'][area][token_region].keys():
                     region = token_region
                     removal = None
-                    if area not in game_state['areas'].keys():
+                    if area not in game_state['territories'].keys():
                         removal = area, region, token
-                    elif region not in game_state['areas'][area].keys():
+                    elif region not in game_state['territories'][area].keys():
                         removal = area, region, token
-                    elif token not in game_state['areas'][area][region].keys():
+                    elif token not in game_state['territories'][area][region].keys():
                         removal = area, region, token
                     # print(removal)
                     if removal is not None:
@@ -631,7 +631,7 @@ class OriginatorTruthsayer(OriginatorJSON):
     def getAreasOfPresence(self, faction):
         troop_types = self.processor.manager.getTroopTypes(faction)
         areas = {}
-        for area, content in self._object_state['areas'].items():
+        for area, content in self._object_state['territories'].items():
             if type(content) is not dict:
                 continue
             for region in content.keys():
@@ -657,37 +657,37 @@ class OriginatorTruthsayer(OriginatorJSON):
 
     def getSelectedCards(self, faction):
         participants = [
-            self._object_state['areas']['wheel_attacker_player'],
-            self._object_state['areas']['wheel_defender_player']
+            self._object_state['territories']['wheel_attacker_player'],
+            self._object_state['territories']['wheel_defender_player']
         ]
         if faction not in participants:
             raise ValueError('Player is not a battle participant')
         key = 'wheel_attacker_cards'
         if faction == participants[1]:
             key = 'wheel_defender_cards'
-        return self._object_state['areas'][key]
+        return self._object_state['territories'][key]
 
     def move(self, faction, source_area, source_region, target_area, target_region, N, troop_type=None):
         self.validateMapLocation(source_area, source_region)
         self.validateMapLocation(target_area, target_region)
         if troop_type is None:
             troop_type = '{0}_troops'.format(faction)
-        if source_area not in self._object_state['areas'].keys():
+        if source_area not in self._object_state['territories'].keys():
             raise ValueError('No troops in this area')
-        if source_region not in self._object_state['areas'][source_area].keys():
+        if source_region not in self._object_state['territories'][source_area].keys():
             raise ValueError('No troops in this region')
-        if troop_type not in self._object_state['areas'][source_area][source_region].keys():
+        if troop_type not in self._object_state['territories'][source_area][source_region].keys():
             raise ValueError('No troops in this region')
-        if self._object_state['areas'][source_area][source_region][troop_type] < N:
+        if self._object_state['territories'][source_area][source_region][troop_type] < N:
             raise ValueError('Insufficient amount of troops to perform this action')
-        if target_area not in self._object_state['areas'].keys():
-            self._object_state['areas'][target_area] = {}
-        if target_region not in self._object_state['areas'][target_area].keys():
-            self._object_state['areas'][target_area][target_region] = {}
-        if troop_type not in self._object_state['areas'][target_area][target_region].keys():
-            self._object_state['areas'][target_area][target_region][troop_type] = 0
-        self._object_state['areas'][source_area][source_region][troop_type] -= N
-        self._object_state['areas'][target_area][target_region][troop_type] += N
+        if target_area not in self._object_state['territories'].keys():
+            self._object_state['territories'][target_area] = {}
+        if target_region not in self._object_state['territories'][target_area].keys():
+            self._object_state['territories'][target_area][target_region] = {}
+        if troop_type not in self._object_state['territories'][target_area][target_region].keys():
+            self._object_state['territories'][target_area][target_region][troop_type] = 0
+        self._object_state['territories'][source_area][source_region][troop_type] -= N
+        self._object_state['territories'][target_area][target_region][troop_type] += N
         cmd = '/{0} {1} {2} {3} {4} {5} {6}'.format('move', faction, source_area, source_region, target_area, target_region, str(N))
         self.appendCMD(cmd)
 
@@ -701,28 +701,28 @@ class OriginatorTruthsayer(OriginatorJSON):
             raise ValueError('Invalid troop type')
         if self._object_state['hidden']['reserves'][faction][troop_type] < N:
             raise ValueError('Not enough forces in reserves')
-        if target_area not in self._object_state['areas'].keys():
-            self._object_state['areas'][target_area] = {}
-        if target_region not in self._object_state['areas'][target_area].keys():
-            self._object_state['areas'][target_area][target_region] = {}
-        if troop_type not in self._object_state['areas'][target_area][target_region].keys():
-            self._object_state['areas'][target_area][target_region][troop_type] = 0
-        self._object_state['areas'][target_area][target_region][troop_type] += N
+        if target_area not in self._object_state['territories'].keys():
+            self._object_state['territories'][target_area] = {}
+        if target_region not in self._object_state['territories'][target_area].keys():
+            self._object_state['territories'][target_area][target_region] = {}
+        if troop_type not in self._object_state['territories'][target_area][target_region].keys():
+            self._object_state['territories'][target_area][target_region][troop_type] = 0
+        self._object_state['territories'][target_area][target_region][troop_type] += N
         self._object_state['hidden']['reserves'][faction][troop_type] -= N
         cmd = '/{0} {1} {2} {3} {4}'.format('ship', faction, target_area, target_region, str(N))
         self.appendCMD(cmd)
 
     def placeLeader(self, faction, target_area, target_region, leader):
         self.validateMapLocation(target_area, target_region)
-        if target_area not in self._object_state['areas'].keys():
-            self._object_state['areas'][target_area] = {}
-        if target_region not in self._object_state['areas'][target_area].keys():
-            self._object_state['areas'][target_area][target_region] = {}
-        if leader not in self._object_state['areas'][target_area][target_region].keys():
-            self._object_state['areas'][target_area][target_region][leader] = 1
+        if target_area not in self._object_state['territories'].keys():
+            self._object_state['territories'][target_area] = {}
+        if target_region not in self._object_state['territories'][target_area].keys():
+            self._object_state['territories'][target_area][target_region] = {}
+        if leader not in self._object_state['territories'][target_area][target_region].keys():
+            self._object_state['territories'][target_area][target_region][leader] = 1
         else:
             # take leader back to reserves
-            self._object_state['areas'][target_area][target_region][leader] = 0
+            self._object_state['territories'][target_area][target_region][leader] = 0
             self._object_state['hidden']['leaders'][faction].append(leader)
             cmd = '/{0} {1} {2} {3} {4}'.format('placeLeader', faction, target_area, target_region, leader)
             self.appendCMD(cmd)
@@ -731,12 +731,12 @@ class OriginatorTruthsayer(OriginatorJSON):
         if leader in self._object_state['hidden']['leaders'][faction]:
             found = True
             self._object_state['hidden']['leaders'][faction].remove(leader)
-        elif leader == self._object_state['areas']['wheel_attacker_leader']:
+        elif leader == self._object_state['territories']['wheel_attacker_leader']:
             found = True
-            self._object_state['areas']['wheel_attacker_leader'] = None
-        elif leader == self._object_state['areas']['wheel_defender_leader']:
+            self._object_state['territories']['wheel_attacker_leader'] = None
+        elif leader == self._object_state['territories']['wheel_defender_leader']:
             found = True
-            self._object_state['areas']['wheel_defender_leader'] = None
+            self._object_state['territories']['wheel_defender_leader'] = None
         if not found:
             raise ValueError('Leader not found in available resources')
         cmd = '/{0} {1} {2} {3} {4}'.format('placeLeader', faction, target_area, target_region, leader)
@@ -744,15 +744,15 @@ class OriginatorTruthsayer(OriginatorJSON):
 
     def worm(self, target_area, target_region):
         self.validateMapLocation(target_area, target_region)
-        if target_area not in self._object_state['areas'].keys():
-            self._object_state['areas'][target_area] = {}
-        if target_region not in self._object_state['areas'][target_area].keys():
-            self._object_state['areas'][target_area][target_region] = {}
+        if target_area not in self._object_state['territories'].keys():
+            self._object_state['territories'][target_area] = {}
+        if target_region not in self._object_state['territories'][target_area].keys():
+            self._object_state['territories'][target_area][target_region] = {}
         token = 'worm'
-        if token not in self._object_state['areas'][target_area][target_region].keys():
-            self._object_state['areas'][target_area][target_region][token] = 1
+        if token not in self._object_state['territories'][target_area][target_region].keys():
+            self._object_state['territories'][target_area][target_region][token] = 1
         else:
-            del self._object_state['areas'][target_area][target_region][token]
+            del self._object_state['territories'][target_area][target_region][token]
         cmd = '/{0} {1} {2}'.format('worm', target_area, target_region)
         self.appendCMD(cmd)
 
@@ -773,11 +773,11 @@ class OriginatorTruthsayer(OriginatorJSON):
     def change(self, faction, target_area, target_region):
         if faction != 'bene_gesserit':
             raise ValueError('Only Bene Gesserit can change unit types')
-        if target_area not in self._object_state['areas'].keys():
+        if target_area not in self._object_state['territories'].keys():
             raise ValueError('Not enough troops')
-        if target_region not in self._object_state['areas'][target_area].keys():
+        if target_region not in self._object_state['territories'][target_area].keys():
             raise ValueError('Not enough troops')
-        available = self._object_state['areas'][target_area][target_region].keys()
+        available = self._object_state['territories'][target_area][target_region].keys()
         if 'bene_gesserit_troops' in available:
             source_troop_type = 'bene_gesserit_troops'
             target_troop_type = 'spiritual_advisor'
@@ -786,9 +786,9 @@ class OriginatorTruthsayer(OriginatorJSON):
             source_troop_type = 'spiritual_advisor'
         else:
             raise ValueError('Not enough troops')
-        n = self._object_state['areas'][target_area][target_region][source_troop_type]
-        del self._object_state['areas'][target_area][target_region][source_troop_type]
-        self._object_state['areas'][target_area][target_region][target_troop_type] = n
+        n = self._object_state['territories'][target_area][target_region][source_troop_type]
+        del self._object_state['territories'][target_area][target_region][source_troop_type]
+        self._object_state['territories'][target_area][target_region][target_troop_type] = n
         cmd = '/{0} {1} {2}'.format('change', target_area, target_region)
         self.appendCMD(cmd)
 
@@ -806,9 +806,9 @@ class OriginatorTruthsayer(OriginatorJSON):
         target_area_spice = target_area + '_spice'
         if not self.processor.manager.isAreaSpice(target_area_spice):
             raise ValueError('Invalid target area')
-        if target_area not in self._object_state['areas'].keys():
-            self._object_state['areas'][target_area_spice] = 0
-        self._object_state['areas'][target_area_spice] += N
+        if target_area not in self._object_state['territories'].keys():
+            self._object_state['territories'][target_area_spice] = 0
+        self._object_state['territories'][target_area_spice] += N
         cmd = '/{0} {1} {2}'.format('spiceblow', target_area, str(N))
         self.appendCMD(cmd)
 
@@ -816,11 +816,11 @@ class OriginatorTruthsayer(OriginatorJSON):
         target_area_spice = target_area + '_spice'
         if not self.processor.manager.isAreaSpice(target_area_spice):
             raise ValueError('Invalid target area')
-        if target_area not in self._object_state['areas'].keys():
-            self._object_state['areas'][target_area_spice] = 0
-        if self._object_state['areas'][target_area_spice] < N:
+        if target_area not in self._object_state['territories'].keys():
+            self._object_state['territories'][target_area_spice] = 0
+        if self._object_state['territories'][target_area_spice] < N:
             raise ValueError('Insufficient spice supply')
-        self._object_state['areas'][target_area_spice] -= N
+        self._object_state['territories'][target_area_spice] -= N
         self._object_state['hidden']['spice'][faction] += N
         cmd = '/{0} {1} {2} {3}'.format('harvest', faction, target_area_spice, str(N))
         self.appendCMD(cmd)
@@ -832,48 +832,48 @@ class OriginatorTruthsayer(OriginatorJSON):
         if leader not in self._object_state['hidden']['leaders'][faction]:
             raise ValueError('Leader not in players hand')
         self._object_state['hidden']['leaders'][faction].remove(leader)
-        if 'tleilaxu_tanks' not in self._object_state['areas'].keys():
-            self._object_state['areas']['tleilaxu_tanks'] = {
+        if 'tleilaxu_tanks' not in self._object_state['territories'].keys():
+            self._object_state['territories']['tleilaxu_tanks'] = {
                 'whole': {}
             }
-        self._object_state['areas']['tleilaxu_tanks']['whole'][leader] = 1
+        self._object_state['territories']['tleilaxu_tanks']['whole'][leader] = 1
         cmd = '/{0} {1}'.format('kill', leader)
         self.appendCMD(cmd)
 
     def kill(self, faction, source_territory, source_region, n, troop_type):
-        if source_territory not in self._object_state['areas'].keys():
+        if source_territory not in self._object_state['territories'].keys():
             raise ValueError('Not enough troops')
-        if source_region not in self._object_state['areas'][source_territory].keys():
+        if source_region not in self._object_state['territories'][source_territory].keys():
             raise ValueError('Not enough troops')
-        available = self._object_state['areas'][source_territory][source_region].keys()
+        available = self._object_state['territories'][source_territory][source_region].keys()
         if troop_type not in available:
             raise ValueError('Not enough troops')
-        if self._object_state['areas'][source_territory][source_region][troop_type] < n:
+        if self._object_state['territories'][source_territory][source_region][troop_type] < n:
             raise ValueError('Not enough troops')
-        self._object_state['areas'][source_territory][source_region][troop_type] -= n
-        if 'tleilaxu_tanks' not in self._object_state['areas'].keys():
-            self._object_state['areas']['tleilaxu_tanks'] = {
+        self._object_state['territories'][source_territory][source_region][troop_type] -= n
+        if 'tleilaxu_tanks' not in self._object_state['territories'].keys():
+            self._object_state['territories']['tleilaxu_tanks'] = {
                 'whole': {}
             }
-        if 'whole' not in self._object_state['areas']['tleilaxu_tanks'].keys():
-            self._object_state['areas']['tleilaxu_tanks'] = {
+        if 'whole' not in self._object_state['territories']['tleilaxu_tanks'].keys():
+            self._object_state['territories']['tleilaxu_tanks'] = {
                 'whole': {}
             }
-        if troop_type not in self._object_state['areas']['tleilaxu_tanks']['whole'].keys():
-            self._object_state['areas']['tleilaxu_tanks']['whole'][troop_type] = 0
-        self._object_state['areas']['tleilaxu_tanks']['whole'][troop_type] += n
+        if troop_type not in self._object_state['territories']['tleilaxu_tanks']['whole'].keys():
+            self._object_state['territories']['tleilaxu_tanks']['whole'][troop_type] = 0
+        self._object_state['territories']['tleilaxu_tanks']['whole'][troop_type] += n
 
     def reviveLeader(self, leader):
         if not self.processor.manager.isLeader(leader):
             raise ValueError('Invalid leader')
-        if 'tleilaxu_tanks' not in self._object_state['areas'].keys():
+        if 'tleilaxu_tanks' not in self._object_state['territories'].keys():
             raise ValueError('Leader not in Tleilaxu Tanks')
-        if 'whole' not in self._object_state['areas']['tleilaxu_tanks'].keys():
+        if 'whole' not in self._object_state['territories']['tleilaxu_tanks'].keys():
             raise ValueError('Leader not in Tleilaxu Tanks')
-        if leader not in self._object_state['areas']['tleilaxu_tanks']['whole'].keys():
+        if leader not in self._object_state['territories']['tleilaxu_tanks']['whole'].keys():
             raise ValueError('Leader not in Tleilaxu Tanks')
         faction = self.processor.manager.getLeadersFaction(leader)
-        del self._object_state['areas']['tleilaxu_tanks']['whole'][leader]
+        del self._object_state['territories']['tleilaxu_tanks']['whole'][leader]
         self._object_state['hidden']['leaders'][faction].append(leader)
         cmd = '/{0} {1}'.format('reviveLeader', leader)
         self.appendCMD(cmd)
@@ -882,40 +882,40 @@ class OriginatorTruthsayer(OriginatorJSON):
         owner_faction = self.processor.manager.getFactionFromTroopType(troop_type)
         if owner_faction is None:
             raise ValueError('Unrecognized troop type: ' + troop_type)
-        if 'tleilaxu_tanks' not in self._object_state['areas'].keys():
+        if 'tleilaxu_tanks' not in self._object_state['territories'].keys():
             raise ValueError('Troops not in Tleilaxu Tanks')
-        if 'whole' not in self._object_state['areas']['tleilaxu_tanks'].keys():
+        if 'whole' not in self._object_state['territories']['tleilaxu_tanks'].keys():
             raise ValueError('Troops not in Tleilaxu Tanks')
-        if troop_type not in self._object_state['areas']['tleilaxu_tanks']['whole'].keys():
+        if troop_type not in self._object_state['territories']['tleilaxu_tanks']['whole'].keys():
             raise ValueError('Troops not in Tleilaxu Tanks')
-        if self._object_state['areas']['tleilaxu_tanks']['whole'][troop_type] < n:
+        if self._object_state['territories']['tleilaxu_tanks']['whole'][troop_type] < n:
             raise ValueError('Not enough troops in Tleilaxu Tanks')
-        self._object_state['areas']['tleilaxu_tanks']['whole'][troop_type] -= n
-        if self._object_state['areas']['tleilaxu_tanks']['whole'][troop_type] == 0:
-            del self._object_state['areas']['tleilaxu_tanks']['whole'][troop_type]
+        self._object_state['territories']['tleilaxu_tanks']['whole'][troop_type] -= n
+        if self._object_state['territories']['tleilaxu_tanks']['whole'][troop_type] == 0:
+            del self._object_state['territories']['tleilaxu_tanks']['whole'][troop_type]
         self._object_state['hidden']['reserves'][owner_faction][troop_type] += n
         cmd = '/{0} {1} {2}'.format('revive', str(n), troop_type)
         self.appendCMD(cmd)
 
     def lead(self, faction, leader):
         participants = [
-            self._object_state['areas']['wheel_attacker_player'],
-            self._object_state['areas']['wheel_defender_player']
+            self._object_state['territories']['wheel_attacker_player'],
+            self._object_state['territories']['wheel_defender_player']
         ]
         if faction not in participants:
             raise ValueError('Player is not a battle participant')
         if not self.processor.manager.isLeader(leader):
             raise ValueError('Invalid leader')
         if faction == participants[0]:
-            self._object_state['areas']['wheel_attacker_leader'] = leader
+            self._object_state['territories']['wheel_attacker_leader'] = leader
         if faction == participants[1]:
-            self._object_state['areas']['wheel_defender_leader'] = leader
+            self._object_state['territories']['wheel_defender_leader'] = leader
 
     def treachery(self, faction, card_type, card):
         print('treachery', card_type, card)
         participants = [
-            self._object_state['areas']['wheel_attacker_player'],
-            self._object_state['areas']['wheel_defender_player']
+            self._object_state['territories']['wheel_attacker_player'],
+            self._object_state['territories']['wheel_defender_player']
         ]
         if faction not in participants:
             raise ValueError('Player is not a battle participant')
@@ -926,43 +926,43 @@ class OriginatorTruthsayer(OriginatorJSON):
         if card in self._object_state['hidden']['cards'][faction][card_type]:
             self._object_state['hidden']['cards'][faction][card_type].remove(card)
         if faction == participants[0]:
-            if card_type not in self._object_state['areas']['wheel_attacker_cards'].keys():
-                self._object_state['areas']['wheel_attacker_cards'][card_type] = []
-            self._object_state['areas']['wheel_attacker_cards'][card_type] += [card]
+            if card_type not in self._object_state['territories']['wheel_attacker_cards'].keys():
+                self._object_state['territories']['wheel_attacker_cards'][card_type] = []
+            self._object_state['territories']['wheel_attacker_cards'][card_type] += [card]
         if faction == participants[1]:
-            if card_type not in self._object_state['areas']['wheel_defender_cards'].keys():
-                self._object_state['areas']['wheel_defender_cards'][card_type] = []
-            self._object_state['areas']['wheel_defender_cards'][card_type] += [card]
+            if card_type not in self._object_state['territories']['wheel_defender_cards'].keys():
+                self._object_state['territories']['wheel_defender_cards'][card_type] = []
+            self._object_state['territories']['wheel_defender_cards'][card_type] += [card]
 
     def reverseTreachery(self, faction, card_type, card):
         print('rev-treachery', card_type, card)
         participants = [
-            self._object_state['areas']['wheel_attacker_player'],
-            self._object_state['areas']['wheel_defender_player']
+            self._object_state['territories']['wheel_attacker_player'],
+            self._object_state['territories']['wheel_defender_player']
         ]
         if faction not in participants:
             raise ValueError('Player is not a battle participant')
         key = 'wheel_attacker_cards'
         if faction == participants[1]:
             key = 'wheel_defender_cards'
-        if card not in self._object_state['areas'][key][card_type]:
+        if card not in self._object_state['territories'][key][card_type]:
             raise ValueError('This card is not part of the battle plan')
-        self._object_state['areas'][key][card_type].remove(card)
+        self._object_state['territories'][key][card_type].remove(card)
         self._object_state['hidden']['cards'][faction][card_type].append(card)
 
     def discard(self, faction, card_type, card):
         participants = [
-            self._object_state['areas']['wheel_attacker_player'],
-            self._object_state['areas']['wheel_defender_player']
+            self._object_state['territories']['wheel_attacker_player'],
+            self._object_state['territories']['wheel_defender_player']
         ]
         if faction not in participants:
             raise ValueError('Player is not a battle participant')
         key = 'wheel_attacker_cards'
         if faction == participants[1]:
             key = 'wheel_defender_cards'
-        if card not in self._object_state['areas'][key][card_type]:
+        if card not in self._object_state['territories'][key][card_type]:
             raise ValueError('This card is not part of the battle plan')
-        self._object_state['areas'][key][card_type].remove(card)
+        self._object_state['territories'][key][card_type].remove(card)
         if card_type not in self._object_state['hidden']['discarded'].keys():
             self._object_state['hidden']['discarded'][card_type] = []
         self._object_state['hidden']['discarded'][card_type].append(card)
@@ -983,20 +983,20 @@ class OriginatorTruthsayer(OriginatorJSON):
 
     def takeback(self, faction):
         participants = [
-            self._object_state['areas']['wheel_attacker_player'],
-            self._object_state['areas']['wheel_defender_player']
+            self._object_state['territories']['wheel_attacker_player'],
+            self._object_state['territories']['wheel_defender_player']
         ]
         if faction not in participants:
             raise ValueError('Player is not a battle participant')
         key = 'wheel_attacker_cards'
         if faction == participants[1]:
             key = 'wheel_defender_cards'
-        for card_type, card_list in self._object_state['areas'][key].items():
+        for card_type, card_list in self._object_state['territories'][key].items():
             if card_type not in self._object_state['hidden']['cards'][faction].keys():
                 self._object_state['hidden']['cards'][faction][card_type] = []
             for card in card_list:
                 self._object_state['hidden']['cards'][faction][card_type].append(card)
-        self._object_state['areas'][key] = []
+        self._object_state['territories'][key] = []
         cmd = '/{0} {1}'.format('takeback', faction)
         self.appendCMD(cmd)
 
@@ -1007,26 +1007,26 @@ class OriginatorTruthsayer(OriginatorJSON):
         return True
 
     def battle(self, aggressor_faction, defender_faction):
-        self._object_state['areas']['wheel_attacker_player'] = aggressor_faction
-        self._object_state['areas']['wheel_defender_player'] = defender_faction
-        self._object_state['areas']['wheel_attacker_cards'] = {}
-        self._object_state['areas']['wheel_defender_cards'] = {}
-        self._object_state['areas']['wheel_attacker_value'] = 0
-        self._object_state['areas']['wheel_defender_value'] = 0
-        self._object_state['areas']['wheel_attacker_leader'] = None
-        self._object_state['areas']['wheel_defender_leader'] = None
+        self._object_state['territories']['wheel_attacker_player'] = aggressor_faction
+        self._object_state['territories']['wheel_defender_player'] = defender_faction
+        self._object_state['territories']['wheel_attacker_cards'] = {}
+        self._object_state['territories']['wheel_defender_cards'] = {}
+        self._object_state['territories']['wheel_attacker_value'] = 0
+        self._object_state['territories']['wheel_defender_value'] = 0
+        self._object_state['territories']['wheel_attacker_leader'] = None
+        self._object_state['territories']['wheel_defender_leader'] = None
         cmd = '/{0} {1} {2}'.format('battle', aggressor_faction, defender_faction)
         self.appendCMD(cmd)
 
     def deployment(self, faction, N):
         participants = [
-            self._object_state['areas']['wheel_attacker_player'],
-            self._object_state['areas']['wheel_defender_player']
+            self._object_state['territories']['wheel_attacker_player'],
+            self._object_state['territories']['wheel_defender_player']
         ]
         key = 'wheel_attacker_value'
         if faction == participants[1]:
             key = 'wheel_defender_value'
-        self._object_state['areas'][key] = N
+        self._object_state['territories'][key] = N
 
     def storm(self, region):
         if region[0] != 'R':
@@ -1036,7 +1036,7 @@ class OriginatorTruthsayer(OriginatorJSON):
             position = int(position_str)
         except:
             raise ValueError('Invalid region')
-        self._object_state['areas']['storm'] = position
+        self._object_state['territories']['storm'] = position
         cmd = '/{0} {1}'.format('storm', region)
         self.appendCMD(cmd)
 
@@ -1236,7 +1236,7 @@ class OriginatorTruthsayer(OriginatorJSON):
                     }
                 }
         self._object_state['hidden'] = hidden
-        self._object_state['areas'] = areas
+        self._object_state['territories'] = areas
         self.appendCMD('/init')
 
 
@@ -1255,7 +1255,7 @@ class OriginatorTruthsayer(OriginatorJSON):
         }
         _object_state = {
             'hidden': hidden,
-            'areas': {},
+            'territories': {},
             'visual': {},
             'meta': meta,
             'configs': {}

@@ -1,6 +1,6 @@
 {
   "types": {
-    "areas": {
+    "territories": {
       "point": [
         "player_1",
         "player_2",
@@ -166,7 +166,7 @@
     "troop_edge": 7
   },
   "generated": {
-    "areas": {
+    "territories": {
       "circles": {
         "player_6": [
           111,

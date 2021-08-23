@@ -121,8 +121,8 @@ class Renderer:
         layer = Image.new('RGBA', self.canvas.size, (255,255,255,0))
         d = ImageDraw.Draw(layer)
         # handle the generation
-        areas = self.game_config['generated']['areas']['polygons']
-        type_point = self.game_config['types']['areas']['point']
+        areas = self.game_config['generated']['territories']['polygons']
+        type_point = self.game_config['types']['territories']['point']
         for area_name, region_object in self.game_state['visual'].items():
             if area_name in type_point:
                 continue
@@ -232,7 +232,7 @@ class Renderer:
             token = token.resize((self.leader_size, self.leader_size), Image.ANTIALIAS)
             width_token, height_token = token.size
             del filename
-            x, y = self.game_config['generated']['areas']['circles'][area_name]
+            x, y = self.game_config['generated']['territories']['circles'][area_name]
             half_width = int(width_token/2)
             half_height = int(height_token/2)
             if y - half_height < 0:
@@ -373,7 +373,7 @@ class Renderer:
         half_height = int(height_token/2)
         for area_name, amount in self.game_state['visual'].items():
             if area_name.endswith('_spice'):
-                x, y = self.game_config['generated']['areas']['circles'][area_name]
+                x, y = self.game_config['generated']['territories']['circles'][area_name]
                 box_target = (
                     int(x-width_token/2),
                     int(y-width_token/2),
@@ -581,7 +581,7 @@ class Renderer:
         x = int(xthird-xthird/5)
         y = int(ythird-ythird/3)
         # attacker cards
-        cards = self.game_state['areas'].get('wheel_attacker_cards', None)
+        cards = self.game_state['territories'].get('wheel_attacker_cards', None)
         width = xthird
         if cards is not None:
             cards_as_list = self.extractCards(cards)
@@ -602,7 +602,7 @@ class Renderer:
         # place right wheel
         x = self.width_canvas-int(xthird-xthird/5)
         y = self.height_canvas-int(ythird)
-        cards = self.game_state['areas'].get('wheel_defender_cards', None)
+        cards = self.game_state['territories'].get('wheel_defender_cards', None)
         if cards is not None:
             cards_as_list = self.extractCards(cards)
             for j, key in enumerate(cards_as_list):
