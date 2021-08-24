@@ -6,3 +6,6 @@ for faction in manager.getFactions():
     print(faction)
     print(leaders)
     print()
+    leaders_choices = manager.getLeadersChoices(faction)
+    print(leaders_choices)
+    print()

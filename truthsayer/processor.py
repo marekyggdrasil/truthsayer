@@ -254,6 +254,22 @@ class ConfigManager:
             choices = sorted(choices, key=lambda choice: len(choice['name']), reverse=reverse)
         return choices
 
+    def getCardEntry(self, card_id):
+        # check if card is a traitor, then need to add strength
+        values = self.deck_generator['traitor_deck']['values']
+        for entry in values:
+            leader = entry[0]
+            if 'traitor_'+leader != card_id:
+                continue
+            leader_name = entry[1]
+            leader_faction = entry[2]
+            leader_strength = entry[3]
+            card_name = leader_name.replace('_', ' ').title()
+            card_entry = 'Traitor {0} ({1})'.format(card_name, str(leader_strength))
+            return card_entry
+        # card is not a traitor
+        return card_id.replace('_', ' ').title()
+
     def getLeaders(self, faction):
         selected = []
         values = self.deck_generator['traitor_deck']['values']
@@ -291,11 +307,13 @@ class ConfigManager:
             leader = entry[0]
             leader_name = entry[1]
             leader_faction = entry[2]
+            leader_strength = entry[3]
+            name_with_strength = '{0} ({1})'.format(leader_name, str(leader_strength))
             if leader_faction != faction:
                 continue
-            name, value = leader, leader_name
+            name, value = leader, name_with_strength
             if swap:
-                value, name = leader, leader_name
+                value, name = leader, name_with_strength
             choices.append({
                 'name': name,
                 'value': value
