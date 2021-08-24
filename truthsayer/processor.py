@@ -996,7 +996,7 @@ class OriginatorTruthsayer(OriginatorJSON):
         if card_type not in self._object_state['hidden']['discarded'].keys():
             self._object_state['hidden']['discarded'][card_type] = []
         self._object_state['hidden']['discarded'][card_type].append(card)
-        cmd = '/{0} {1} {2}'.format('discard', faction, card)
+        cmd = '/{0} {1} {2}'.format('discardHand', faction, card)
         self.appendCMD(cmd)
 
     def takeback(self, faction):
@@ -1058,12 +1058,19 @@ class OriginatorTruthsayer(OriginatorJSON):
         cmd = '/{0} {1}'.format('storm', sector)
         self.appendCMD(cmd)
 
-    def peek(self, faction, deck):
+    def peek(self, faction, deck, n=0, discarded=False):
         if deck not in self._object_state['hidden']['decks'].keys():
             raise ValueError('Invalid deck name')
-        cmd = '/{0} {1} {2}'.format('peek', faction, deck)
+        cmd = '/{0} {1} {2} {3} discarded={4}'.format('peek', faction, deck, str(n), discarded)
         self.appendCMD(cmd)
-        card_id = self._object_state['hidden']['decks'][deck][0]
+        if discarded:
+            if n > len(self._object_state['hidden']['discarded'][deck]):
+                raise ValueError('Not enough cards on the discard pile to peek n={0}'.format(str(n)))
+            card_id = self._object_state['hidden']['discarded'][deck][-1-n]
+        else:
+            if n > len(self._object_state['hidden']['decks'][deck]):
+                raise ValueError('Not enough cards on the {0} deck to peek n={1}'.format(deck, str(n)))
+            card_id = self._object_state['hidden']['decks'][deck][-1-n]
         card = self.cards_manager.card_objects[card_id]
         game_id = self._object_state['meta']['texts']['game_id']
         return game_id, card
@@ -1073,6 +1080,8 @@ class OriginatorTruthsayer(OriginatorJSON):
             raise ValueError('You need to draw at least one card')
         if deck not in self._object_state['hidden']['decks'].keys():
             raise ValueError('Invalid deck name')
+        if len(self._object_state['hidden']['decks'][deck]) == 0:
+            raise ValueError('Not enough cards in the {0} deck.'.format(deck))
         cmd = '/{0} {1} {2} {3}'.format('draw', faction, deck, str(n))
         self.appendCMD(cmd)
         cards = []
