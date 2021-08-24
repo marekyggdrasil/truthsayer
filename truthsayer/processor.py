@@ -1050,18 +1050,23 @@ class OriginatorTruthsayer(OriginatorJSON):
         game_id = self._object_state['meta']['texts']['game_id']
         return game_id, card
 
-    def draw(self, faction, deck):
+    def draw(self, faction, deck, n):
+        if n < 1:
+            raise ValueError('You need to draw at least one card')
         if deck not in self._object_state['hidden']['decks'].keys():
             raise ValueError('Invalid deck name')
-        cmd = '/{0} {1} {2}'.format('draw', faction, deck)
+        cmd = '/{0} {1} {2} {3}'.format('draw', faction, deck, str(n))
         self.appendCMD(cmd)
-        card_id = self._object_state['hidden']['decks'][deck].pop()
-        if deck not in self._object_state['hidden']['cards'][faction].keys():
-            self._object_state['hidden']['cards'][faction][deck] = []
-        self._object_state['hidden']['cards'][faction][deck].append(card_id)
-        card = self.cards_manager.card_objects[card_id]
+        cards = []
+        for j in range(n):
+            card_id = self._object_state['hidden']['decks'][deck].pop()
+            if deck not in self._object_state['hidden']['cards'][faction].keys():
+                self._object_state['hidden']['cards'][faction][deck] = []
+            self._object_state['hidden']['cards'][faction][deck].append(card_id)
+            card = self.cards_manager.card_objects[card_id]
+            cards.append(card)
         game_id = self._object_state['meta']['texts']['game_id']
-        return game_id, card
+        return game_id, cards
 
     def hand(self, faction):
         leaders_list = self._object_state['hidden']['leaders'][faction]
