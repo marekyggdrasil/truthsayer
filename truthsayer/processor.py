@@ -240,6 +240,11 @@ class ConfigManager:
     def getFactions(self):
         return self.game_config['faction_names'].keys()
 
+    def getFactionName(self, faction):
+        if faction not in self.getFactions():
+            raise ValueError('Invalid faction')
+        return self.game_config['faction_names'][faction]
+
     def getFactionsChoices(self, sort=False, reverse=False, swap=False):
         choices = []
         for faction, faction_name in self.game_config['faction_names'].items():
@@ -549,8 +554,9 @@ class RenderingProcessor:
                     continue
                 faction_name = self.manager.getFactionName(faction_key)
                 player_name = game_state['meta']['usernames'][player_key]
+                player_discriminator = game_state['meta']['user_discriminators'][player_key]
                 game_state['visual'][wheel + '_faction'] = faction_name
-                game_state['visual'][wheel + '_name'] = player_name
+                game_state['visual'][wheel + '_name'] = '@'+player_name+'#'+player_discriminator
                 wheel_players_refs[wheel + '_faction'] = wheel
                 wheel_players_refs[wheel + '_name'] = wheel
         # optimize positions of tokens that need placement
@@ -684,6 +690,23 @@ class OriginatorTruthsayer(OriginatorJSON):
         if faction == participants[1]:
             key = 'wheel_defender_cards'
         return self._object_state['territories'][key]
+
+    def getTable(self):
+        table_state = []
+        for n in range(6):
+            seat = n + 1
+            key = 'player_{0}'.format(str(seat))
+            if key not in self._object_state['meta']['usernames'].keys():
+                continue
+            faction = self._object_state['meta']['factions'][key]
+            faction_name = self.processor.manager.getFactionName(faction)
+            player = {
+                'n': seat,
+                'id': self._object_state['meta']['user_ids'][key],
+                'faction_name': faction_name
+            }
+            table_state.append(player)
+        return table_state
 
     def move(self, faction, source_territory, source_sector, target_territory, target_sector, N, troop_type=None):
         self.validateMapLocation(source_territory, source_sector)
@@ -1107,19 +1130,25 @@ class OriginatorTruthsayer(OriginatorJSON):
             'leaders': leaders_data
         }
 
-    def join(self, seat, username, player_id, faction='random'):
+    def join(self, seat, username, discriminator, user_id, faction='random'):
         if len(self._object_state['meta']['usernames'].keys()) >= 6:
-            raise ValueError('too many players at the table')
+            raise ValueError('Too many players at the table.')
         if seat not in list(range(1, 7)):
-            raise ValueError('seat should be an integer between 1 and 6')
+            raise ValueError('Seat should be an integer between 1 and 6.')
         key = 'player_{0}'.format(str(seat))
+        if key in self._object_state['meta']['usernames'].keys():
+            raise ValueError('This seat is already taken.')
+        for _, value in self._object_state['meta']['user_ids'].items():
+            if user_id == value:
+                raise ValueError('This player is already part of the game and cannot join.')
         self._object_state['meta']['usernames'][key] = username
-        self._object_state['meta']['user_ids'][key] = player_id
+        self._object_state['meta']['user_ids'][key] = user_id
+        self._object_state['meta']['user_discriminators'][key] = discriminator
         used = []
         for _, value in self._object_state['meta']['factions'].items():
             used.append(value)
         if faction in used:
-            raise ValueError('this faction is already taken')
+            raise ValueError('This faction is already taken.')
         if faction == 'random':
             available = []
             all_factions = ['atreides', 'bene_gesserit', 'emperor', 'spacing_guild', 'fremen', 'harkonnen']
@@ -1128,13 +1157,23 @@ class OriginatorTruthsayer(OriginatorJSON):
                     available.append(f)
             faction = random.choice(available)
         self._object_state['meta']['factions'][key] = faction
-        # print()
-        # print(seat, username, player_id, faction, key)
-        # print(self._object_state['meta']['factions'])
-        # print()
-        cmd = '/{0} {1} {2} {3}'.format('join', seat, username, player_id)
+        cmd = '/{0} {1} {2} {3}'.format('join', seat, username, discriminator)
         if faction is not 'random':
             cmd += ' ' + faction
+        self.appendCMD(cmd)
+
+    def leave(self, faction):
+        key = None
+        for user_key, value in self._object_state['meta']['factions'].items():
+            if value == faction:
+                key = user_key
+        if key is None:
+            raise ValueError('Faction {0} not present in the game.'.format(faction))
+        del self._object_state['meta']['usernames'][key]
+        del self._object_state['meta']['user_ids'][key]
+        del self._object_state['meta']['user_discriminators'][key]
+        del self._object_state['meta']['factions'][key]
+        cmd = '/{0} {1}'.format('leave', faction)
         self.appendCMD(cmd)
 
     def randomize(self, what):

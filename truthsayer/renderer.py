@@ -262,7 +262,8 @@ class Renderer:
             if i == 5:
                 x_info = 5
                 y_info = y + half_width
-            text = self.texts['player_names'][territory_name] + '\n' + self.texts['user_ids'][territory_name]
+            text = '@' + self.game_state['meta']['usernames'][territory_name]
+            text += '\n#' + self.game_state['meta']['user_discriminators'][territory_name]
             self.d.text((x_info, y_info), text, font=self.fnt, fill='white')
 
     def renderLeaders(self, map_object):
