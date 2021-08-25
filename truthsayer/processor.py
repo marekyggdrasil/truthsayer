@@ -1118,6 +1118,13 @@ class OriginatorTruthsayer(OriginatorJSON):
         game_id = self._object_state['meta']['texts']['game_id']
         return game_id, cards
 
+    def shuffle(self, deck):
+        if deck not in self._object_state['hidden']['decks'].keys():
+            raise ValueError('Invalid deck.')
+        random.shuffle(self._object_state['hidden']['decks'][deck])
+        cmd = '/{0} {1}'.format('shuffle', deck)
+        self.appendCMD(cmd)
+
     def hand(self, faction):
         leaders_list = self._object_state['hidden']['leaders'][faction]
         leaders_data = self.processor.manager.getLeadersNamesStrength(leaders_list)
