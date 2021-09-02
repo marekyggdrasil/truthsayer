@@ -51,7 +51,7 @@ with open(filename) as json_file:
 
 game_config['generated'] = {
     'territories': areas,
-    'regions': regions,
+    'sectors': regions,
     'locations': locations,
     'location_regions': location_regions,
     'neighbors': neighbors,

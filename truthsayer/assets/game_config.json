@@ -4600,7 +4600,7 @@
                 ]
             }
         },
-        "regions": [
+        "sectors": [
             "S17",
             "S16",
             "S15",
@@ -4668,77 +4668,77 @@
         ],
         "location_regions": {
             "polar_sink": [
-                "S6",
-                "S13",
-                "S1",
-                "S7",
-                "S10",
-                "S14",
-                "S5",
                 "S18",
-                "S17",
-                "S8",
-                "S15",
-                "S4",
                 "S9",
                 "S2",
-                "S11",
+                "S14",
+                "S8",
                 "S12",
+                "S6",
+                "S11",
+                "S1",
+                "S5",
+                "S10",
+                "S16",
+                "S4",
+                "S13",
+                "S7",
                 "S3",
-                "S16"
+                "S15",
+                "S17"
             ],
             "arrakis": [
-                "S6",
-                "S13",
-                "S1",
-                "S7",
-                "S10",
-                "S14",
-                "S5",
                 "S18",
-                "S17",
-                "S8",
-                "S15",
-                "S4",
                 "S9",
                 "S2",
-                "S11",
+                "S14",
+                "S8",
                 "S12",
+                "S6",
+                "S11",
+                "S1",
+                "S5",
+                "S10",
+                "S16",
+                "S4",
+                "S13",
+                "S7",
                 "S3",
-                "S16"
+                "S15",
+                "S17"
             ],
             "wind_pass": [
-                "S17",
                 "S14",
+                "S15",
                 "S16",
-                "S15"
+                "S17"
             ],
             "false_wall_west": [
-                "S17",
                 "S18",
-                "S16"
+                "S16",
+                "S17"
             ],
             "habbanya_erg": [
-                "S17",
-                "S16"
+                "S16",
+                "S17"
             ],
             "habbanya_ridge_flat": [
-                "S17",
-                "S18"
+                "S18",
+                "S17"
             ],
             "habbanya_ridge_sietch": [
                 "S17"
             ],
             "wind_pass_north": [
-                "S17",
-                "S18"
+                "S18",
+                "S17"
             ],
             "the_greater_flat": [
                 "S16"
             ],
             "bight_of_the_cliff": [
-                "S14",
-                "S15"
+                "S15",
+                "S14"
             ],
             "funeral_plain": [
                 "S15"
@@ -4747,8 +4747,8 @@
                 "S15"
             ],
             "plastic_basin": [
-                "S12",
                 "S13",
+                "S12",
                 "S14"
             ],
             "rock_outcroppings": [
@@ -4759,13 +4759,13 @@
                 "S14"
             ],
             "tsimpo": [
-                "S12",
                 "S13",
+                "S12",
                 "S11"
             ],
             "hagga_basin": [
-                "S12",
-                "S13"
+                "S13",
+                "S12"
             ],
             "arsunt": [
                 "S12",
@@ -4780,13 +4780,13 @@
             ],
             "imperial_basin": [
                 "S9",
-                "S11",
-                "S10"
+                "S10",
+                "S11"
             ],
             "oh_gap": [
                 "S9",
-                "S11",
-                "S10"
+                "S10",
+                "S11"
             ],
             "arrakeen": [
                 "S10"
@@ -4808,23 +4808,23 @@
                 "S9"
             ],
             "false_wall_east": [
+                "S9",
+                "S8",
                 "S6",
                 "S5",
-                "S7",
-                "S9",
-                "S8"
+                "S7"
             ],
             "pasty_mesa": [
                 "S8",
-                "S6",
                 "S5",
-                "S7"
+                "S7",
+                "S6"
             ],
             "the_minor_erg": [
                 "S8",
-                "S6",
                 "S5",
-                "S7"
+                "S7",
+                "S6"
             ],
             "gara_kulon": [
                 "S8"
@@ -4833,9 +4833,9 @@
                 "S7"
             ],
             "south_mesa": [
-                "S6",
                 "S5",
-                "S4"
+                "S4",
+                "S6"
             ],
             "tueks_sietch": [
                 "S5"
@@ -4871,8 +4871,8 @@
                 "S1"
             ],
             "cielago_west": [
-                "S1",
-                "S18"
+                "S18",
+                "S1"
             ]
         },
         "neighbors": [
@@ -5283,27 +5283,6 @@
         ],
         "neighborhoods": {
             "south_mesa": {
-                "S6": {
-                    "tueks_sietch": [
-                        "S5"
-                    ],
-                    "false_wall_south": [
-                        "S5"
-                    ],
-                    "red_chasm": [
-                        "S7"
-                    ],
-                    "pasty_mesa": [
-                        "S6",
-                        "S5",
-                        "S7"
-                    ],
-                    "cielago_east": [],
-                    "south_mesa": [
-                        "S6",
-                        "S5"
-                    ]
-                },
                 "S5": {
                     "tueks_sietch": [
                         "S5"
@@ -5314,16 +5293,16 @@
                     ],
                     "red_chasm": [],
                     "pasty_mesa": [
-                        "S6",
-                        "S5"
+                        "S5",
+                        "S6"
                     ],
                     "cielago_east": [
                         "S4"
                     ],
                     "south_mesa": [
-                        "S6",
                         "S5",
-                        "S4"
+                        "S4",
+                        "S6"
                     ]
                 },
                 "S4": {
@@ -5346,22 +5325,43 @@
                         "S5",
                         "S4"
                     ]
+                },
+                "S6": {
+                    "tueks_sietch": [
+                        "S5"
+                    ],
+                    "false_wall_south": [
+                        "S5"
+                    ],
+                    "red_chasm": [
+                        "S7"
+                    ],
+                    "pasty_mesa": [
+                        "S5",
+                        "S7",
+                        "S6"
+                    ],
+                    "cielago_east": [],
+                    "south_mesa": [
+                        "S5",
+                        "S6"
+                    ]
                 }
             },
             "tueks_sietch": {
                 "S5": {
                     "south_mesa": [
-                        "S6",
                         "S5",
-                        "S4"
+                        "S4",
+                        "S6"
                     ],
                     "false_wall_south": [
                         "S5",
                         "S4"
                     ],
                     "pasty_mesa": [
-                        "S6",
-                        "S5"
+                        "S5",
+                        "S6"
                     ],
                     "tueks_sietch": [
                         "S5"
@@ -5371,20 +5371,20 @@
             "false_wall_south": {
                 "S5": {
                     "south_mesa": [
-                        "S6",
                         "S5",
-                        "S4"
+                        "S4",
+                        "S6"
                     ],
                     "tueks_sietch": [
                         "S5"
                     ],
                     "pasty_mesa": [
-                        "S6",
-                        "S5"
+                        "S5",
+                        "S6"
                     ],
                     "the_minor_erg": [
-                        "S6",
-                        "S5"
+                        "S5",
+                        "S6"
                     ],
                     "cielago_north": [],
                     "cielago_east": [
@@ -5437,8 +5437,8 @@
                     ],
                     "pasty_mesa": [
                         "S8",
-                        "S6",
-                        "S7"
+                        "S7",
+                        "S6"
                     ],
                     "red_chasm": [
                         "S7"
@@ -5469,38 +5469,11 @@
                         "S7"
                     ]
                 },
-                "S6": {
-                    "south_mesa": [
-                        "S6",
-                        "S5"
-                    ],
-                    "tueks_sietch": [
-                        "S5"
-                    ],
-                    "false_wall_south": [
-                        "S5"
-                    ],
-                    "red_chasm": [
-                        "S7"
-                    ],
-                    "the_minor_erg": [
-                        "S6",
-                        "S5",
-                        "S7"
-                    ],
-                    "gara_kulon": [],
-                    "shield_wall": [],
-                    "pasty_mesa": [
-                        "S6",
-                        "S5",
-                        "S7"
-                    ]
-                },
                 "S5": {
                     "south_mesa": [
-                        "S6",
                         "S5",
-                        "S4"
+                        "S4",
+                        "S6"
                     ],
                     "tueks_sietch": [
                         "S5"
@@ -5511,14 +5484,14 @@
                     ],
                     "red_chasm": [],
                     "the_minor_erg": [
-                        "S6",
-                        "S5"
+                        "S5",
+                        "S6"
                     ],
                     "gara_kulon": [],
                     "shield_wall": [],
                     "pasty_mesa": [
-                        "S6",
-                        "S5"
+                        "S5",
+                        "S6"
                     ]
                 },
                 "S7": {
@@ -5532,8 +5505,8 @@
                     ],
                     "the_minor_erg": [
                         "S8",
-                        "S6",
-                        "S7"
+                        "S7",
+                        "S6"
                     ],
                     "gara_kulon": [
                         "S8"
@@ -5543,8 +5516,35 @@
                     ],
                     "pasty_mesa": [
                         "S8",
-                        "S6",
+                        "S7",
+                        "S6"
+                    ]
+                },
+                "S6": {
+                    "south_mesa": [
+                        "S5",
+                        "S6"
+                    ],
+                    "tueks_sietch": [
+                        "S5"
+                    ],
+                    "false_wall_south": [
+                        "S5"
+                    ],
+                    "red_chasm": [
                         "S7"
+                    ],
+                    "the_minor_erg": [
+                        "S5",
+                        "S7",
+                        "S6"
+                    ],
+                    "gara_kulon": [],
+                    "shield_wall": [],
+                    "pasty_mesa": [
+                        "S5",
+                        "S7",
+                        "S6"
                     ]
                 }
             },
@@ -5570,38 +5570,14 @@
                         "S7"
                     ]
                 },
-                "S6": {
-                    "false_wall_south": [
-                        "S5"
-                    ],
-                    "pasty_mesa": [
-                        "S6",
-                        "S5",
-                        "S7"
-                    ],
-                    "shield_wall": [],
-                    "harg_pass": [
-                        "S5"
-                    ],
-                    "false_wall_east": [
-                        "S6",
-                        "S5",
-                        "S7"
-                    ],
-                    "the_minor_erg": [
-                        "S6",
-                        "S5",
-                        "S7"
-                    ]
-                },
                 "S5": {
                     "false_wall_south": [
                         "S5",
                         "S4"
                     ],
                     "pasty_mesa": [
-                        "S6",
-                        "S5"
+                        "S5",
+                        "S6"
                     ],
                     "shield_wall": [],
                     "harg_pass": [
@@ -5609,20 +5585,20 @@
                         "S4"
                     ],
                     "false_wall_east": [
-                        "S6",
-                        "S5"
+                        "S5",
+                        "S6"
                     ],
                     "the_minor_erg": [
-                        "S6",
-                        "S5"
+                        "S5",
+                        "S6"
                     ]
                 },
                 "S7": {
                     "false_wall_south": [],
                     "pasty_mesa": [
                         "S8",
-                        "S6",
-                        "S7"
+                        "S7",
+                        "S6"
                     ],
                     "shield_wall": [
                         "S8"
@@ -5630,13 +5606,37 @@
                     "harg_pass": [],
                     "false_wall_east": [
                         "S8",
-                        "S6",
-                        "S7"
+                        "S7",
+                        "S6"
                     ],
                     "the_minor_erg": [
                         "S8",
-                        "S6",
-                        "S7"
+                        "S7",
+                        "S6"
+                    ]
+                },
+                "S6": {
+                    "false_wall_south": [
+                        "S5"
+                    ],
+                    "pasty_mesa": [
+                        "S5",
+                        "S7",
+                        "S6"
+                    ],
+                    "shield_wall": [],
+                    "harg_pass": [
+                        "S5"
+                    ],
+                    "false_wall_east": [
+                        "S5",
+                        "S7",
+                        "S6"
+                    ],
+                    "the_minor_erg": [
+                        "S5",
+                        "S7",
+                        "S6"
                     ]
                 }
             },
@@ -5800,149 +5800,6 @@
                 }
             },
             "polar_sink": {
-                "S6": {
-                    "arsunt": [],
-                    "hagga_basin": [],
-                    "wind_pass": [],
-                    "wind_pass_north": [],
-                    "cielago_north": [],
-                    "harg_pass": [
-                        "S5"
-                    ],
-                    "false_wall_east": [
-                        "S6",
-                        "S5",
-                        "S7"
-                    ],
-                    "imperial_basin": [],
-                    "polar_sink": [
-                        "S6",
-                        "S5",
-                        "S7"
-                    ]
-                },
-                "S13": {
-                    "arsunt": [
-                        "S12"
-                    ],
-                    "hagga_basin": [
-                        "S12",
-                        "S13"
-                    ],
-                    "wind_pass": [
-                        "S14"
-                    ],
-                    "wind_pass_north": [],
-                    "cielago_north": [],
-                    "harg_pass": [],
-                    "false_wall_east": [],
-                    "imperial_basin": [],
-                    "polar_sink": [
-                        "S12",
-                        "S13",
-                        "S14"
-                    ]
-                },
-                "S1": {
-                    "arsunt": [],
-                    "hagga_basin": [],
-                    "wind_pass": [],
-                    "wind_pass_north": [],
-                    "cielago_north": [
-                        "S2",
-                        "S1"
-                    ],
-                    "harg_pass": [],
-                    "false_wall_east": [],
-                    "imperial_basin": [],
-                    "polar_sink": [
-                        "S2",
-                        "S1"
-                    ]
-                },
-                "S7": {
-                    "arsunt": [],
-                    "hagga_basin": [],
-                    "wind_pass": [],
-                    "wind_pass_north": [],
-                    "cielago_north": [],
-                    "harg_pass": [],
-                    "false_wall_east": [
-                        "S8",
-                        "S6",
-                        "S7"
-                    ],
-                    "imperial_basin": [],
-                    "polar_sink": [
-                        "S8",
-                        "S6",
-                        "S7"
-                    ]
-                },
-                "S10": {
-                    "arsunt": [
-                        "S11"
-                    ],
-                    "hagga_basin": [],
-                    "wind_pass": [],
-                    "wind_pass_north": [],
-                    "cielago_north": [],
-                    "harg_pass": [],
-                    "false_wall_east": [
-                        "S9"
-                    ],
-                    "imperial_basin": [
-                        "S9",
-                        "S11",
-                        "S10"
-                    ],
-                    "polar_sink": [
-                        "S9",
-                        "S11",
-                        "S10"
-                    ]
-                },
-                "S14": {
-                    "arsunt": [],
-                    "hagga_basin": [
-                        "S13"
-                    ],
-                    "wind_pass": [
-                        "S15",
-                        "S14"
-                    ],
-                    "wind_pass_north": [],
-                    "cielago_north": [],
-                    "harg_pass": [],
-                    "false_wall_east": [],
-                    "imperial_basin": [],
-                    "polar_sink": [
-                        "S13",
-                        "S15",
-                        "S14"
-                    ]
-                },
-                "S5": {
-                    "arsunt": [],
-                    "hagga_basin": [],
-                    "wind_pass": [],
-                    "wind_pass_north": [],
-                    "cielago_north": [],
-                    "harg_pass": [
-                        "S5",
-                        "S4"
-                    ],
-                    "false_wall_east": [
-                        "S6",
-                        "S5"
-                    ],
-                    "imperial_basin": [],
-                    "polar_sink": [
-                        "S6",
-                        "S5",
-                        "S4"
-                    ]
-                },
                 "S18": {
                     "arsunt": [],
                     "hagga_basin": [],
@@ -5950,99 +5807,16 @@
                         "S17"
                     ],
                     "wind_pass_north": [
-                        "S17",
-                        "S18"
-                    ],
-                    "cielago_north": [],
-                    "harg_pass": [],
-                    "false_wall_east": [],
-                    "imperial_basin": [],
-                    "polar_sink": [
-                        "S17",
-                        "S18"
-                    ]
-                },
-                "S17": {
-                    "arsunt": [],
-                    "hagga_basin": [],
-                    "wind_pass": [
-                        "S16",
+                        "S18",
                         "S17"
                     ],
-                    "wind_pass_north": [
-                        "S17",
-                        "S18"
-                    ],
                     "cielago_north": [],
                     "harg_pass": [],
                     "false_wall_east": [],
                     "imperial_basin": [],
                     "polar_sink": [
-                        "S16",
-                        "S17",
-                        "S18"
-                    ]
-                },
-                "S8": {
-                    "arsunt": [],
-                    "hagga_basin": [],
-                    "wind_pass": [],
-                    "wind_pass_north": [],
-                    "cielago_north": [],
-                    "harg_pass": [],
-                    "false_wall_east": [
-                        "S8",
-                        "S9",
-                        "S7"
-                    ],
-                    "imperial_basin": [
-                        "S9"
-                    ],
-                    "polar_sink": [
-                        "S8",
-                        "S9",
-                        "S7"
-                    ]
-                },
-                "S15": {
-                    "arsunt": [],
-                    "hagga_basin": [],
-                    "wind_pass": [
-                        "S16",
-                        "S15",
-                        "S14"
-                    ],
-                    "wind_pass_north": [],
-                    "cielago_north": [],
-                    "harg_pass": [],
-                    "false_wall_east": [],
-                    "imperial_basin": [],
-                    "polar_sink": [
-                        "S16",
-                        "S15",
-                        "S14"
-                    ]
-                },
-                "S4": {
-                    "arsunt": [],
-                    "hagga_basin": [],
-                    "wind_pass": [],
-                    "wind_pass_north": [],
-                    "cielago_north": [
-                        "S3"
-                    ],
-                    "harg_pass": [
-                        "S5",
-                        "S4"
-                    ],
-                    "false_wall_east": [
-                        "S5"
-                    ],
-                    "imperial_basin": [],
-                    "polar_sink": [
-                        "S3",
-                        "S5",
-                        "S4"
+                        "S18",
+                        "S17"
                     ]
                 },
                 "S9": {
@@ -6085,6 +5859,91 @@
                         "S1"
                     ]
                 },
+                "S14": {
+                    "arsunt": [],
+                    "hagga_basin": [
+                        "S13"
+                    ],
+                    "wind_pass": [
+                        "S15",
+                        "S14"
+                    ],
+                    "wind_pass_north": [],
+                    "cielago_north": [],
+                    "harg_pass": [],
+                    "false_wall_east": [],
+                    "imperial_basin": [],
+                    "polar_sink": [
+                        "S13",
+                        "S15",
+                        "S14"
+                    ]
+                },
+                "S8": {
+                    "arsunt": [],
+                    "hagga_basin": [],
+                    "wind_pass": [],
+                    "wind_pass_north": [],
+                    "cielago_north": [],
+                    "harg_pass": [],
+                    "false_wall_east": [
+                        "S8",
+                        "S9",
+                        "S7"
+                    ],
+                    "imperial_basin": [
+                        "S9"
+                    ],
+                    "polar_sink": [
+                        "S8",
+                        "S9",
+                        "S7"
+                    ]
+                },
+                "S12": {
+                    "arsunt": [
+                        "S12",
+                        "S11"
+                    ],
+                    "hagga_basin": [
+                        "S13",
+                        "S12"
+                    ],
+                    "wind_pass": [],
+                    "wind_pass_north": [],
+                    "cielago_north": [],
+                    "harg_pass": [],
+                    "false_wall_east": [],
+                    "imperial_basin": [
+                        "S11"
+                    ],
+                    "polar_sink": [
+                        "S13",
+                        "S12",
+                        "S11"
+                    ]
+                },
+                "S6": {
+                    "arsunt": [],
+                    "hagga_basin": [],
+                    "wind_pass": [],
+                    "wind_pass_north": [],
+                    "cielago_north": [],
+                    "harg_pass": [
+                        "S5"
+                    ],
+                    "false_wall_east": [
+                        "S5",
+                        "S7",
+                        "S6"
+                    ],
+                    "imperial_basin": [],
+                    "polar_sink": [
+                        "S5",
+                        "S7",
+                        "S6"
+                    ]
+                },
                 "S11": {
                     "arsunt": [
                         "S12",
@@ -6099,36 +5958,158 @@
                     "harg_pass": [],
                     "false_wall_east": [],
                     "imperial_basin": [
-                        "S11",
-                        "S10"
-                    ],
-                    "polar_sink": [
-                        "S12",
-                        "S11",
-                        "S10"
-                    ]
-                },
-                "S12": {
-                    "arsunt": [
-                        "S12",
+                        "S10",
                         "S11"
                     ],
-                    "hagga_basin": [
+                    "polar_sink": [
+                        "S10",
                         "S12",
-                        "S13"
+                        "S11"
+                    ]
+                },
+                "S1": {
+                    "arsunt": [],
+                    "hagga_basin": [],
+                    "wind_pass": [],
+                    "wind_pass_north": [],
+                    "cielago_north": [
+                        "S2",
+                        "S1"
                     ],
+                    "harg_pass": [],
+                    "false_wall_east": [],
+                    "imperial_basin": [],
+                    "polar_sink": [
+                        "S2",
+                        "S1"
+                    ]
+                },
+                "S5": {
+                    "arsunt": [],
+                    "hagga_basin": [],
+                    "wind_pass": [],
+                    "wind_pass_north": [],
+                    "cielago_north": [],
+                    "harg_pass": [
+                        "S5",
+                        "S4"
+                    ],
+                    "false_wall_east": [
+                        "S5",
+                        "S6"
+                    ],
+                    "imperial_basin": [],
+                    "polar_sink": [
+                        "S5",
+                        "S4",
+                        "S6"
+                    ]
+                },
+                "S10": {
+                    "arsunt": [
+                        "S11"
+                    ],
+                    "hagga_basin": [],
                     "wind_pass": [],
                     "wind_pass_north": [],
                     "cielago_north": [],
                     "harg_pass": [],
-                    "false_wall_east": [],
+                    "false_wall_east": [
+                        "S9"
+                    ],
                     "imperial_basin": [
+                        "S9",
+                        "S10",
                         "S11"
                     ],
                     "polar_sink": [
-                        "S12",
-                        "S13",
+                        "S9",
+                        "S10",
                         "S11"
+                    ]
+                },
+                "S16": {
+                    "arsunt": [],
+                    "hagga_basin": [],
+                    "wind_pass": [
+                        "S15",
+                        "S16",
+                        "S17"
+                    ],
+                    "wind_pass_north": [
+                        "S17"
+                    ],
+                    "cielago_north": [],
+                    "harg_pass": [],
+                    "false_wall_east": [],
+                    "imperial_basin": [],
+                    "polar_sink": [
+                        "S15",
+                        "S16",
+                        "S17"
+                    ]
+                },
+                "S4": {
+                    "arsunt": [],
+                    "hagga_basin": [],
+                    "wind_pass": [],
+                    "wind_pass_north": [],
+                    "cielago_north": [
+                        "S3"
+                    ],
+                    "harg_pass": [
+                        "S5",
+                        "S4"
+                    ],
+                    "false_wall_east": [
+                        "S5"
+                    ],
+                    "imperial_basin": [],
+                    "polar_sink": [
+                        "S5",
+                        "S3",
+                        "S4"
+                    ]
+                },
+                "S13": {
+                    "arsunt": [
+                        "S12"
+                    ],
+                    "hagga_basin": [
+                        "S13",
+                        "S12"
+                    ],
+                    "wind_pass": [
+                        "S14"
+                    ],
+                    "wind_pass_north": [],
+                    "cielago_north": [],
+                    "harg_pass": [],
+                    "false_wall_east": [],
+                    "imperial_basin": [],
+                    "polar_sink": [
+                        "S13",
+                        "S12",
+                        "S14"
+                    ]
+                },
+                "S7": {
+                    "arsunt": [],
+                    "hagga_basin": [],
+                    "wind_pass": [],
+                    "wind_pass_north": [],
+                    "cielago_north": [],
+                    "harg_pass": [],
+                    "false_wall_east": [
+                        "S8",
+                        "S7",
+                        "S6"
+                    ],
+                    "imperial_basin": [],
+                    "polar_sink": [
+                        "S8",
+                        "S7",
+                        "S6"
                     ]
                 },
                 "S3": {
@@ -6151,15 +6132,34 @@
                         "S4"
                     ]
                 },
-                "S16": {
+                "S15": {
+                    "arsunt": [],
+                    "hagga_basin": [],
+                    "wind_pass": [
+                        "S15",
+                        "S14",
+                        "S16"
+                    ],
+                    "wind_pass_north": [],
+                    "cielago_north": [],
+                    "harg_pass": [],
+                    "false_wall_east": [],
+                    "imperial_basin": [],
+                    "polar_sink": [
+                        "S15",
+                        "S14",
+                        "S16"
+                    ]
+                },
+                "S17": {
                     "arsunt": [],
                     "hagga_basin": [],
                     "wind_pass": [
                         "S16",
-                        "S17",
-                        "S15"
+                        "S17"
                     ],
                     "wind_pass_north": [
+                        "S18",
                         "S17"
                     ],
                     "cielago_north": [],
@@ -6167,93 +6167,17 @@
                     "false_wall_east": [],
                     "imperial_basin": [],
                     "polar_sink": [
+                        "S18",
                         "S16",
-                        "S17",
-                        "S15"
+                        "S17"
                     ]
                 }
             },
             "arrakis": {
-                "S6": {
-                    "arrakis": [
-                        "S6",
-                        "S5",
-                        "S7"
-                    ]
-                },
-                "S13": {
-                    "arrakis": [
-                        "S12",
-                        "S13",
-                        "S14"
-                    ]
-                },
-                "S1": {
-                    "arrakis": [
-                        "S2",
-                        "S1"
-                    ]
-                },
-                "S7": {
-                    "arrakis": [
-                        "S8",
-                        "S6",
-                        "S7"
-                    ]
-                },
-                "S10": {
-                    "arrakis": [
-                        "S9",
-                        "S11",
-                        "S10"
-                    ]
-                },
-                "S14": {
-                    "arrakis": [
-                        "S13",
-                        "S15",
-                        "S14"
-                    ]
-                },
-                "S5": {
-                    "arrakis": [
-                        "S6",
-                        "S5",
-                        "S4"
-                    ]
-                },
                 "S18": {
                     "arrakis": [
-                        "S17",
-                        "S18"
-                    ]
-                },
-                "S17": {
-                    "arrakis": [
-                        "S16",
-                        "S17",
-                        "S18"
-                    ]
-                },
-                "S8": {
-                    "arrakis": [
-                        "S8",
-                        "S9",
-                        "S7"
-                    ]
-                },
-                "S15": {
-                    "arrakis": [
-                        "S16",
-                        "S15",
-                        "S14"
-                    ]
-                },
-                "S4": {
-                    "arrakis": [
-                        "S3",
-                        "S5",
-                        "S4"
+                        "S18",
+                        "S17"
                     ]
                 },
                 "S9": {
@@ -6270,18 +6194,87 @@
                         "S1"
                     ]
                 },
-                "S11": {
+                "S14": {
                     "arrakis": [
-                        "S12",
-                        "S11",
-                        "S10"
+                        "S13",
+                        "S15",
+                        "S14"
+                    ]
+                },
+                "S8": {
+                    "arrakis": [
+                        "S8",
+                        "S9",
+                        "S7"
                     ]
                 },
                 "S12": {
                     "arrakis": [
-                        "S12",
                         "S13",
+                        "S12",
                         "S11"
+                    ]
+                },
+                "S6": {
+                    "arrakis": [
+                        "S5",
+                        "S7",
+                        "S6"
+                    ]
+                },
+                "S11": {
+                    "arrakis": [
+                        "S10",
+                        "S12",
+                        "S11"
+                    ]
+                },
+                "S1": {
+                    "arrakis": [
+                        "S2",
+                        "S1"
+                    ]
+                },
+                "S5": {
+                    "arrakis": [
+                        "S5",
+                        "S4",
+                        "S6"
+                    ]
+                },
+                "S10": {
+                    "arrakis": [
+                        "S9",
+                        "S10",
+                        "S11"
+                    ]
+                },
+                "S16": {
+                    "arrakis": [
+                        "S15",
+                        "S16",
+                        "S17"
+                    ]
+                },
+                "S4": {
+                    "arrakis": [
+                        "S5",
+                        "S3",
+                        "S4"
+                    ]
+                },
+                "S13": {
+                    "arrakis": [
+                        "S13",
+                        "S12",
+                        "S14"
+                    ]
+                },
+                "S7": {
+                    "arrakis": [
+                        "S8",
+                        "S7",
+                        "S6"
                     ]
                 },
                 "S3": {
@@ -6291,27 +6284,34 @@
                         "S4"
                     ]
                 },
-                "S16": {
+                "S15": {
                     "arrakis": [
+                        "S15",
+                        "S14",
+                        "S16"
+                    ]
+                },
+                "S17": {
+                    "arrakis": [
+                        "S18",
                         "S16",
-                        "S17",
-                        "S15"
+                        "S17"
                     ]
                 }
             },
             "arsunt": {
                 "S12": {
                     "polar_sink": [
-                        "S12",
                         "S13",
+                        "S12",
                         "S11"
                     ],
                     "carthag": [
                         "S11"
                     ],
                     "hagga_basin": [
-                        "S12",
-                        "S13"
+                        "S13",
+                        "S12"
                     ],
                     "imperial_basin": [
                         "S11"
@@ -6323,9 +6323,9 @@
                 },
                 "S11": {
                     "polar_sink": [
+                        "S10",
                         "S12",
-                        "S11",
-                        "S10"
+                        "S11"
                     ],
                     "carthag": [
                         "S11"
@@ -6334,8 +6334,8 @@
                         "S12"
                     ],
                     "imperial_basin": [
-                        "S11",
-                        "S10"
+                        "S10",
+                        "S11"
                     ],
                     "arsunt": [
                         "S12",
@@ -6357,8 +6357,8 @@
                         "S12"
                     ],
                     "imperial_basin": [
-                        "S11",
-                        "S10"
+                        "S10",
+                        "S11"
                     ],
                     "carthag": [
                         "S11"
@@ -6366,21 +6366,42 @@
                 }
             },
             "tsimpo": {
+                "S13": {
+                    "carthag": [],
+                    "hagga_basin": [
+                        "S13",
+                        "S12"
+                    ],
+                    "broken_land": [
+                        "S12"
+                    ],
+                    "plastic_basin": [
+                        "S13",
+                        "S12",
+                        "S14"
+                    ],
+                    "imperial_basin": [],
+                    "oh_gap": [],
+                    "tsimpo": [
+                        "S13",
+                        "S12"
+                    ]
+                },
                 "S12": {
                     "carthag": [
                         "S11"
                     ],
                     "hagga_basin": [
-                        "S12",
-                        "S13"
+                        "S13",
+                        "S12"
                     ],
                     "broken_land": [
                         "S12",
                         "S11"
                     ],
                     "plastic_basin": [
-                        "S12",
-                        "S13"
+                        "S13",
+                        "S12"
                     ],
                     "imperial_basin": [
                         "S11"
@@ -6389,30 +6410,9 @@
                         "S11"
                     ],
                     "tsimpo": [
-                        "S12",
                         "S13",
+                        "S12",
                         "S11"
-                    ]
-                },
-                "S13": {
-                    "carthag": [],
-                    "hagga_basin": [
-                        "S12",
-                        "S13"
-                    ],
-                    "broken_land": [
-                        "S12"
-                    ],
-                    "plastic_basin": [
-                        "S12",
-                        "S13",
-                        "S14"
-                    ],
-                    "imperial_basin": [],
-                    "oh_gap": [],
-                    "tsimpo": [
-                        "S12",
-                        "S13"
                     ]
                 },
                 "S11": {
@@ -6430,12 +6430,12 @@
                         "S12"
                     ],
                     "imperial_basin": [
-                        "S11",
-                        "S10"
+                        "S10",
+                        "S11"
                     ],
                     "oh_gap": [
-                        "S11",
-                        "S10"
+                        "S10",
+                        "S11"
                     ],
                     "tsimpo": [
                         "S12",
@@ -6444,10 +6444,37 @@
                 }
             },
             "hagga_basin": {
+                "S13": {
+                    "polar_sink": [
+                        "S13",
+                        "S12",
+                        "S14"
+                    ],
+                    "arsunt": [
+                        "S12"
+                    ],
+                    "carthag": [],
+                    "tsimpo": [
+                        "S13",
+                        "S12"
+                    ],
+                    "plastic_basin": [
+                        "S13",
+                        "S12",
+                        "S14"
+                    ],
+                    "wind_pass": [
+                        "S14"
+                    ],
+                    "hagga_basin": [
+                        "S13",
+                        "S12"
+                    ]
+                },
                 "S12": {
                     "polar_sink": [
-                        "S12",
                         "S13",
+                        "S12",
                         "S11"
                     ],
                     "arsunt": [
@@ -6458,58 +6485,31 @@
                         "S11"
                     ],
                     "tsimpo": [
-                        "S12",
                         "S13",
+                        "S12",
                         "S11"
                     ],
                     "plastic_basin": [
-                        "S12",
-                        "S13"
+                        "S13",
+                        "S12"
                     ],
                     "wind_pass": [],
                     "hagga_basin": [
-                        "S12",
-                        "S13"
-                    ]
-                },
-                "S13": {
-                    "polar_sink": [
-                        "S12",
                         "S13",
-                        "S14"
-                    ],
-                    "arsunt": [
                         "S12"
-                    ],
-                    "carthag": [],
-                    "tsimpo": [
-                        "S12",
-                        "S13"
-                    ],
-                    "plastic_basin": [
-                        "S12",
-                        "S13",
-                        "S14"
-                    ],
-                    "wind_pass": [
-                        "S14"
-                    ],
-                    "hagga_basin": [
-                        "S12",
-                        "S13"
                     ]
                 }
             },
             "broken_land": {
                 "S12": {
                     "tsimpo": [
-                        "S12",
                         "S13",
+                        "S12",
                         "S11"
                     ],
                     "plastic_basin": [
-                        "S12",
-                        "S13"
+                        "S13",
+                        "S12"
                     ],
                     "rock_outcroppings": [
                         "S13"
@@ -6532,8 +6532,8 @@
                     ],
                     "rock_outcroppings": [],
                     "oh_gap": [
-                        "S11",
-                        "S10"
+                        "S10",
+                        "S11"
                     ],
                     "broken_land": [
                         "S12",
@@ -6542,40 +6542,14 @@
                 }
             },
             "plastic_basin": {
-                "S12": {
-                    "tsimpo": [
-                        "S12",
-                        "S13",
-                        "S11"
-                    ],
-                    "hagga_basin": [
-                        "S12",
-                        "S13"
-                    ],
-                    "broken_land": [
-                        "S12",
-                        "S11"
-                    ],
-                    "rock_outcroppings": [
-                        "S13"
-                    ],
-                    "sietch_tabr": [],
-                    "funeral_plain": [],
-                    "the_great_flat": [],
-                    "wind_pass": [],
-                    "plastic_basin": [
-                        "S12",
-                        "S13"
-                    ]
-                },
                 "S13": {
                     "tsimpo": [
-                        "S12",
-                        "S13"
+                        "S13",
+                        "S12"
                     ],
                     "hagga_basin": [
-                        "S12",
-                        "S13"
+                        "S13",
+                        "S12"
                     ],
                     "broken_land": [
                         "S12"
@@ -6593,9 +6567,35 @@
                         "S14"
                     ],
                     "plastic_basin": [
-                        "S12",
                         "S13",
+                        "S12",
                         "S14"
+                    ]
+                },
+                "S12": {
+                    "tsimpo": [
+                        "S13",
+                        "S12",
+                        "S11"
+                    ],
+                    "hagga_basin": [
+                        "S13",
+                        "S12"
+                    ],
+                    "broken_land": [
+                        "S12",
+                        "S11"
+                    ],
+                    "rock_outcroppings": [
+                        "S13"
+                    ],
+                    "sietch_tabr": [],
+                    "funeral_plain": [],
+                    "the_great_flat": [],
+                    "wind_pass": [],
+                    "plastic_basin": [
+                        "S13",
+                        "S12"
                     ]
                 },
                 "S14": {
@@ -6635,8 +6635,8 @@
                         "S12"
                     ],
                     "plastic_basin": [
-                        "S12",
                         "S13",
+                        "S12",
                         "S14"
                     ],
                     "sietch_tabr": [
@@ -6689,9 +6689,8 @@
                 }
             },
             "bight_of_the_cliff": {
-                "S14": {
+                "S15": {
                     "rock_outcroppings": [
-                        "S13",
                         "S14"
                     ],
                     "sietch_tabr": [
@@ -6705,8 +6704,9 @@
                         "S14"
                     ]
                 },
-                "S15": {
+                "S14": {
                     "rock_outcroppings": [
+                        "S13",
                         "S14"
                     ],
                     "sietch_tabr": [
@@ -6747,9 +6747,9 @@
                         "S15"
                     ],
                     "wind_pass": [
-                        "S16",
                         "S15",
-                        "S14"
+                        "S14",
+                        "S16"
                     ],
                     "the_greater_flat": [
                         "S16"
@@ -6760,35 +6760,6 @@
                 }
             },
             "wind_pass": {
-                "S17": {
-                    "polar_sink": [
-                        "S16",
-                        "S17",
-                        "S18"
-                    ],
-                    "hagga_basin": [],
-                    "plastic_basin": [],
-                    "the_great_flat": [],
-                    "the_greater_flat": [
-                        "S16"
-                    ],
-                    "false_wall_west": [
-                        "S16",
-                        "S17",
-                        "S18"
-                    ],
-                    "wind_pass_north": [
-                        "S17",
-                        "S18"
-                    ],
-                    "cielago_west": [
-                        "S18"
-                    ],
-                    "wind_pass": [
-                        "S16",
-                        "S17"
-                    ]
-                },
                 "S14": {
                     "polar_sink": [
                         "S13",
@@ -6814,11 +6785,38 @@
                         "S14"
                     ]
                 },
+                "S15": {
+                    "polar_sink": [
+                        "S15",
+                        "S14",
+                        "S16"
+                    ],
+                    "hagga_basin": [],
+                    "plastic_basin": [
+                        "S14"
+                    ],
+                    "the_great_flat": [
+                        "S15"
+                    ],
+                    "the_greater_flat": [
+                        "S16"
+                    ],
+                    "false_wall_west": [
+                        "S16"
+                    ],
+                    "wind_pass_north": [],
+                    "cielago_west": [],
+                    "wind_pass": [
+                        "S15",
+                        "S14",
+                        "S16"
+                    ]
+                },
                 "S16": {
                     "polar_sink": [
+                        "S15",
                         "S16",
-                        "S17",
-                        "S15"
+                        "S17"
                     ],
                     "hagga_basin": [],
                     "plastic_basin": [],
@@ -6837,36 +6835,38 @@
                     ],
                     "cielago_west": [],
                     "wind_pass": [
+                        "S15",
                         "S16",
-                        "S17",
-                        "S15"
+                        "S17"
                     ]
                 },
-                "S15": {
+                "S17": {
                     "polar_sink": [
+                        "S18",
                         "S16",
-                        "S15",
-                        "S14"
+                        "S17"
                     ],
                     "hagga_basin": [],
-                    "plastic_basin": [
-                        "S14"
-                    ],
-                    "the_great_flat": [
-                        "S15"
-                    ],
+                    "plastic_basin": [],
+                    "the_great_flat": [],
                     "the_greater_flat": [
                         "S16"
                     ],
                     "false_wall_west": [
-                        "S16"
+                        "S18",
+                        "S16",
+                        "S17"
                     ],
-                    "wind_pass_north": [],
-                    "cielago_west": [],
+                    "wind_pass_north": [
+                        "S18",
+                        "S17"
+                    ],
+                    "cielago_west": [
+                        "S18"
+                    ],
                     "wind_pass": [
                         "S16",
-                        "S15",
-                        "S14"
+                        "S17"
                     ]
                 }
             },
@@ -6876,9 +6876,9 @@
                         "S15"
                     ],
                     "wind_pass": [
+                        "S15",
                         "S16",
-                        "S17",
-                        "S15"
+                        "S17"
                     ],
                     "false_wall_west": [
                         "S16",
@@ -6894,31 +6894,6 @@
                 }
             },
             "false_wall_west": {
-                "S17": {
-                    "wind_pass": [
-                        "S16",
-                        "S17"
-                    ],
-                    "the_greater_flat": [
-                        "S16"
-                    ],
-                    "habbanya_erg": [
-                        "S16",
-                        "S17"
-                    ],
-                    "habbanya_ridge_flat": [
-                        "S17",
-                        "S18"
-                    ],
-                    "cielago_west": [
-                        "S18"
-                    ],
-                    "false_wall_west": [
-                        "S16",
-                        "S17",
-                        "S18"
-                    ]
-                },
                 "S18": {
                     "wind_pass": [
                         "S17"
@@ -6928,22 +6903,22 @@
                         "S17"
                     ],
                     "habbanya_ridge_flat": [
-                        "S17",
-                        "S18"
+                        "S18",
+                        "S17"
                     ],
                     "cielago_west": [
                         "S18"
                     ],
                     "false_wall_west": [
-                        "S17",
-                        "S18"
+                        "S18",
+                        "S17"
                     ]
                 },
                 "S16": {
                     "wind_pass": [
+                        "S15",
                         "S16",
-                        "S17",
-                        "S15"
+                        "S17"
                     ],
                     "the_greater_flat": [
                         "S16"
@@ -6960,27 +6935,34 @@
                         "S16",
                         "S17"
                     ]
-                }
-            },
-            "habbanya_erg": {
+                },
                 "S17": {
+                    "wind_pass": [
+                        "S16",
+                        "S17"
+                    ],
                     "the_greater_flat": [
                         "S16"
-                    ],
-                    "false_wall_west": [
-                        "S16",
-                        "S17",
-                        "S18"
-                    ],
-                    "habbanya_ridge_flat": [
-                        "S17",
-                        "S18"
                     ],
                     "habbanya_erg": [
                         "S16",
                         "S17"
+                    ],
+                    "habbanya_ridge_flat": [
+                        "S18",
+                        "S17"
+                    ],
+                    "cielago_west": [
+                        "S18"
+                    ],
+                    "false_wall_west": [
+                        "S18",
+                        "S16",
+                        "S17"
                     ]
-                },
+                }
+            },
+            "habbanya_erg": {
                 "S16": {
                     "the_greater_flat": [
                         "S16"
@@ -6996,35 +6978,31 @@
                         "S16",
                         "S17"
                     ]
+                },
+                "S17": {
+                    "the_greater_flat": [
+                        "S16"
+                    ],
+                    "false_wall_west": [
+                        "S18",
+                        "S16",
+                        "S17"
+                    ],
+                    "habbanya_ridge_flat": [
+                        "S18",
+                        "S17"
+                    ],
+                    "habbanya_erg": [
+                        "S16",
+                        "S17"
+                    ]
                 }
             },
             "habbanya_ridge_flat": {
-                "S17": {
-                    "false_wall_west": [
-                        "S16",
-                        "S17",
-                        "S18"
-                    ],
-                    "habbanya_erg": [
-                        "S16",
-                        "S17"
-                    ],
-                    "habbanya_ridge_sietch": [
-                        "S17"
-                    ],
-                    "cielago_west": [
-                        "S18"
-                    ],
-                    "meridian": [],
-                    "habbanya_ridge_flat": [
-                        "S17",
-                        "S18"
-                    ]
-                },
                 "S18": {
                     "false_wall_west": [
-                        "S17",
-                        "S18"
+                        "S18",
+                        "S17"
                     ],
                     "habbanya_erg": [
                         "S17"
@@ -7037,16 +7015,38 @@
                     ],
                     "meridian": [],
                     "habbanya_ridge_flat": [
-                        "S17",
+                        "S18",
+                        "S17"
+                    ]
+                },
+                "S17": {
+                    "false_wall_west": [
+                        "S18",
+                        "S16",
+                        "S17"
+                    ],
+                    "habbanya_erg": [
+                        "S16",
+                        "S17"
+                    ],
+                    "habbanya_ridge_sietch": [
+                        "S17"
+                    ],
+                    "cielago_west": [
                         "S18"
+                    ],
+                    "meridian": [],
+                    "habbanya_ridge_flat": [
+                        "S18",
+                        "S17"
                     ]
                 }
             },
             "habbanya_ridge_sietch": {
                 "S17": {
                     "habbanya_ridge_flat": [
-                        "S17",
-                        "S18"
+                        "S18",
+                        "S17"
                     ],
                     "habbanya_ridge_sietch": [
                         "S17"
@@ -7054,29 +7054,10 @@
                 }
             },
             "wind_pass_north": {
-                "S17": {
-                    "polar_sink": [
-                        "S16",
-                        "S17",
-                        "S18"
-                    ],
-                    "wind_pass": [
-                        "S16",
-                        "S17"
-                    ],
-                    "cielago_west": [
-                        "S18"
-                    ],
-                    "cielago_north": [],
-                    "wind_pass_north": [
-                        "S17",
-                        "S18"
-                    ]
-                },
                 "S18": {
                     "polar_sink": [
-                        "S17",
-                        "S18"
+                        "S18",
+                        "S17"
                     ],
                     "wind_pass": [
                         "S17"
@@ -7086,12 +7067,54 @@
                     ],
                     "cielago_north": [],
                     "wind_pass_north": [
-                        "S17",
+                        "S18",
+                        "S17"
+                    ]
+                },
+                "S17": {
+                    "polar_sink": [
+                        "S18",
+                        "S16",
+                        "S17"
+                    ],
+                    "wind_pass": [
+                        "S16",
+                        "S17"
+                    ],
+                    "cielago_west": [
                         "S18"
+                    ],
+                    "cielago_north": [],
+                    "wind_pass_north": [
+                        "S18",
+                        "S17"
                     ]
                 }
             },
             "cielago_west": {
+                "S18": {
+                    "wind_pass": [
+                        "S17"
+                    ],
+                    "false_wall_west": [
+                        "S18",
+                        "S17"
+                    ],
+                    "habbanya_ridge_flat": [
+                        "S18",
+                        "S17"
+                    ],
+                    "wind_pass_north": [
+                        "S18",
+                        "S17"
+                    ],
+                    "cielago_north": [],
+                    "cielago_depression": [],
+                    "meridian": [],
+                    "cielago_west": [
+                        "S18"
+                    ]
+                },
                 "S1": {
                     "wind_pass": [],
                     "false_wall_west": [],
@@ -7111,29 +7134,6 @@
                     ],
                     "cielago_west": [
                         "S1"
-                    ]
-                },
-                "S18": {
-                    "wind_pass": [
-                        "S17"
-                    ],
-                    "false_wall_west": [
-                        "S17",
-                        "S18"
-                    ],
-                    "habbanya_ridge_flat": [
-                        "S17",
-                        "S18"
-                    ],
-                    "wind_pass_north": [
-                        "S17",
-                        "S18"
-                    ],
-                    "cielago_north": [],
-                    "cielago_depression": [],
-                    "meridian": [],
-                    "cielago_west": [
-                        "S18"
                     ]
                 }
             },
@@ -7415,18 +7415,18 @@
                         "S4"
                     ],
                     "the_minor_erg": [
-                        "S6",
-                        "S5"
+                        "S5",
+                        "S6"
                     ],
                     "polar_sink": [
-                        "S6",
                         "S5",
-                        "S4"
+                        "S4",
+                        "S6"
                     ],
                     "cielago_north": [],
                     "false_wall_east": [
-                        "S6",
-                        "S5"
+                        "S5",
+                        "S6"
                     ],
                     "harg_pass": [
                         "S5",
@@ -7442,8 +7442,8 @@
                         "S5"
                     ],
                     "polar_sink": [
-                        "S3",
                         "S5",
+                        "S3",
                         "S4"
                     ],
                     "cielago_north": [
@@ -7459,66 +7459,6 @@
                 }
             },
             "false_wall_east": {
-                "S6": {
-                    "the_minor_erg": [
-                        "S6",
-                        "S5",
-                        "S7"
-                    ],
-                    "polar_sink": [
-                        "S6",
-                        "S5",
-                        "S7"
-                    ],
-                    "harg_pass": [
-                        "S5"
-                    ],
-                    "imperial_basin": [],
-                    "false_wall_east": [
-                        "S6",
-                        "S5",
-                        "S7"
-                    ]
-                },
-                "S5": {
-                    "the_minor_erg": [
-                        "S6",
-                        "S5"
-                    ],
-                    "polar_sink": [
-                        "S6",
-                        "S5",
-                        "S4"
-                    ],
-                    "harg_pass": [
-                        "S5",
-                        "S4"
-                    ],
-                    "imperial_basin": [],
-                    "false_wall_east": [
-                        "S6",
-                        "S5"
-                    ]
-                },
-                "S7": {
-                    "the_minor_erg": [
-                        "S8",
-                        "S6",
-                        "S7"
-                    ],
-                    "polar_sink": [
-                        "S8",
-                        "S6",
-                        "S7"
-                    ],
-                    "harg_pass": [],
-                    "imperial_basin": [],
-                    "false_wall_east": [
-                        "S8",
-                        "S6",
-                        "S7"
-                    ]
-                },
                 "S9": {
                     "the_minor_erg": [
                         "S8"
@@ -7556,6 +7496,66 @@
                         "S8",
                         "S9",
                         "S7"
+                    ]
+                },
+                "S6": {
+                    "the_minor_erg": [
+                        "S5",
+                        "S7",
+                        "S6"
+                    ],
+                    "polar_sink": [
+                        "S5",
+                        "S7",
+                        "S6"
+                    ],
+                    "harg_pass": [
+                        "S5"
+                    ],
+                    "imperial_basin": [],
+                    "false_wall_east": [
+                        "S5",
+                        "S7",
+                        "S6"
+                    ]
+                },
+                "S5": {
+                    "the_minor_erg": [
+                        "S5",
+                        "S6"
+                    ],
+                    "polar_sink": [
+                        "S5",
+                        "S4",
+                        "S6"
+                    ],
+                    "harg_pass": [
+                        "S5",
+                        "S4"
+                    ],
+                    "imperial_basin": [],
+                    "false_wall_east": [
+                        "S5",
+                        "S6"
+                    ]
+                },
+                "S7": {
+                    "the_minor_erg": [
+                        "S8",
+                        "S7",
+                        "S6"
+                    ],
+                    "polar_sink": [
+                        "S8",
+                        "S7",
+                        "S6"
+                    ],
+                    "harg_pass": [],
+                    "imperial_basin": [],
+                    "false_wall_east": [
+                        "S8",
+                        "S7",
+                        "S6"
                     ]
                 }
             },
@@ -7595,39 +7595,6 @@
                         "S10"
                     ]
                 },
-                "S11": {
-                    "shield_wall": [],
-                    "hole_in_the_rock": [],
-                    "rim_wall_west": [],
-                    "polar_sink": [
-                        "S12",
-                        "S11",
-                        "S10"
-                    ],
-                    "arsunt": [
-                        "S12",
-                        "S11"
-                    ],
-                    "carthag": [
-                        "S11"
-                    ],
-                    "tsimpo": [
-                        "S12",
-                        "S11"
-                    ],
-                    "false_wall_east": [],
-                    "arrakeen": [
-                        "S10"
-                    ],
-                    "oh_gap": [
-                        "S11",
-                        "S10"
-                    ],
-                    "imperial_basin": [
-                        "S11",
-                        "S10"
-                    ]
-                },
                 "S10": {
                     "shield_wall": [
                         "S9"
@@ -7640,8 +7607,8 @@
                     ],
                     "polar_sink": [
                         "S9",
-                        "S11",
-                        "S10"
+                        "S10",
+                        "S11"
                     ],
                     "arsunt": [
                         "S11"
@@ -7660,13 +7627,46 @@
                     ],
                     "oh_gap": [
                         "S9",
-                        "S11",
-                        "S10"
+                        "S10",
+                        "S11"
                     ],
                     "imperial_basin": [
                         "S9",
-                        "S11",
+                        "S10",
+                        "S11"
+                    ]
+                },
+                "S11": {
+                    "shield_wall": [],
+                    "hole_in_the_rock": [],
+                    "rim_wall_west": [],
+                    "polar_sink": [
+                        "S10",
+                        "S12",
+                        "S11"
+                    ],
+                    "arsunt": [
+                        "S12",
+                        "S11"
+                    ],
+                    "carthag": [
+                        "S11"
+                    ],
+                    "tsimpo": [
+                        "S12",
+                        "S11"
+                    ],
+                    "false_wall_east": [],
+                    "arrakeen": [
                         "S10"
+                    ],
+                    "oh_gap": [
+                        "S10",
+                        "S11"
+                    ],
+                    "imperial_basin": [
+                        "S10",
+                        "S11"
                     ]
                 }
             },
@@ -7677,13 +7677,13 @@
                     ],
                     "imperial_basin": [
                         "S9",
-                        "S11",
-                        "S10"
+                        "S10",
+                        "S11"
                     ],
                     "oh_gap": [
                         "S9",
-                        "S11",
-                        "S10"
+                        "S10",
+                        "S11"
                     ],
                     "arrakeen": [
                         "S10"
@@ -7712,29 +7712,6 @@
                         "S10"
                     ]
                 },
-                "S11": {
-                    "basin": [],
-                    "rim_wall_west": [],
-                    "tsimpo": [
-                        "S12",
-                        "S11"
-                    ],
-                    "broken_land": [
-                        "S12",
-                        "S11"
-                    ],
-                    "imperial_basin": [
-                        "S11",
-                        "S10"
-                    ],
-                    "arrakeen": [
-                        "S10"
-                    ],
-                    "oh_gap": [
-                        "S11",
-                        "S10"
-                    ]
-                },
                 "S10": {
                     "basin": [
                         "S9"
@@ -7750,16 +7727,39 @@
                     ],
                     "imperial_basin": [
                         "S9",
-                        "S11",
-                        "S10"
+                        "S10",
+                        "S11"
                     ],
                     "arrakeen": [
                         "S10"
                     ],
                     "oh_gap": [
                         "S9",
-                        "S11",
+                        "S10",
+                        "S11"
+                    ]
+                },
+                "S11": {
+                    "basin": [],
+                    "rim_wall_west": [],
+                    "tsimpo": [
+                        "S12",
+                        "S11"
+                    ],
+                    "broken_land": [
+                        "S12",
+                        "S11"
+                    ],
+                    "imperial_basin": [
+                        "S10",
+                        "S11"
+                    ],
+                    "arrakeen": [
                         "S10"
+                    ],
+                    "oh_gap": [
+                        "S10",
+                        "S11"
                     ]
                 }
             }
