@@ -52,20 +52,19 @@ def getRegionsLocations(areas, skip=[]):
     sectors = []
     locations = []
     for r in areas['polygons'].keys():
-        if locations not in skip:
-            if r[0] == 'R':
-                r[0] = 'S'
-            if r[0] == 'S':
-                sectors.append(r)
-            else:
-                locations.append(r)
+        if r in skip:
+            continue
+        if r[0] == 'R':
+            sectors.append(r.replace('R', 'S'))
+        else:
+            locations.append(r)
     return sectors, locations
 
 
 def findIntersections(areas, sectors, locations, threshold=400):
     locs = {}
     for sector in sectors:
-        sector_coords = areas['polygons'][sector]
+        sector_coords = areas['polygons'][sector.replace('S', 'R')]
         sector_polygon = Polygon(sector_coords)
         for location in locations:
             location_coords = areas['polygons'][location]

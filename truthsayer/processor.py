@@ -97,8 +97,11 @@ class ConfigManager:
         all_territories += list(self.game_config['generated']['territories']['polygons'].keys())
         self.all_territories = list(set(all_territories))
 
+    def neighborhood(origin_territory, origin_sector):
+        return self.game_config.get('generated', {}).get('neighborhoods', {}).get(origin_territory, {}).get(origin_sector, {})
+
     def isLeader(self, name):
-        return name in self.game_config['types']['tokens']['leaders']
+        return name in self.getLeadersAll()
 
     def isTroop(self, name):
         return name in self.game_config['types']['tokens']['troop_tokens']
@@ -185,6 +188,9 @@ class ConfigManager:
             return 'emperor'
         return None
 
+    def getStrongholds(self):
+        return ['sietch_tabr', 'carthag', 'arrakeen', 'tueks_sietch', 'habbanya_sietch']
+
     def getRegions(self):
         return self.game_config['generated']['sectors']
 
@@ -216,6 +222,9 @@ class ConfigManager:
                 data[sector] = list(set(data[sector]))
         return data
 
+    def getSectorsOfLocations(self):
+        return self.game_config['generated']['location_sectors']
+
     def getLocations(self):
         return self.game_config['generated']['locations']
 
@@ -238,7 +247,7 @@ class ConfigManager:
         return choices
 
     def getFactions(self):
-        return self.game_config['faction_names'].keys()
+        return list(self.game_config['faction_names'].keys())
 
     def getFactionName(self, faction):
         if faction not in self.getFactions():
@@ -274,6 +283,9 @@ class ConfigManager:
             return card_entry
         # card is not a traitor
         return card_id.replace('_', ' ').title()
+
+    def getLeadersAll(self):
+        return self.game_config['types']['tokens']['leaders']
 
     def getLeaders(self, faction):
         selected = []
@@ -344,6 +356,8 @@ class ConfigManager:
             choices = sorted(choices, key=lambda choice: choice['name'], reverse=reverse)
         return choices
 
+    def getDecks(self):
+        return ['treachery', 'spice', 'storm', 'traitor']
 
     def getDeckChoices(self):
         return [
